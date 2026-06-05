@@ -1,0 +1,5 @@
+# Dependências do Chatbot Maya — Sly Design
+# Instale com: pip install -r requirements.txt
+
+groq>=0.9.0
+python-dotenv>=1.0.0

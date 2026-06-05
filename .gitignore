@@ -1,0 +1,29 @@
+# Ambiente virtual
+.venv/
+
+# Variáveis de ambiente (contém chaves de API!)
+.env
+
+# Memória da conversa (dados de clientes)
+memoria_conversa.json
+
+# Cache Python
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE
+.vscode/
+.idea/
+
+# Claude
+.claude/
+
+# Arquivos de estudo (não vão pro GitHub)
+projeto/
+backend/
+docs/
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
