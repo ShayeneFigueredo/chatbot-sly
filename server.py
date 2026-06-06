@@ -30,11 +30,11 @@ PHONE_NUMBER_ID = "1174471599080821"
 atendimento_humano = {}  # {telefone: True}
 
 
-def notificar_shay(mensagem: str):
-    """Envia uma notificação WhatsApp pro número pessoal da Shay."""
+def enviar_whatsapp(telefone: str, mensagem: str):
+    """Envia uma mensagem de volta pro cliente via WhatsApp Cloud API."""
     if not META_TOKEN:
-        print("⚠️ META_TOKEN não configurado. Pulando notificação.")
-        return
+        print("⚠️ META_TOKEN não configurado. Mensagem NÃO enviada!")
+        return False
     url = f"https://graph.facebook.com/v25.0/{PHONE_NUMBER_ID}/messages"
     headers = {
         "Authorization": f"Bearer {META_TOKEN}",
@@ -42,15 +42,26 @@ def notificar_shay(mensagem: str):
     }
     data = {
         "messaging_product": "whatsapp",
-        "to": SHAY_NUMERO,
+        "to": telefone,
         "type": "text",
         "text": {"body": mensagem},
     }
     try:
         resp = requests.post(url, headers=headers, json=data, timeout=10)
-        print(f"📤 Notificação enviada pra Shay: {resp.status_code}")
+        resultado = resp.json()
+        if resp.status_code == 200:
+            print(f"📤 Maya → {telefone}: enviado ✅")
+        else:
+            print(f"⚠️ Erro ao enviar p/ {telefone}: {resp.status_code} — {resultado}")
+        return resp.status_code == 200
     except Exception as e:
-        print(f"⚠️ Erro ao notificar Shay: {e}")
+        print(f"⚠️ Exceção ao enviar p/ {telefone}: {e}")
+        return False
+
+
+def notificar_shay(mensagem: str):
+    """Envia uma notificação WhatsApp pro número pessoal da Shay."""
+    enviar_whatsapp(SHAY_NUMERO, mensagem)
 
 
 def cliente_em_atendimento_humano(telefone: str) -> bool:
@@ -818,7 +829,10 @@ async def webhook_receive(request: Request):
     import re
     resposta = re.sub(r'\[(\d)\]', r'*[ \1 ]*', resposta)
 
-    return {"resposta": resposta}
+    # 🔥 ENVIA a resposta de volta pro cliente via WhatsApp Cloud API
+    enviar_whatsapp(telefone, resposta)
+
+    return {"status": "sent"}
 
 
 @app.get("/health")

@@ -1,0 +1,21 @@
+name: 🔄 Keep Render Alive
+
+on:
+  schedule:
+    # A cada 10 minutos — Render free tier dorme após ~15 min de inatividade
+    - cron: "*/10 * * * *"
+  workflow_dispatch:  # permite rodar manualmente
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🏓 Ping Maya no Render
+        run: |
+          echo "🏓 Pingando Maya..."
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" https://chatbot-sly.onrender.com/health)
+          if [ "$RESPONSE" = "200" ]; then
+            echo "✅ Maya acordada! (HTTP $RESPONSE)"
+          else
+            echo "⚠️ Maya respondeu HTTP $RESPONSE — pode estar dormindo ou em deploy"
+          fi
