@@ -107,7 +107,6 @@ A Maya classifica mensagens livres em **7 intenções** usando processamento de 
 
 - **Semanas de desenvolvimento:** 2 (aprendendo IA do zero)
 - **Sessões de estudo:** 8 concluídas
-- **Tokens gastos:** ~201.600
 - **Temas no catálogo:** 47 produtos reais
 - **Intenções mapeadas:** 7 categorias
 - **Testes automatizados:** 47
