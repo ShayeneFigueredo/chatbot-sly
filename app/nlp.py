@@ -19,12 +19,27 @@ def detectar_intencao(texto: str) -> str:
     """
     t = texto.lower().strip()
 
-    # ── PRECO ──
+    # ── DÚVIDA FORÇADA (palavras que NÃO são busca de tema) ──
+    # Estas palavras indicam pergunta sobre políticas, features, etc.
+    palavras_duvida_forcada = [
+        "cancelar", "cancelamento", "reembolso", "revender",
+        "música", "musica", "nota fiscal", "faz logo", "fazer logo",
+        "cria logo", "criar logo", "fazem logo", "vocês fazem logo",
+        "estudante", "vaga de emprego", "emprego",
+        "seguro", "confiável", "confiavel", "parcelar",
+        "parcelado", "picpay", "revisão", "revisao",
+        "refazer", "garantia", "imprimir", "desconto",
+        "cupom", "cartão", "cartao", "forma de pagamento",
+        "aceita", "trocar", "troca",
+        "de graça", "de graca", "grátis", "gratis", "graca",
+    ]
+    if any(p in t for p in palavras_duvida_forcada):
+        return "duvida"
+
+    # ── PRECO ── (apenas consultas DIRETAS de preço)
     palavras_preco = [
         "quanto custa", "preço", "preco", "valor",
-        "de graça", "de graca", "grátis", "gratis",
-        "desconto", "cupom", "cupom", "custa quanto",
-        "qual o valor", "taxa",
+        "custa quanto", "qual o valor", "taxa",
     ]
     if any(p in t for p in palavras_preco):
         return "preco"
@@ -41,9 +56,9 @@ def detectar_intencao(texto: str) -> str:
 
     # ── SUPORTE TÉCNICO ──
     palavras_suporte = [
-        "comprei", "compra", "não consigo abrir", "nao consigo abrir",
+        "comprei", "não consigo abrir", "nao consigo abrir",
         "deu erro", "não chegou", "nao chegou", "não recebi",
-        "nao recebi", "link quebrado", "arquivo", "baixar",
+        "nao recebi", "link quebrado", "problema pra abrir",
         "adicionar", "página", "pagina", "trocar nome",
         "editar", "como abrir", "como editar", "problema",
         "não funciona", "nao funciona",
@@ -56,7 +71,7 @@ def detectar_intencao(texto: str) -> str:
         "pra hoje", "pra amanhã", "pra amanha", "urgente",
         "prazo", "prazo", "mesmo dia", "rapido", "rápido",
         "hj", "hoje", "amanhã", "amanha", "consegue pra hoje",
-        "até as", "ate as", "entrega",
+        "até as", "ate as", "entrega", "final de semana",
     ]
     if any(p in t for p in palavras_prazo):
         return "prazo"
@@ -70,13 +85,41 @@ def detectar_intencao(texto: str) -> str:
     if any(p in t for p in palavras_listar):
         return "listar_temas"
 
-    # ── BUSCAR TEMA ──
+    # ── BUSCAR TEMA ── (só ativa pra frases CURTAS de busca)
     palavras_buscar = [
-        "tem ", "tema ", "sobre ", "faz de ", "faz sobre ",
-        "quero ", "queria ", "procurando", "procuro",
+        "tem ", "tema ", "faz de ", "faz sobre ",
+        "procurando", "procuro",
         "vcs tem", "vocês tem", "voce tem", "vc tem",
     ]
     if any(p in t for p in palavras_buscar):
+        return "buscar_tema"
+
+    # "quero/queria" → pode ser busca de tema ou dúvida
+    palavras_quero = ["quero ", "queria "]
+    if any(p in t for p in palavras_quero):
+        # Marcadores de dúvida (palavras que indicam pergunta, não compra)
+        duvida_markers = [
+            "saber", "explicar", "funciona", "entender",
+            "como funciona", "cancelar", "reembolso",
+            "trocar", "mudar", "revender", "música",
+            "musica", "falar com", "atendente", "humano",
+        ]
+        if any(m in t for m in duvida_markers):
+            return "duvida"
+        # Se não tem marcadores de dúvida → é busca/intenção de compra
+        return "buscar_tema"
+
+    # ── PERSONALIZADO (não é tema!) ──
+    if "personalizado" in t:
+        return "duvida"  # vai pro menu onde é tratado
+
+    # ── TEMA DIRETO (frase curta que não bateu em nada) ──
+    if len(t.split()) <= 3:
+        # Palavras de pergunta → é dúvida, não busca
+        perguntas = ["qual", "como", "quem", "onde", "quando", "porque",
+                     "por que", "por quê", "será", "sera", "pode", "posso"]
+        if any(p in t.split() for p in perguntas):
+            return "duvida"
         return "buscar_tema"
 
     # ── DÚVIDA (fallback) ──
@@ -89,8 +132,10 @@ if __name__ == "__main__":
         # (frase, intenção esperada)
         ("quanto custa um slide?", "preco"),
         ("qual o valor do pdf?", "preco"),
-        ("tem desconto?", "preco"),
-        ("faz de graça?", "preco"),
+        ("tem desconto?", "duvida"),  # "desconto" = duvida (IA responde melhor)
+        ("faz de graça?", "duvida"),
+        ("aceita picpay?", "duvida"),
+        ("aceita cartão?", "duvida"),
         ("tem tema do naruto?", "buscar_tema"),
         ("quero um slide de história", "buscar_tema"),
         ("vcs tem spotify?", "buscar_tema"),
@@ -106,7 +151,20 @@ if __name__ == "__main__":
         ("não sei editar", "ajuda_montagem"),
         ("pode fazer pra mim?", "ajuda_montagem"),
         ("qual a diferença entre canva e ppt?", "duvida"),
-        ("blablabla", "duvida"),
+        ("o que é slide pdf?", "duvida"),
+        # Novos casos — dúvidas forçadas
+        ("quero cancelar meu pedido", "duvida"),
+        ("tem reembolso?", "duvida"),
+        ("posso revender o slide?", "duvida"),
+        ("dá pra colocar música?", "duvida"),
+        ("vcs fazem logo também?", "duvida"),  # "fazem logo" bate em duvida_forcada
+        ("tem desconto pra estudante?", "duvida"),  # "estudante" + "desconto" = duvida
+        ("tem cupom?", "duvida"),  # "cupom" = duvida
+        ("como posso parcelar?", "duvida"),
+        ("vocês emitem nota fiscal?", "duvida"),
+        ("dá pra imprimir o slide?", "duvida"),
+        ("se eu não gostar, refaz?", "duvida"),
+        ("faz final de semana?", "prazo"),
     ]
 
     acertos = 0

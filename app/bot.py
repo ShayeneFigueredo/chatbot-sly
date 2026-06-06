@@ -15,7 +15,10 @@ def mensagem_boas_vindas():
         "Oie! Seja bem-vindo(a) à Sly Design! 💜\n\n"
         "Aqui a gente tem slides prontos super legais "
         "e também criamos do zero, do seu jeitinho. ✨\n\n"
-        "Me conta: no que posso te ajudar hoje?"
+        "Temos MUITA coisa legal no site e com super descontos! 💜\n"
+        "Dá uma olhadinha:\n\n"
+        "👉 https://slydesign.com.br/loja/\n\n"
+        "No que posso te ajudar?"
     )
     botoes = [
         "Ver Slides Prontos",
@@ -155,8 +158,8 @@ def perguntar_modelo():
         "   Slide com design sobre o seu assunto, sem animações.\n"
         "\n"
         "🎬 Canva (Transições) — R$ 25,00\n"
-        "   Slide com design sobre o seu assunto + movimentos e efeitos.\n"
-        "   Recebe link online.\n"
+        "   Design feito com base no seu assunto, com movimentos,\n"
+        "   efeitos e animações. Link online.\n"
         "\n"
         "🎬 PowerPoint (Transições) — R$ 35,00\n"
         "   Slide com design sobre o seu assunto + movimentos e efeitos.\n"
@@ -317,6 +320,14 @@ def mostrar_resumo(dados):
     modelo_limpo = modelo.split(" ", 1)[1] if " " in modelo else modelo
     preco = PRECOS.get(modelo_limpo, "a combinar")
 
+    # Calcula 50%
+    try:
+        valor_str = preco.replace("R$ ", "").replace(",", ".")
+        metade = float(valor_str) / 2
+        metade_str = f"R$ {metade:.2f}".replace(".", ",")
+    except (ValueError, AttributeError):
+        metade_str = "a combinar"
+
     texto = (
         "Aqui está o resumo do seu pedido: 💜\n\n"
         f"📝 Tema: {dados.get('tema', '')}\n"
@@ -324,7 +335,8 @@ def mostrar_resumo(dados):
         f"📅 Prazo: {dados.get('prazo', '')}\n"
         f"👤 Nomes: {dados.get('nomes', 'Não')}\n"
         f"📎 Extras: {dados.get('observacoes', 'Nenhum')}\n\n"
-        f"💰 Valor total: {preco}\n\n"
+        f"💰 Valor total: {preco}\n"
+        f"💳 Agora (50%): {metade_str} — o restante na entrega! 💜\n\n"
         "Tá tudo certo?"
     )
     botoes = [

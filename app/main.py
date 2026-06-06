@@ -155,7 +155,7 @@ def main():
             print(f"\n🤖 Maya:\n{texto_ia}")
             bot_falou(historico, texto_ia, tela_atual, dados_pedido)
             print("\n───")
-            botoes_pos_duvida = ["💬 Continuar dúvida", "🔙 Voltar ao menu"]
+            botoes_pos_duvida = ["💬 Continuar dúvida", "🎨 Quero um slide personalizado", "🔙 Voltar ao menu"]
             mostrar_botoes(botoes_pos_duvida, "  [0] Sair")
             tela_atual = "pos_duvida"
             continue
@@ -182,7 +182,7 @@ def main():
             print(f"\n🤖 Maya:\n{texto_ia}")
             bot_falou(historico, texto_ia, tela_atual, dados_pedido)
             print("\n───")
-            botoes_pos_duvida = ["💬 Continuar dúvida", "🔙 Voltar ao menu"]
+            botoes_pos_duvida = ["💬 Continuar dúvida", "🎨 Quero um slide personalizado", "🔙 Voltar ao menu"]
             mostrar_botoes(botoes_pos_duvida, "  [0] Sair")
             tela_atual = "pos_duvida"
             continue
@@ -305,8 +305,16 @@ def main():
             if escolha_resolvida in botoes_modelo[:5]:
                 dados_pedido["modelo"] = escolha_resolvida
                 if "Temas" in escolha_resolvida:
+                    # Precisa perguntar qual tema (mesmo no modo edição)
                     tela_atual = "pedido_qual_tema"
                     msg, botoes = perguntar_qual_tema()
+                    print(f"\n🤖 Maya:\n{msg}\n")
+                    bot_falou(historico, msg, tela_atual, dados_pedido)
+                    mostrar_botoes(botoes)
+                elif editando:
+                    editando = False
+                    tela_atual = "resumo"
+                    msg, botoes = mostrar_resumo(dados_pedido)
                     print(f"\n🤖 Maya:\n{msg}\n")
                     bot_falou(historico, msg, tela_atual, dados_pedido)
                     mostrar_botoes(botoes)
@@ -338,8 +346,13 @@ def main():
                 dados_pedido["modelo"] = "🎬 Canva (Transições)"
             elif escolha_resolvida == "💻 PowerPoint":
                 dados_pedido["modelo"] = "🎬 PowerPoint (Transições)"
-            tela_atual = "pedido_prazo"
-            msg, botoes = perguntar_prazo()
+            if editando:
+                editando = False
+                tela_atual = "resumo"
+                msg, botoes = mostrar_resumo(dados_pedido)
+            else:
+                tela_atual = "pedido_prazo"
+                msg, botoes = perguntar_prazo()
             print(f"\n🤖 Maya:\n{msg}\n")
             bot_falou(historico, msg, tela_atual, dados_pedido)
             mostrar_botoes(botoes)
@@ -360,8 +373,13 @@ def main():
                 bot_falou(historico, msg_site, tela_atual, dados_pedido)
             else:
                 dados_pedido["tema"] = escolha
-                tela_atual = "pedido_prazo"
-                msg, botoes = perguntar_prazo()
+                if editando:
+                    editando = False
+                    tela_atual = "resumo"
+                    msg, botoes = mostrar_resumo(dados_pedido)
+                else:
+                    tela_atual = "pedido_prazo"
+                    msg, botoes = perguntar_prazo()
                 print(f"\n🤖 Maya:\n{msg}\n")
                 bot_falou(historico, msg, tela_atual, dados_pedido)
                 mostrar_botoes(botoes)
@@ -376,8 +394,13 @@ def main():
                     dados_pedido["modelo"] = "🎨 Canva Temas"
                 else:
                     dados_pedido["modelo"] = "🎨 PPTX Temas"
-                tela_atual = "pedido_prazo"
-                msg, botoes = perguntar_prazo()
+                if editando:
+                    editando = False
+                    tela_atual = "resumo"
+                    msg, botoes = mostrar_resumo(dados_pedido)
+                else:
+                    tela_atual = "pedido_prazo"
+                    msg, botoes = perguntar_prazo()
                 print(f"\n🤖 Maya:\n{msg}\n")
                 bot_falou(historico, msg, tela_atual, dados_pedido)
                 mostrar_botoes(botoes)
@@ -533,6 +556,7 @@ def main():
                 print(f"\n🤖 Maya: {msg_mudar}")
                 bot_falou(historico, msg_mudar, tela_atual, dados_pedido)
             elif escolha_resolvida == "🎨 Mudar tipo":
+                editando = True
                 tela_atual = "pedido_modelo"
                 msg, botoes = perguntar_modelo()
                 print(f"\n🤖 Maya:\n{msg}\n")
@@ -611,13 +635,21 @@ def main():
 
         # ── Pós-dúvida ──
         if tela_atual == "pos_duvida":
-            botoes_pd = ["💬 Continuar dúvida", "🔙 Voltar ao menu"]
+            botoes_pd = ["💬 Continuar dúvida", "🎨 Quero um slide personalizado", "🔙 Voltar ao menu"]
             escolha_resolvida = resolver_botao(escolha, botoes_pd)
             if escolha_resolvida == "💬 Continuar dúvida":
                 msg_cont = "Continue digitando sua dúvida... 💜"
                 print(f"\n🤖 Maya: {msg_cont}")
                 bot_falou(historico, msg_cont, tela_atual, dados_pedido)
                 tela_atual = "duvida"
+                continue
+            elif escolha_resolvida == "🎨 Quero um slide personalizado":
+                tela_atual = "pedido_tema"
+                dados_pedido = {}
+                msg, botoes = iniciar_pedido_personalizado()
+                print(f"\n🤖 Maya:\n{msg}\n")
+                bot_falou(historico, msg, tela_atual, dados_pedido)
+                mostrar_botoes(botoes)
                 continue
             elif escolha_resolvida == "🔙 Voltar ao menu":
                 tela_atual = "menu"
@@ -738,7 +770,7 @@ def main():
         print(f"\n🤖 Maya:\n{texto_ia}")
         bot_falou(historico, texto_ia, tela_atual, dados_pedido)
         print("\n───")
-        botoes_pos_duvida = ["💬 Continuar dúvida", "🔙 Voltar ao menu"]
+        botoes_pos_duvida = ["💬 Continuar dúvida", "🎨 Quero um slide personalizado", "🔙 Voltar ao menu"]
         mostrar_botoes(botoes_pos_duvida, "  [0] Sair")
         tela_atual = "pos_duvida"
 

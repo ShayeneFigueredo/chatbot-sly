@@ -1,0 +1,150 @@
+═══════════════════════════════════════════════════════
+TUTORIAL MAYA — SISTEMA DE ATENDIMENTO HUMANO 💜
+Sly Design — Chatbot com IA para WhatsApp
+═══════════════════════════════════════════════════════
+
+📌 COMO FUNCIONA
+
+A Maya é a atendente virtual da Sly Design no WhatsApp Business.
+Ela responde clientes automaticamente 24h por dia, 7 dias por semana.
+
+Quando um cliente pede para falar com um humano, ou quando um pedido
+é finalizado, VOCÊ (Shay) recebe uma notificação no seu WhatsApp
+pessoal e pode ASSUMIR o atendimento.
+
+─────────────────────────────────────────────────────
+📱 NOTIFICAÇÕES QUE VOCÊ RECEBE
+─────────────────────────────────────────────────────
+
+1. 🆘 CLIENTE PEDIU ATENDIMENTO HUMANO
+   Exemplo: "🆘 +5511999999999 pediu atendimento humano!"
+
+2. 🎨 NOVO PEDIDO FINALIZADO
+   Exemplo:
+   "🎨 NOVO PEDIDO de +5511999999999!
+    📝 Tema: povos astecas
+    🎨 Tipo: Canva (Transições)
+    📅 Prazo: amanhã
+    👤 Nomes: João, Maria
+    📎 Extras: fundo verde
+    💡 Pra revisar: use 'assumir 5511999999999' pra assumir"
+
+─────────────────────────────────────────────────────
+✋ COMO ASSUMIR O ATENDIMENTO
+─────────────────────────────────────────────────────
+
+Você manda mensagem PARA O NÚMERO DA MAYA (WhatsApp Business)
+usando os comandos abaixo:
+
+┌────────────────────────┬──────────────────────────────┐
+│ COMANDO                │ O QUE FAZ                    │
+├────────────────────────┼──────────────────────────────┤
+│ assumir <numero>       │ Maya PARA de responder esse  │
+│                        │ cliente. Você assume a        │
+│                        │ conversa diretamente.         │
+│                        │ Ex: assumir 5511999999999     │
+├────────────────────────┼──────────────────────────────┤
+│ liberar <numero>       │ Maya VOLTA a responder esse  │
+│                        │ cliente automaticamente.      │
+│                        │ Ex: liberar 5511999999999     │
+├────────────────────────┼──────────────────────────────┤
+│ humanos                │ Lista todos os clientes que   │
+│                        │ estão em atendimento humano.  │
+└────────────────────────┴──────────────────────────────┘
+
+IMPORTANTE: O número do cliente é o que aparece na notificação.
+Sempre use o formato completo: código do país + DDD + número.
+Exemplo: +5511999999999 (Brasil) ou +351... (Portugal)
+
+─────────────────────────────────────────────────────
+🔄 FLUXO COMPLETO DE ATENDIMENTO HUMANO
+─────────────────────────────────────────────────────
+
+1. Cliente digita "quero falar com humano" ou "7"
+2. Maya responde: "Aguarde uns minutinhos que já já um de
+   nossos atendentes entrará em contato!"
+3. Você recebe notificação no seu WhatsApp pessoal
+4. Você decide:
+   a) Se quiser assumir → mande "assumir <numero>" pra Maya
+   b) Se não precisar → o cliente pode continuar falando
+      com a Maya normalmente
+5. Com o cliente assumido, a Maya fica em silêncio total
+   para ele. Você conversa diretamente.
+6. Quando terminar → mande "liberar <numero>" pra Maya
+
+─────────────────────────────────────────────────────
+💰 FLUXO DE PAGAMENTO (50% AGORA + 50% DEPOIS)
+─────────────────────────────────────────────────────
+
+1. Cliente confirma o pedido no resumo
+2. Maya mostra o valor total e os 50%:
+   "💰 Valor total: R$ 35,00
+    💳 Agora (50%): R$ 17,50 — o restante na entrega!"
+3. Maya envia a chave Pix: 38997507651 (Shayene Lopes)
+4. Cliente paga os 50% e envia comprovante
+5. Você recebe notificação do novo pedido
+6. Você confere o comprovante e revisa o pedido
+7. Se estiver tudo certo, equipe produz o slide
+8. Na entrega, cliente paga os 50% restantes
+
+⚠️ SE O CLIENTE ESCOLHEU MAIS DE 10 PÁGINAS:
+- Ele paga 50% do valor base agora
+- Quando o slide ficar pronto, avisamos quantas páginas
+  deu e o valor final
+- Ele paga o restante na entrega
+
+─────────────────────────────────────────────────────
+📊 COMANDO DE VERIFICAÇÃO (OPCIONAL)
+─────────────────────────────────────────────────────
+
+Envie "humanos" a qualquer momento pro número da Maya
+pra ver quem está em atendimento humano.
+
+Resposta:
+"👥 Clientes em atendimento humano:
+ 5511999999999
+ 5511888888888"
+
+Se não houver ninguém: "Nenhum no momento."
+
+─────────────────────────────────────────────────────
+🚀 COMO RODAR O SERVIDOR
+─────────────────────────────────────────────────────
+
+# Ativar ambiente virtual
+cd /mnt/c/aprendendo-IA/chatbot-sly
+source .venv/bin/activate
+
+# Iniciar servidor webhook
+.venv/bin/python backend/webhook_server.py
+
+# Em outro terminal, iniciar ngrok (túnel HTTPS)
+ngrok http 8000
+
+# Testar localmente (simulador)
+.venv/bin/python backend/test_chatbot_terminal.py
+
+─────────────────────────────────────────────────────
+🧪 TESTES
+─────────────────────────────────────────────────────
+
+# Rodar todos os testes (61 testes)
+.venv/bin/python app/tests/test_bot.py   # 27 testes chatbot
+.venv/bin/python app/nlp.py              # 34 testes NLP
+
+─────────────────────────────────────────────────────
+📂 ARQUIVOS IMPORTANTES
+─────────────────────────────────────────────────────
+
+app/config.py          → System prompt, preços, IA
+app/bot.py             → Mensagens e fluxos da Maya
+app/nlp.py             → Detector de intenções (NLP)
+app/buscador.py        → Busca inteligente no catálogo
+app/memoria.py         → Histórico e persistência
+app/main.py            → Chatbot versão terminal
+backend/webhook_server.py → Servidor WhatsApp (FastAPI)
+tutorial.txt           → Este arquivo 📖
+
+─────────────────────────────────────────────────────
+💜 DÚVIDAS? Fale com a Shay!
+─────────────────────────────────────────────────────

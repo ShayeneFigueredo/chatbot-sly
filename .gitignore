@@ -24,6 +24,13 @@ projeto/
 backend/
 docs/
 
+# Node modules e testes WhatsApp
+node_modules/
+package-lock.json
+connect_whatsapp.js
+test_puppeteer.js
+tokens/
+
 # Arquivos de sistema
 .DS_Store
 Thumbs.db
