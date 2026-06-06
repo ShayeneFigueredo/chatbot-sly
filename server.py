@@ -801,6 +801,11 @@ async def webhook_verify(request: Request):
 async def webhook_receive(request: Request):
     """Recebe mensagens do WhatsApp (POST)."""
     data = await request.json()
+
+    # 🔍 Log do payload completo (só aparece no console do Render)
+    import json as _json
+    print(f"\n📨 WEBHOOK RECEBIDO: {_json.dumps(data, ensure_ascii=False)[:500]}")
+
     # Extrai mensagem do payload da Meta
     try:
         entry = data.get("entry", [{}])[0]
@@ -809,11 +814,13 @@ async def webhook_receive(request: Request):
         messages = value.get("messages", [{}])[0]
         texto = messages.get("text", {}).get("body", "")
         telefone = messages.get("from", "")
-    except (IndexError, KeyError, AttributeError):
+    except (IndexError, KeyError, AttributeError) as e:
+        print(f"⚠️ Payload em formato inesperado: {e}")
         texto = data.get("body", "")
         telefone = data.get("from", "")
 
     if not texto:
+        print(f"⚠️ Webhook ignorado — sem texto. Telefone: {telefone!r} | Chaves: {list(data.keys())}")
         return {"status": "ignored"}
 
     print(f"\n💬 {telefone}: {texto}")
