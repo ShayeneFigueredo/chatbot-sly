@@ -394,6 +394,20 @@
     },
     {
       "id": 29,
+      "data": "15/03",
+      "entrega": "15/03",
+      "cliente": "99 8473-4102",
+      "arquivo": "slide transicoes pptx",
+      "tema": "squash",
+      "valor": "R$ 17,50",
+      "situacao": "Feito",
+      "pg": "Pago",
+      "responsavel": "SF",
+      "origem": "whatsapp",
+      "mes": 3
+    },
+    {
+      "id": 30,
       "data": "16/03",
       "entrega": "16/03",
       "cliente": "16 98124-5769",
@@ -407,7 +421,7 @@
       "mes": 3
     },
     {
-      "id": 30,
+      "id": 31,
       "data": "16/03",
       "entrega": "16/03",
       "cliente": "49 8894-8845",
@@ -421,7 +435,7 @@
       "mes": 3
     },
     {
-      "id": 31,
+      "id": 32,
       "data": "18/03",
       "entrega": "18/03",
       "cliente": "98 8599-7971",
@@ -435,7 +449,7 @@
       "mes": 3
     },
     {
-      "id": 32,
+      "id": 33,
       "data": "18/03",
       "entrega": "18/03",
       "cliente": "68 9907-1009",
@@ -449,7 +463,7 @@
       "mes": 3
     },
     {
-      "id": 33,
+      "id": 34,
       "data": "18/03",
       "entrega": "18/03",
       "cliente": "94 9178-5027",
@@ -463,7 +477,7 @@
       "mes": 3
     },
     {
-      "id": 34,
+      "id": 35,
       "data": "18/03",
       "entrega": "18/03",
       "cliente": "92 9352-4857",
@@ -477,7 +491,7 @@
       "mes": 3
     },
     {
-      "id": 35,
+      "id": 36,
       "data": "18/03",
       "entrega": "18/03",
       "cliente": "62 9386-9863",
@@ -491,7 +505,7 @@
       "mes": 3
     },
     {
-      "id": 36,
+      "id": 37,
       "data": "18/03",
       "entrega": "18/03",
       "cliente": "63 9131-0426",
@@ -505,7 +519,7 @@
       "mes": 3
     },
     {
-      "id": 37,
+      "id": 38,
       "data": "19/03",
       "entrega": "19/03",
       "cliente": "11 93737-2634",
@@ -519,7 +533,7 @@
       "mes": 3
     },
     {
-      "id": 38,
+      "id": 39,
       "data": "21/03",
       "entrega": "21/03",
       "cliente": "68 9907-1009",
@@ -533,7 +547,7 @@
       "mes": 3
     },
     {
-      "id": 39,
+      "id": 40,
       "data": "21/03",
       "entrega": "21/03",
       "cliente": "31 7245-8773",
@@ -547,7 +561,7 @@
       "mes": 3
     },
     {
-      "id": 40,
+      "id": 41,
       "data": "23/03",
       "entrega": "23/03",
       "cliente": "61 8142-8644",
@@ -561,7 +575,7 @@
       "mes": 3
     },
     {
-      "id": 41,
+      "id": 42,
       "data": "05/04",
       "entrega": "05/04",
       "cliente": "96 9160-0200",
@@ -575,7 +589,7 @@
       "mes": 4
     },
     {
-      "id": 42,
+      "id": 43,
       "data": "05/04",
       "entrega": "05/04",
       "cliente": "34 8892-4835",
@@ -589,7 +603,7 @@
       "mes": 4
     },
     {
-      "id": 43,
+      "id": 44,
       "data": "06/04",
       "entrega": "06/04",
       "cliente": "84 8798-8945",
@@ -603,7 +617,7 @@
       "mes": 4
     },
     {
-      "id": 44,
+      "id": 45,
       "data": "07/04",
       "entrega": "07/04",
       "cliente": "62 9387-9992",
@@ -617,7 +631,7 @@
       "mes": 4
     },
     {
-      "id": 45,
+      "id": 46,
       "data": "08/04",
       "entrega": "08/04",
       "cliente": "68 9235-9983",
@@ -631,7 +645,7 @@
       "mes": 4
     },
     {
-      "id": 46,
+      "id": 47,
       "data": "08/04",
       "entrega": "08/04",
       "cliente": "65 9987-8045",
@@ -645,7 +659,7 @@
       "mes": 4
     },
     {
-      "id": 47,
+      "id": 48,
       "data": "08/04",
       "entrega": "08/04",
       "cliente": "98 9179-3248",
@@ -659,7 +673,7 @@
       "mes": 4
     },
     {
-      "id": 48,
+      "id": 49,
       "data": "10/04",
       "entrega": "10/04",
       "cliente": "87 8158-2186",
@@ -673,7 +687,7 @@
       "mes": 4
     },
     {
-      "id": 49,
+      "id": 50,
       "data": "10/04",
       "entrega": "10/04",
       "cliente": "11 96486-4435",
@@ -687,7 +701,7 @@
       "mes": 4
     },
     {
-      "id": 50,
+      "id": 51,
       "data": "12/04",
       "entrega": "12/04",
       "cliente": "77 9875-1013",
@@ -701,7 +715,7 @@
       "mes": 4
     },
     {
-      "id": 51,
+      "id": 52,
       "data": "12/04",
       "entrega": "12/04",
       "cliente": "62 9452-0599",
@@ -715,7 +729,7 @@
       "mes": 4
     },
     {
-      "id": 52,
+      "id": 53,
       "data": "12/04",
       "entrega": "12/04",
       "cliente": "68 9907-1009",
@@ -729,7 +743,7 @@
       "mes": 4
     },
     {
-      "id": 53,
+      "id": 54,
       "data": "12/04",
       "entrega": "12/04",
       "cliente": "65 9928-5240",
@@ -743,7 +757,7 @@
       "mes": 4
     },
     {
-      "id": 54,
+      "id": 55,
       "data": "13/04",
       "entrega": "13/04",
       "cliente": "61 9502-5765",
@@ -757,7 +771,7 @@
       "mes": 4
     },
     {
-      "id": 55,
+      "id": 56,
       "data": "14/04",
       "entrega": "14/04",
       "cliente": "91 8596-7162",
@@ -771,7 +785,7 @@
       "mes": 4
     },
     {
-      "id": 56,
+      "id": 57,
       "data": "14/04",
       "entrega": "14/04",
       "cliente": "98 8816-3569",
@@ -785,7 +799,7 @@
       "mes": 4
     },
     {
-      "id": 57,
+      "id": 58,
       "data": "14/04",
       "entrega": "14/04",
       "cliente": "41 8430-7931",
@@ -799,7 +813,7 @@
       "mes": 4
     },
     {
-      "id": 58,
+      "id": 59,
       "data": "14/04",
       "entrega": "14/04",
       "cliente": "65 9321-3553",
@@ -813,7 +827,7 @@
       "mes": 4
     },
     {
-      "id": 59,
+      "id": 60,
       "data": "14/04",
       "entrega": "14/04",
       "cliente": "93 9155-0861",
@@ -827,7 +841,7 @@
       "mes": 4
     },
     {
-      "id": 60,
+      "id": 61,
       "data": "14/04",
       "entrega": "14/04",
       "cliente": "75 9881-8534",
@@ -841,7 +855,7 @@
       "mes": 4
     },
     {
-      "id": 61,
+      "id": 62,
       "data": "15/04",
       "entrega": "15/04",
       "cliente": "61 8142-8644",
@@ -855,7 +869,7 @@
       "mes": 4
     },
     {
-      "id": 62,
+      "id": 63,
       "data": "19/04",
       "entrega": "19/04",
       "cliente": "31 9606-2984",
@@ -869,7 +883,7 @@
       "mes": 4
     },
     {
-      "id": 63,
+      "id": 64,
       "data": "21/04",
       "entrega": "21/04",
       "cliente": "71 8163-0255",
@@ -883,7 +897,7 @@
       "mes": 4
     },
     {
-      "id": 64,
+      "id": 65,
       "data": "24/04",
       "entrega": "24/04",
       "cliente": "81 8467-4222",
@@ -897,23 +911,9 @@
       "mes": 4
     },
     {
-      "id": 65,
+      "id": 66,
       "data": "25/04",
       "entrega": "25/04",
-      "cliente": "22 99101-6567",
-      "arquivo": "slide pdf",
-      "tema": "estrutura celular",
-      "valor": "R$ 20,00",
-      "situacao": "Feito",
-      "pg": "Pago",
-      "responsavel": "SF",
-      "origem": "whatsapp",
-      "mes": 4
-    },
-    {
-      "id": 66,
-      "data": "26/04",
-      "entrega": "26/04",
       "cliente": "22 99101-6567",
       "arquivo": "slide pdf",
       "tema": "estrutura celular",
@@ -928,6 +928,20 @@
       "id": 67,
       "data": "26/04",
       "entrega": "26/04",
+      "cliente": "22 99101-6567",
+      "arquivo": "slide pdf",
+      "tema": "estrutura celular",
+      "valor": "R$ 20,00",
+      "situacao": "Feito",
+      "pg": "Pago",
+      "responsavel": "SF",
+      "origem": "whatsapp",
+      "mes": 4
+    },
+    {
+      "id": 68,
+      "data": "26/04",
+      "entrega": "26/04",
       "cliente": "22 99757-0421",
       "arquivo": "slide transicoes",
       "tema": "estrutura celular",
@@ -939,7 +953,7 @@
       "mes": 4
     },
     {
-      "id": 68,
+      "id": 69,
       "data": "26/04",
       "entrega": "26/04",
       "cliente": "34 9958-4924",
@@ -953,7 +967,7 @@
       "mes": 4
     },
     {
-      "id": 69,
+      "id": 70,
       "data": "27/04",
       "entrega": "27/04",
       "cliente": "11 95972-3965",
@@ -967,7 +981,7 @@
       "mes": 4
     },
     {
-      "id": 70,
+      "id": 71,
       "data": "27/04",
       "entrega": "27/04",
       "cliente": "38 9734-6732",
@@ -981,7 +995,7 @@
       "mes": 4
     },
     {
-      "id": 71,
+      "id": 72,
       "data": "27/04",
       "entrega": "27/04",
       "cliente": "65 9321-3553",
@@ -995,7 +1009,7 @@
       "mes": 4
     },
     {
-      "id": 72,
+      "id": 73,
       "data": "27/04",
       "entrega": "27/04",
       "cliente": "96 8138-8894",
@@ -1009,7 +1023,7 @@
       "mes": 4
     },
     {
-      "id": 73,
+      "id": 74,
       "data": "28/04",
       "entrega": "28/04",
       "cliente": "79 9998-8470",
@@ -1023,7 +1037,7 @@
       "mes": 4
     },
     {
-      "id": 74,
+      "id": 75,
       "data": "29/04",
       "entrega": "29/04",
       "cliente": "11 93737-2634",
@@ -1037,7 +1051,7 @@
       "mes": 4
     },
     {
-      "id": 75,
+      "id": 76,
       "data": "01/05",
       "entrega": "01/05",
       "cliente": "64 9625-2883",
@@ -1051,7 +1065,7 @@
       "mes": 5
     },
     {
-      "id": 76,
+      "id": 77,
       "data": "02/05",
       "entrega": "02/05",
       "cliente": "11 91464-7175",
@@ -1065,7 +1079,7 @@
       "mes": 5
     },
     {
-      "id": 77,
+      "id": 78,
       "data": "03/05",
       "entrega": "03/05",
       "cliente": "31 9896-0219",
@@ -1079,7 +1093,7 @@
       "mes": 5
     },
     {
-      "id": 78,
+      "id": 79,
       "data": "04/05",
       "entrega": "04/05",
       "cliente": "87 8154-5617",
@@ -1093,7 +1107,7 @@
       "mes": 5
     },
     {
-      "id": 79,
+      "id": 80,
       "data": "04/05",
       "entrega": "04/05",
       "cliente": "66 8477-5094",
@@ -1107,7 +1121,7 @@
       "mes": 5
     },
     {
-      "id": 80,
+      "id": 81,
       "data": "05/05",
       "entrega": "05/05",
       "cliente": "81 9908-9247",
@@ -1121,7 +1135,7 @@
       "mes": 5
     },
     {
-      "id": 81,
+      "id": 82,
       "data": "05/05",
       "entrega": "05/05",
       "cliente": "54 9670-9040",
@@ -1135,7 +1149,7 @@
       "mes": 5
     },
     {
-      "id": 82,
+      "id": 83,
       "data": "05/05",
       "entrega": "05/05",
       "cliente": "91 8229-4431",
@@ -1149,7 +1163,7 @@
       "mes": 5
     },
     {
-      "id": 83,
+      "id": 84,
       "data": "06/05",
       "entrega": "06/05",
       "cliente": "83 9409-8599",
@@ -1163,7 +1177,7 @@
       "mes": 5
     },
     {
-      "id": 84,
+      "id": 85,
       "data": "06/05",
       "entrega": "06/05",
       "cliente": "49 1516 6728605",
@@ -1177,7 +1191,7 @@
       "mes": 5
     },
     {
-      "id": 85,
+      "id": 86,
       "data": "08/05",
       "entrega": "08/05",
       "cliente": "81 9908-9247",
@@ -1191,7 +1205,7 @@
       "mes": 5
     },
     {
-      "id": 86,
+      "id": 87,
       "data": "11/05",
       "entrega": "11/05",
       "cliente": "11 94124-3387",
@@ -1205,7 +1219,7 @@
       "mes": 5
     },
     {
-      "id": 87,
+      "id": 88,
       "data": "12/05",
       "entrega": "12/05",
       "cliente": "11 96221-6379",
@@ -1219,7 +1233,7 @@
       "mes": 5
     },
     {
-      "id": 88,
+      "id": 89,
       "data": "14/05",
       "entrega": "14/05",
       "cliente": "91 9327-5179",
@@ -1233,7 +1247,7 @@
       "mes": 5
     },
     {
-      "id": 89,
+      "id": 90,
       "data": "14/05",
       "entrega": "14/05",
       "cliente": "68 9907-1009",
@@ -1247,7 +1261,7 @@
       "mes": 5
     },
     {
-      "id": 90,
+      "id": 91,
       "data": "17/05",
       "entrega": "17/05",
       "cliente": "33 9850-1202",
@@ -1261,7 +1275,7 @@
       "mes": 5
     },
     {
-      "id": 91,
+      "id": 92,
       "data": "18/05",
       "entrega": "18/05",
       "cliente": "65 9640-4229",
@@ -1275,7 +1289,7 @@
       "mes": 5
     },
     {
-      "id": 92,
+      "id": 93,
       "data": "18/05",
       "entrega": "18/05",
       "cliente": "11 96949-5099",
@@ -1289,7 +1303,7 @@
       "mes": 5
     },
     {
-      "id": 93,
+      "id": 94,
       "data": "25/05",
       "entrega": "25/05",
       "cliente": "99 8447-3662",
@@ -1303,7 +1317,7 @@
       "mes": 5
     },
     {
-      "id": 94,
+      "id": 95,
       "data": "26/05",
       "entrega": "26/05",
       "cliente": "92 8152-6245",
@@ -1317,7 +1331,7 @@
       "mes": 5
     },
     {
-      "id": 95,
+      "id": 96,
       "data": "07/06",
       "entrega": "07/06",
       "cliente": "Ana Lara Moura do Nascimento",
@@ -1331,7 +1345,7 @@
       "mes": 6
     },
     {
-      "id": 96,
+      "id": 97,
       "data": "06/06",
       "entrega": "06/06",
       "cliente": "TAIZE MARIA GOMES",
@@ -1345,7 +1359,7 @@
       "mes": 6
     },
     {
-      "id": 97,
+      "id": 98,
       "data": "05/06",
       "entrega": "05/06",
       "cliente": "Jhenifer Emanuelle Cunha De Jesus",
@@ -1359,7 +1373,7 @@
       "mes": 6
     },
     {
-      "id": 98,
+      "id": 99,
       "data": "04/06",
       "entrega": "04/06",
       "cliente": "THAUANE DOS SANTOS SENA",
@@ -1373,7 +1387,7 @@
       "mes": 6
     },
     {
-      "id": 99,
+      "id": 100,
       "data": "04/06",
       "entrega": "04/06",
       "cliente": "Ellen Nayara",
@@ -1387,7 +1401,7 @@
       "mes": 6
     },
     {
-      "id": 100,
+      "id": 101,
       "data": "02/06",
       "entrega": "02/06",
       "cliente": "Tatiane Soares",
@@ -1401,7 +1415,7 @@
       "mes": 6
     },
     {
-      "id": 101,
+      "id": 102,
       "data": "02/06",
       "entrega": "02/06",
       "cliente": "Bela Alves",
@@ -1415,7 +1429,7 @@
       "mes": 6
     },
     {
-      "id": 102,
+      "id": 103,
       "data": "31/05",
       "entrega": "31/05",
       "cliente": "Vitor Gabriel da Silva",
@@ -1429,7 +1443,7 @@
       "mes": 5
     },
     {
-      "id": 103,
+      "id": 104,
       "data": "30/05",
       "entrega": "30/05",
       "cliente": "Adila Bianca Carvalho de Assis",
@@ -1443,7 +1457,7 @@
       "mes": 5
     },
     {
-      "id": 104,
+      "id": 105,
       "data": "27/05",
       "entrega": "27/05",
       "cliente": "Francisco Tomaz Martins de Brito Neto",
@@ -1457,7 +1471,7 @@
       "mes": 5
     },
     {
-      "id": 105,
+      "id": 106,
       "data": "27/05",
       "entrega": "27/05",
       "cliente": "Heloisa Santiago",
@@ -1471,7 +1485,7 @@
       "mes": 5
     },
     {
-      "id": 106,
+      "id": 107,
       "data": "27/05",
       "entrega": "27/05",
       "cliente": "Paula Cristinny Freitas Silva",
@@ -1485,24 +1499,10 @@
       "mes": 5
     },
     {
-      "id": 107,
+      "id": 108,
       "data": "26/05",
       "entrega": "26/05",
       "cliente": "VITORIA MENDES MOTA CAMARA",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
-      "valor": "R$ 14,99",
-      "situacao": "Pago (Site)",
-      "pg": "Pago",
-      "responsavel": "SF",
-      "origem": "site",
-      "mes": 5
-    },
-    {
-      "id": 108,
-      "data": "25/05",
-      "entrega": "25/05",
-      "cliente": "Victor Hugo Vieira Santos",
       "arquivo": "Slide Site",
       "tema": "Site — Slide",
       "valor": "R$ 14,99",
@@ -1528,6 +1528,20 @@
     },
     {
       "id": 110,
+      "data": "25/05",
+      "entrega": "25/05",
+      "cliente": "Victor Hugo Vieira Santos",
+      "arquivo": "Slide Site",
+      "tema": "Site — Slide",
+      "valor": "R$ 14,99",
+      "situacao": "Pago (Site)",
+      "pg": "Pago",
+      "responsavel": "SF",
+      "origem": "site",
+      "mes": 5
+    },
+    {
+      "id": 111,
       "data": "22/05",
       "entrega": "22/05",
       "cliente": "Sofia Silva Almeida",
@@ -1541,7 +1555,7 @@
       "mes": 5
     },
     {
-      "id": 111,
+      "id": 112,
       "data": "22/05",
       "entrega": "22/05",
       "cliente": "Carlos Augusto Abreu dos Santos",
@@ -1555,7 +1569,7 @@
       "mes": 5
     },
     {
-      "id": 112,
+      "id": 113,
       "data": "21/05",
       "entrega": "21/05",
       "cliente": "Luan Muller",
@@ -1569,7 +1583,7 @@
       "mes": 5
     },
     {
-      "id": 113,
+      "id": 114,
       "data": "21/05",
       "entrega": "21/05",
       "cliente": "Davi Andrade Pinheiro",
@@ -1583,7 +1597,7 @@
       "mes": 5
     },
     {
-      "id": 114,
+      "id": 115,
       "data": "19/05",
       "entrega": "19/05",
       "cliente": "Julia Rigotton",
@@ -1597,7 +1611,7 @@
       "mes": 5
     },
     {
-      "id": 115,
+      "id": 116,
       "data": "19/05",
       "entrega": "19/05",
       "cliente": "Adrian Gabriel",
@@ -1611,7 +1625,7 @@
       "mes": 5
     },
     {
-      "id": 116,
+      "id": 117,
       "data": "19/05",
       "entrega": "19/05",
       "cliente": "Bianca Canessa Pino",
@@ -1625,7 +1639,7 @@
       "mes": 5
     },
     {
-      "id": 117,
+      "id": 118,
       "data": "18/05",
       "entrega": "18/05",
       "cliente": "Caroline Garcia",
@@ -1639,7 +1653,7 @@
       "mes": 5
     },
     {
-      "id": 118,
+      "id": 119,
       "data": "15/05",
       "entrega": "15/05",
       "cliente": "Maria do Socorro Torres",
@@ -1653,7 +1667,7 @@
       "mes": 5
     },
     {
-      "id": 119,
+      "id": 120,
       "data": "11/05",
       "entrega": "11/05",
       "cliente": "Maria clara",
@@ -1667,7 +1681,7 @@
       "mes": 5
     },
     {
-      "id": 120,
+      "id": 121,
       "data": "10/05",
       "entrega": "10/05",
       "cliente": "Laura Corso",
@@ -1681,7 +1695,7 @@
       "mes": 5
     },
     {
-      "id": 121,
+      "id": 122,
       "data": "08/05",
       "entrega": "08/05",
       "cliente": "Isabella Fernandes Dos Santos",
@@ -1695,7 +1709,7 @@
       "mes": 5
     },
     {
-      "id": 122,
+      "id": 123,
       "data": "07/05",
       "entrega": "07/05",
       "cliente": "Kauane Lorena Morais De Lima Cassio",
@@ -1709,7 +1723,7 @@
       "mes": 5
     },
     {
-      "id": 123,
+      "id": 124,
       "data": "06/05",
       "entrega": "06/05",
       "cliente": "Jose Magalhaes Melo",
@@ -1723,7 +1737,7 @@
       "mes": 5
     },
     {
-      "id": 124,
+      "id": 125,
       "data": "06/05",
       "entrega": "06/05",
       "cliente": "Luna Maria Santos Costa",
@@ -1737,7 +1751,7 @@
       "mes": 5
     },
     {
-      "id": 125,
+      "id": 126,
       "data": "03/05",
       "entrega": "03/05",
       "cliente": "Maria do Socorro Torres da Silva Costa",
@@ -1751,7 +1765,7 @@
       "mes": 5
     },
     {
-      "id": 126,
+      "id": 127,
       "data": "23/04",
       "entrega": "23/04",
       "cliente": "Joao Guilherme Sousa Alves",
@@ -1765,7 +1779,7 @@
       "mes": 4
     },
     {
-      "id": 127,
+      "id": 128,
       "data": "23/04",
       "entrega": "23/04",
       "cliente": "Marcelo Lucio de Oliveira",
@@ -1779,7 +1793,7 @@
       "mes": 4
     },
     {
-      "id": 128,
+      "id": 129,
       "data": "22/04",
       "entrega": "22/04",
       "cliente": "Arthur Rodrigues Curvelo Pereira",
@@ -1793,7 +1807,7 @@
       "mes": 4
     },
     {
-      "id": 129,
+      "id": 130,
       "data": "18/04",
       "entrega": "18/04",
       "cliente": "Alvaro Mendes de Maraes",
@@ -1807,7 +1821,7 @@
       "mes": 4
     },
     {
-      "id": 130,
+      "id": 131,
       "data": "16/04",
       "entrega": "16/04",
       "cliente": "alex alves",
@@ -1821,7 +1835,7 @@
       "mes": 4
     },
     {
-      "id": 131,
+      "id": 132,
       "data": "16/04",
       "entrega": "16/04",
       "cliente": "Livia Gomes",
@@ -1835,7 +1849,7 @@
       "mes": 4
     },
     {
-      "id": 132,
+      "id": 133,
       "data": "14/04",
       "entrega": "14/04",
       "cliente": "Kaua Ferreira",
@@ -1849,7 +1863,7 @@
       "mes": 4
     },
     {
-      "id": 133,
+      "id": 134,
       "data": "13/04",
       "entrega": "13/04",
       "cliente": "Lucia Lourenci",
@@ -1863,7 +1877,7 @@
       "mes": 4
     },
     {
-      "id": 134,
+      "id": 135,
       "data": "10/04",
       "entrega": "10/04",
       "cliente": "Marcelo Castro",
@@ -1877,7 +1891,7 @@
       "mes": 4
     },
     {
-      "id": 135,
+      "id": 136,
       "data": "25/02",
       "entrega": "25/02",
       "cliente": "Heitor Barreto Lins",
@@ -1892,17 +1906,9 @@
     }
   ],
   "faturamento_site": {
-    "1": 0,
-    "2": 29.48,
-    "3": 0,
-    "4": 276.31,
-    "5": 498.05,
-    "6": 105.29,
-    "7": 0,
-    "8": 0,
-    "9": 0,
-    "10": 0,
-    "11": 0,
-    "12": 0
+    "6": 105.23,
+    "5": 349.48,
+    "4": 129.37,
+    "2": 14.48
   }
 }

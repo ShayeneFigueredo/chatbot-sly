@@ -166,21 +166,17 @@ async function finalizar(tel){if(!confirm('Finalizar atendimento de '+tel+'?'))r
 // ===== MESES =====
 async function carregarMes(mes){
   mesAtual=mes;const d=await api(`/painel/mes/${mes}`);const ped=d.pedidos||[],fat=d.faturamento||{};
-  let rows='';
-  ped.forEach(p=>{
-    const arquivo=p.arquivo||'';const ehTemas=arquivo.includes('Temas');
-    rows+=`<tr id="row${p.id}" class="${rowClass(p.situacao||'')}">
-      <td><input value="${esc(p.entrega||p.data||'')}" id="e${p.id}_entrega" style="width:50px" placeholder="dd/mm"></td>
-      <td><input value="${esc(p.cliente||'')}" id="e${p.id}_cliente" style="width:95px"></td>
-      <td>${sel('e'+p.id+'_arquivo',TIPOS,arquivo)}${ehTemas?`<input value="${esc(p.tema_design||'')}" id="e${p.id}_temadesign" placeholder="Qual tema?" style="width:85px;margin-top:3px;font-size:.7em">`:''}</td>
-      <td><input value="${esc(p.tema||'')}" id="e${p.id}_tema" style="width:115px"></td>
-      <td><input value="${esc(p.valor||'')}" id="e${p.id}_valor" style="width:65px"></td>
-      <td>${sel('e'+p.id+'_sit',SITUACOES,p.situacao||'Novo')}</td>
-      <td>${sel('e'+p.id+'_pg',PAGAMENTOS,p.pg||'Aguardando')}</td>
-      <td>${sel('e'+p.id+'_resp',RESP,p.responsavel||'SF')}</td>
-      <td style="white-space:nowrap"><button class="btn success sm" onclick="salvarLinha(${p.id})">Salvar</button><button class="btn danger sm" onclick="deletarPedido(${p.id})" style="margin-left:3px">X</button></td>
-    </tr>`;
-  });
+  let rows=ped.map(p=>`<tr class="${rowClass(p.situacao||'')}">
+    <td class="dt">${p.entrega||p.data||''}</td>
+    <td>${esc(p.cliente||'')}</td>
+    <td>${esc(p.arquivo||'')}</td>
+    <td>${esc(p.tema||'')}</td>
+    <td>${esc(p.valor||'')}</td>
+    <td><span class="badge ${badgeClass(p.situacao||'')}">${p.situacao||''}</span></td>
+    <td><span class="badge ${pgClass(p.pg||'')}">${p.pg||''}</span></td>
+    <td>${p.responsavel||'SF'}</td>
+    <td style="white-space:nowrap"><button class="btn sm" onclick="editarLinha(${p.id})">Editar</button><button class="btn danger sm" onclick="deletarPedido(${p.id})" style="margin-left:3px">X</button></td>
+  </tr>`).join('');
   if(!rows)rows='<tr><td colspan="9" style="text-align:center;color:#555;padding:20px">Nenhum pedido neste mes</td></tr>';
   document.getElementById('tab-meses').innerHTML=`
     <div class="grid">
@@ -195,11 +191,33 @@ async function carregarMes(mes){
     </div>`;
 }
 
-async function salvarLinha(id){
+async function editarLinha(id){
+  const d=await api(`/painel/mes/${mesAtual}`);const ped=(d.pedidos||[]).find(p=>p.id===id);
+  if(!ped)return;const el=document.getElementById('tab-meses');
+  const arquivo=ped.arquivo||'';const ehTemas=arquivo.includes('Temas');
+  el.innerHTML=`
+    <div class="fat-sidebar" style="max-width:500px;margin:0 auto">
+      <h3>Editando Pedido #${id}</h3>
+      <div class="form-row"><label style="color:#888;font-size:.8em">Entrega</label><input value="${esc(ped.entrega||ped.data||'')}" id="ed_entrega"></div>
+      <div class="form-row"><label style="color:#888;font-size:.8em">Cliente</label><input value="${esc(ped.cliente||'')}" id="ed_cliente"></div>
+      <div class="form-row"><label style="color:#888;font-size:.8em">Arquivo</label>${sel('ed_arquivo',TIPOS,arquivo)}</div>
+      ${ehTemas?`<div class="form-row"><label style="color:#888;font-size:.8em">Tema Design</label><input value="${esc(ped.tema_design||'')}" id="ed_tdesign"></div>`:''}
+      <div class="form-row"><label style="color:#888;font-size:.8em">Tema</label><input value="${esc(ped.tema||'')}" id="ed_tema"></div>
+      <div class="form-row"><label style="color:#888;font-size:.8em">Valor</label><input value="${esc(ped.valor||'')}" id="ed_valor"></div>
+      <div class="form-row"><label style="color:#888;font-size:.8em">Situacao</label>${sel('ed_sit',SITUACOES,ped.situacao||'Novo')}</div>
+      <div class="form-row"><label style="color:#888;font-size:.8em">PG</label>${sel('ed_pg',PAGAMENTOS,ped.pg||'Aguardando')}</div>
+      <div class="form-row"><label style="color:#888;font-size:.8em">Resp</label>${sel('ed_resp',RESP,ped.responsavel||'SF')}</div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn success" onclick="salvarEdicao(${id})">Salvar</button>
+        <button class="btn" onclick="carregarMes(mesAtual)">Cancelar</button>
+      </div>
+    </div>`;
+}
+
+async function salvarEdicao(id){
   const d={id};
-  ['entrega','cliente','tema','valor','temadesign'].forEach(k=>{const v=document.getElementById('e'+id+'_'+k);if(v)d[k==='temadesign'?'tema_design':k]=v.value});
-  ['arquivo','sit','pg','resp'].forEach(k=>{const v=document.getElementById('e'+id+'_'+k);if(v)d[k==='sit'?'situacao':k==='resp'?'responsavel':k]=v.value});
-  // Se arquivo mudou pra Temas e tem tema_design, junta no modelo
+  ['entrega','cliente','tema','valor','tdesign'].forEach(k=>{const v=document.getElementById('ed_'+k);if(v)d[k==='tdesign'?'tema_design':k]=v.value});
+  ['arquivo','sit','pg','resp'].forEach(k=>{const v=document.getElementById('ed_'+k);if(v)d[k==='sit'?'situacao':k==='resp'?'responsavel':k]=v.value});
   if(d.arquivo&&d.arquivo.includes('Temas')&&d.tema_design)d.arquivo=d.arquivo+' — '+d.tema_design;
   await api('/painel/editar-pedido',d);t('Salvo!');carregarMes(mesAtual);
 }
