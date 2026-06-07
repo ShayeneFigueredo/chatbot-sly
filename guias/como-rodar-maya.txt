@@ -1,0 +1,244 @@
+================================================================
+  GUIA COMPLETO — MAYA (Chatbot Sly Design)
+  Atualizado: 06/06/2026
+================================================================
+
+O QUE E A MAYA
+--------------
+
+A Maya e a atendente virtual da Sly Design no WhatsApp.
+Ela responde clientes automaticamente 24/7 usando IA (Groq).
+
+Arquitetura:
+  Cliente manda msg no WhatsApp
+      ↓
+  Baileys (WebSocket) recebe no Render
+      ↓
+  Encaminha pro Python (backend/webhook_server.py)
+      ↓
+  Maya processa (maquina de estados + NLP + IA fallback)
+      ↓
+  Baileys envia resposta de volta
+      ↓
+  Cliente recebe no WhatsApp
+
+
+
+LINKS IMPORTANTES
+-----------------
+
+Render Dashboard:
+  https://dashboard.render.com
+
+Servico da Maya no Render:
+  https://chatbot-sly-oficial.onrender.com
+
+Saude do servidor (ping):
+  https://chatbot-sly-oficial.onrender.com/health
+
+QR Code (quando precisar emparelhar de novo):
+  https://chatbot-sly-oficial.onrender.com/qrcode
+
+GitHub:
+  https://github.com/ShayeneFigueredo/chatbot-sly
+
+
+
+COMO RODAR A MAYA LOCALMENTE (NO SEU PC)
+-----------------------------------------
+
+1. Abre o terminal (WSL)
+
+2. Vai pra pasta do projeto:
+   cd /mnt/c/aprendendo-IA/chatbot-sly
+
+3. Inicia o servidor Python:
+   .venv/bin/python backend/webhook_server.py
+
+   (vai subir em http://localhost:8000)
+
+4. Em OUTRO terminal, inicia o Baileys (WhatsApp):
+   cd /mnt/c/aprendendo-IA/chatbot-sly
+   node connect_whatsapp.js
+
+5. Escaneia o QR Code que aparece no terminal
+   WhatsApp → Aparelhos Conectados → Conectar aparelho
+
+6. Pronto! Mande "oi" no WhatsApp da Sly pra testar.
+
+
+
+COMO FAZER DEPLOY NO RENDER (MANUAL)
+--------------------------------------
+
+O Render faz deploy automatico quando voce da git push no GitHub.
+Mas se precisar fazer manual:
+
+1. Entra em https://dashboard.render.com
+2. Clica no servico "chatbot-sly-oficial"
+3. Clica no botao "Manual Deploy" (canto superior direito)
+4. Escolhe "Deploy latest commit"
+5. Aguarda o build terminar (~3-5 minutos)
+
+ATENCAO: Cada deploy PERDE a sessao do WhatsApp.
+Depois do deploy, voce precisa:
+  - Abrir https://chatbot-sly-oficial.onrender.com/qrcode no CELULAR
+  - Escanear o QR Code com WhatsApp → Aparelhos Conectados
+
+
+
+COMO ATUALIZAR O CODIGO (GIT PUSH)
+------------------------------------
+
+1. Faz as alteracoes nos arquivos
+2. git add .
+3. git commit -m "descricao da mudanca"
+4. git push
+
+IMPORTANTE:
+- O Render vai fazer deploy automatico depois do push
+- A sessao do WhatsApp VAI SER PERDIDA
+- Voce vai precisar escanear o QR Code de novo
+- So faca deploy se realmente precisar
+
+
+
+COMO REEMPARELLHAR (QUANDO O QR APARECER NO RENDER)
+----------------------------------------------------
+
+Quando o servidor reinicia e perde a sessao, voce precisa:
+
+1. Pega seu CELULAR
+2. Abre o navegador do celular
+3. Vai em: https://chatbot-sly-oficial.onrender.com/qrcode
+4. O QR Code aparece como imagem na tela
+5. Abre o WhatsApp no celular
+6. Vai em Aparelhos Conectados (ou Linked Devices)
+7. Toca em "Conectar aparelho" (ou "Link a Device")
+8. Escaneia o QR Code da tela
+9. Pronto! A Maya conecta em segundos
+
+
+
+ARQUIVOS PRINCIPAIS DO PROJETO
+-------------------------------
+
+server.py
+  Servidor webhook (versao Meta Cloud API — nao usada agora)
+
+backend/webhook_server.py
+  Servidor Python com a Maya (maquina de estados + endpoints)
+  Endpoints: GET /health, GET /qrcode, POST /responder
+
+connect_whatsapp.js
+  Conexao com WhatsApp via Baileys (WebSocket)
+  Recebe msgs, encaminha pro Python, envia resposta
+
+app/config.py
+  Configuracoes: SYSTEM_PROMPT, PRECOS, TEMAS_DISPONIVEIS, Groq
+
+app/nlp.py
+  Detector de intencoes (preco, prazo, busca de tema, suporte, etc)
+
+app/buscador.py
+  Busca temas no catalogo CSV (com tolerancia a erro de digitacao)
+
+backend/.env
+  Variaveis de ambiente: GROQ_API_KEY, META_TOKEN
+  NAO SOBE PRO GIT (esta no .gitignore)
+
+Dockerfile
+  Configuracao do container Docker (Python + Node.js)
+
+start.sh
+  Script de inicio do Render (inicia Python + Baileys)
+
+
+
+VARIAVEIS DE AMBIENTE NO RENDER
+---------------------------------
+
+Render Dashboard → chatbot-sly-oficial → Environment:
+
+  GROQ_API_KEY = SUA_CHAVE_GROQ_AQUI
+  (chave da IA Groq — modelo llama-3.3-70b-versatile)
+  Pegue a chave no arquivo backend/.env local
+
+
+
+COMANDOS UTEIS NO TERMINAL
+----------------------------
+
+Testar se o servidor ta online:
+  curl https://chatbot-sly-oficial.onrender.com/health
+
+Simular mensagem de cliente (teste):
+  curl -s -X POST https://chatbot-sly-oficial.onrender.com/webhook \
+    -H "Content-Type: application/json" \
+    -d '{"object":"whatsapp_business_account","entry":[{"id":"test","changes":[{"value":{"messages":[{"from":"5538997507651","text":{"body":"oi"}}]}}]}]}'
+
+Rodar a Maya localmente (Python):
+  .venv/bin/python backend/webhook_server.py
+
+Rodar o WhatsApp localmente (Node):
+  node connect_whatsapp.js
+
+Ver estado do Git:
+  git status
+  git log --oneline -5
+
+
+
+NUMEROS IMPORTANTES
+-------------------
+
+Sly Design (WhatsApp Business): +55 34 99930-6554
+Shay (WhatsApp pessoal):       +55 38 99750-7651
+Numero de teste da Meta:        +1 555-161-5822
+
+
+
+FLUXO DA CONVERSA (MAQUINA DE ESTADOS)
+---------------------------------------
+
+A Maya usa maquina de estados. Cada cliente tem seu estado salvo:
+
+  menu → slides_prontos / pedido_tema / buscando_tema / precos / duvida
+
+Fluxo de pedido completo:
+  pedido_tema → pedido_tipo → pedido_qual_tema → pedido_prazo
+  → pedido_nomes → pedido_extras → resumo → pagamento
+
+Comandos da Shay (dona):
+  Quando voce manda msg no WhatsApp da Sly, a Maya reconhece
+  e nao chama IA. Comandos:
+    assumir NUMERO    — assume atendimento manual
+    liberar NUMERO    — devolve pra Maya
+    humanos           — lista clientes em atendimento humano
+
+
+
+QUANDO ALGO DER ERRADO
+-----------------------
+
+1. "Maya nao responde"
+   → Verificar se o Render ta online: curl /health
+   → Ver logs do Render: https://dashboard.render.com
+
+2. "QR Code aparecendo de novo"
+   → Sessao foi perdida (deploy ou crash)
+   → Escanear QR em: https://chatbot-sly-oficial.onrender.com/qrcode
+
+3. "Render excedeu memoria"
+   → Normalmente e o processo antigo (wppconnect com Chrome)
+   → O Baileys atual usa bem menos memoria
+   → Se acontecer, fazer deploy manual
+
+4. "Erro 401 no test_whatsapp.py"
+   → Token do Meta venceu (token de teste expira rapido)
+   → Nao afeta o funcionamento (Baileys nao usa token da Meta)
+
+5. "Maya respondendo coisa errada"
+   → Ver o log do Render (mostra a intencao detectada e a resposta)
+   → Ajustar palavras-chave em app/nlp.py
+   → Ajustar SYSTEM_PROMPT em app/config.py

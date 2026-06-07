@@ -7,10 +7,16 @@ const {
 const { Boom } = require("@hapi/boom");
 const axios = require("axios");
 const fs = require("fs");
+const http = require("http");
 const qrcode = require("qrcode-terminal");
 
 const AUTH_DIR = "/app/auth_info_baileys";
 const PORT = process.env.PORT || 10000;
+const SEND_PORT = process.env.SEND_PORT || 8080;
+const SHAY_NUMERO = "5538997507651";
+
+// Guarda referencia global pro socket (usada pelo servidor HTTP)
+let globalSock = null;
 
 async function start() {
   // Carrega sessao salva (ou cria nova)
@@ -74,6 +80,7 @@ p{color:#888;margin-top:30px}
 
     if (connection === "open") {
       console.log("✅ Maya conectada ao WhatsApp!");
+      globalSock = sock;
       // Remove o QR code antigo
       try { fs.unlinkSync("/tmp/qrcode.html"); } catch {}
     }
@@ -84,29 +91,48 @@ p{color:#888;margin-top:30px}
     const msg = m.messages[0];
     if (!msg || !msg.message || msg.key.fromMe) return;
 
-    // Pega o texto
-    const texto =
-      msg.message.conversation ||
-      msg.message.extendedTextMessage?.text ||
-      msg.message.imageMessage?.caption ||
-      "";
+    // Detecta o tipo de mensagem (texto, imagem, documento)
+    let tipo = "texto";
+    let texto = "";
+
+    if (msg.message.imageMessage) {
+      tipo = "imagem";
+      texto = msg.message.imageMessage.caption || "";
+    } else if (msg.message.documentMessage) {
+      tipo = "documento";
+      texto = msg.message.documentMessage.caption || "";
+    } else {
+      texto =
+        msg.message.conversation ||
+        msg.message.extendedTextMessage?.text ||
+        "";
+    }
 
     const jid = msg.key.remoteJid;
-    if (!texto || !jid) return;
+    if (!jid) return;
+    // Imagens sem legenda passam adiante (Maya trata)
+    if (!texto && tipo === "texto") return;
 
     // Extrai so o numero (remove @s.whatsapp.net)
     const telefone = jid.replace("@s.whatsapp.net", "").replace(/:.*/, "");
-    console.log(`\n💬 ${telefone}: ${texto}`);
+    const tag = tipo !== "texto" ? ` [${tipo}]` : "";
+    console.log(`\n💬 ${telefone}${tag}: ${texto || "(sem legenda)"}`);
 
+    const inicio = Date.now();
     try {
       // "digitando..."
       await sock.sendPresenceUpdate("composing", jid);
 
       const resp = await axios.post(
         `http://localhost:${PORT}/responder`,
-        { from: telefone, body: texto },
+        { from: telefone, body: texto, tipo: tipo },
         { timeout: 30000 }
       );
+
+      // Delay minimo de 3.5s pra sentir que ta conversando com alguem
+      const decorrido = Date.now() - inicio;
+      const espera = Math.max(0, 3500 - decorrido);
+      if (espera > 0) await new Promise((r) => setTimeout(r, espera));
 
       await sock.sendPresenceUpdate("paused", jid);
 
@@ -120,6 +146,39 @@ p{color:#888;margin-top:30px}
       console.log(" Erro:", e.message);
     }
   });
+}
+
+// ── Servidor HTTP interno (ponte Python → WhatsApp) ──
+const sendServer = http.createServer(async (req, res) => {
+  if (req.method === "POST" && req.url === "/send") {
+    let body = "";
+    req.on("data", (chunk) => { body += chunk; });
+    req.on("end", async () => {
+      try {
+        const { to, text } = JSON.parse(body);
+        const jid = to.includes("@") ? to : `${to}@s.whatsapp.net`;
+        await globalSock.sendMessage(jid, { text });
+        console.log(`📤 Notificacao enviada para ${to}`);
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ status: "sent" }));
+      } catch (e) {
+        console.log(" Erro ao enviar:", e.message);
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ status: "error", error: e.message }));
+      }
+    });
+  } else if (req.method === "GET" && req.url === "/health") {
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ status: "ok" }));
+  } else {
+    res.writeHead(404);
+    res.end();
+  }
+});
+
+sendServer.listen(SEND_PORT, "127.0.0.1", () => {
+  console.log(`📡 API interna de envio: porta ${SEND_PORT}`);
+});
 }
 
 start().catch((err) => {
