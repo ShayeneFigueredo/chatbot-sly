@@ -35,6 +35,11 @@ def enviar_whatsapp(telefone: str, mensagem: str):
     if not META_TOKEN:
         print("⚠️ META_TOKEN não configurado. Mensagem NÃO enviada!")
         return False
+
+    # Garante que o numero tem o + na frente (Meta exige)
+    if not telefone.startswith("+"):
+        telefone = "+" + telefone
+
     url = f"https://graph.facebook.com/v25.0/{PHONE_NUMBER_ID}/messages"
     headers = {
         "Authorization": f"Bearer {META_TOKEN}",
@@ -49,6 +54,7 @@ def enviar_whatsapp(telefone: str, mensagem: str):
     try:
         resp = requests.post(url, headers=headers, json=data, timeout=10)
         resultado = resp.json()
+        print(f"📤 Meta API: {resp.status_code} — {resultado}")
         if resp.status_code == 200:
             print(f"📤 Maya → {telefone}: enviado ✅")
         else:
