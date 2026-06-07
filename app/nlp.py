@@ -94,7 +94,7 @@ def detectar_intencao(texto: str) -> str:
     if any(p in t for p in palavras_buscar):
         return "buscar_tema"
 
-    # "quero/queria" → pode ser busca de tema ou dúvida
+    # "quero/queria" → so e busca de tema se for frase curta
     palavras_quero = ["quero ", "queria "]
     if any(p in t for p in palavras_quero):
         # Marcadores de dúvida (palavras que indicam pergunta, não compra)
@@ -103,10 +103,15 @@ def detectar_intencao(texto: str) -> str:
             "como funciona", "cancelar", "reembolso",
             "trocar", "mudar", "revender", "música",
             "musica", "falar com", "atendente", "humano",
+            "video", "vídeo", "audio", "áudio", "legenda",
+            "meu slide", "meu pedido", "ja esta", "já está",
+            "cadê", "cade",
         ]
         if any(m in t for m in duvida_markers):
             return "duvida"
-        # Se não tem marcadores de dúvida → é busca/intenção de compra
+        # Frase longa com quero/queria → duvida, nao busca de tema
+        if len(t.split()) > 5:
+            return "duvida"
         return "buscar_tema"
 
     # ── PERSONALIZADO (não é tema!) ──
@@ -119,6 +124,13 @@ def detectar_intencao(texto: str) -> str:
         perguntas = ["qual", "como", "quem", "onde", "quando", "porque",
                      "por que", "por quê", "será", "sera", "pode", "posso"]
         if any(p in t.split() for p in perguntas):
+            return "duvida"
+        # Palavras de conversa cotidiana → duvida, nao tema
+        conversa = ["ok", "ta", "tá", "pronto", "sim", "não", "nao",
+                    "calma", "pera", "espera", "obrigado", "obrigada",
+                    "vlw", "valeu", "blz", "beleza", "certo", "feito",
+                    "paguei", "pago", "mandei", "enviar", "comprovante"]
+        if t in conversa:
             return "duvida"
         return "buscar_tema"
 

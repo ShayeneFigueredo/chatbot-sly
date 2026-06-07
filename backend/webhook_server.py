@@ -7,6 +7,7 @@ Rode: .venv/bin/python backend/webhook_server.py
 import os
 import sys
 import json
+import time
 import requests
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
@@ -31,26 +32,16 @@ atendimento_humano = {}  # {telefone: True}
 
 
 def notificar_shay(mensagem: str):
-    """Envia uma notificação WhatsApp pro número pessoal da Shay."""
-    if not META_TOKEN:
-        print("⚠️ META_TOKEN não configurado. Pulando notificação.")
-        return
-    url = f"https://graph.facebook.com/v25.0/{PHONE_NUMBER_ID}/messages"
-    headers = {
-        "Authorization": f"Bearer {META_TOKEN}",
-        "Content-Type": "application/json",
-    }
-    data = {
-        "messaging_product": "whatsapp",
-        "to": SHAY_NUMERO,
-        "type": "text",
-        "text": {"body": mensagem},
-    }
+    """Envia uma notificacao WhatsApp pro numero pessoal da Shay via Baileys."""
     try:
-        resp = requests.post(url, headers=headers, json=data, timeout=10)
-        print(f"📤 Notificação enviada pra Shay: {resp.status_code}")
+        resp = requests.post(
+            "http://127.0.0.1:8080/send",
+            json={"to": SHAY_NUMERO, "text": mensagem},
+            timeout=10,
+        )
+        print(f"📤 Notificacao Shay: {resp.status_code}")
     except Exception as e:
-        print(f"⚠️ Erro ao notificar Shay: {e}")
+        print(f"⚠️ Erro ao notificar Shay (ponte interna): {e}")
 
 
 def cliente_em_atendimento_humano(telefone: str) -> bool:
@@ -63,7 +54,7 @@ clientes = {}
 
 def mostrar_menu():
     return (
-        "Oie! Seja bem-vindo(a) à Sly Design! 💜\n\n"
+        "Oieee! Eu sou a Maya, atendente virtual da Sly Design! 💜\n\n"
         "Aqui a gente tem slides prontos super legais "
         "e também criamos do zero, do seu jeitinho. ✨\n\n"
         "Temos MUITA coisa legal no site e com super descontos! 💜\n"
@@ -79,7 +70,7 @@ def mostrar_menu():
     )
 
 
-def maya_responder(mensagem: str, telefone: str) -> str:
+def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str:
     t = mensagem.lower().strip()
 
     # ── COMANDOS DA SHAY (dona) ──
@@ -107,7 +98,7 @@ def maya_responder(mensagem: str, telefone: str) -> str:
     # Inicializa
     novo_cliente = telefone not in clientes
     if novo_cliente:
-        clientes[telefone] = {"tela": "menu", "dados_pedido": {}}
+        clientes[telefone] = {"tela": "menu", "dados_pedido": {}, "historico_ia": []}
     estado = clientes[telefone]
     tela = estado["tela"]
     dados = estado["dados_pedido"]
@@ -296,6 +287,42 @@ def maya_responder(mensagem: str, telefone: str) -> str:
 
     # PASSO 1: Tema
     if tela == "pedido_tema":
+        # Cliente mandou foto em vez de digitar o assunto?
+        if tipo_msg == "imagem":
+            dados["tem_imagem"] = True
+            if mensagem.strip():
+                # Tem legenda na foto → usa como tema
+                dados["tema"] = mensagem.strip()
+                estado["tela"] = "pedido_tipo"
+                return (
+                    "Vi a imagem e a legenda! 📸\n\n"
+                    f"Entendi que o assunto é \"{mensagem.strip()}\".\n\n"
+                    "Agora me conta: qual TIPO de slide você prefere?\n\n"
+                    "Você pode conferir exemplos de cada tipo aqui:\n"
+                    "👉 https://slydesign.com.br/personalizados/\n\n"
+                    "[1] 📄 PDF — R$ 20,00\n"
+                    "   Slide com design sobre seu assunto, sem animações\n\n"
+                    "[2] 🎬 Canva (Transições) — R$ 25,00\n"
+                    "   Design feito com base no seu assunto, com movimentos,\n"
+                    "   efeitos e animações. Link online\n\n"
+                    "[3] 🎬 PowerPoint (Transições) — R$ 35,00\n"
+                    "   Mesmo do Canva, mas arquivo PPTX offline\n\n"
+                    "[4] 🎨 Slide Temas Canva — R$ 28,00\n"
+                    "   Tema visual criativo (ex: Netflix, Spotify). Link online\n\n"
+                    "[5] 🎨 Slide Temas PPTX — R$ 38,00\n"
+                    "   Tema visual criativo em arquivo PPTX offline\n\n"
+                    "[6] 🤔 Diferença entre Canva e PowerPoint\n\n"
+                    "[0] 🔙 Voltar ao menu"
+                )
+            # Imagem sem legenda → pede pra digitar
+            return (
+                "Vi que você mandou uma imagem! 📸\n\n"
+                "Mas eu ainda não consigo ler o que está escrito nela..."
+                "Preciso que você DIGITE qual é o assunto do slide, ok?\n\n"
+                "📝 Qual o ASSUNTO do slide?\n\n"
+                "[0] 🔙 Voltar ao menu"
+            )
+
         dados["tema"] = mensagem
         if estado.pop("modo_edicao", False):
             estado["tela"] = "resumo"
@@ -511,7 +538,7 @@ def maya_responder(mensagem: str, telefone: str) -> str:
     # PASSO 6: Resumo
     if tela == "resumo":
         if t in ("1", "confirmar", "✅ confirmar", "confirmar pedido"):
-            estado["tela"] = "pagamento"
+            estado["tela"] = "aguardando_pagamento"
             notificar_shay(
                 f"🎨 NOVO PEDIDO de {telefone}!\n\n"
                 f"📝 Tema: {dados.get('tema', '?')}\n"
@@ -578,17 +605,17 @@ def maya_responder(mensagem: str, telefone: str) -> str:
         estado["tela"] = "resumo"
         return _mostrar_resumo(dados)
 
-    # PASSO 7: Pagamento
-    if tela == "pagamento":
-        estado["tela"] = "menu"
-        estado["dados_pedido"] = {}
-        return (
-            "Recebi! 💜\n\n"
-            "Seu comprovante vai ser olhado pela nossa equipe agora. "
-            "Assim que confirmarmos o pagamento, já te aviso e "
-            "começamos a produzir seu slide. ✨\n\n"
-            "[0] 🔙 Voltar ao menu"
-        )
+    # PASSO 7: Aguardando pagamento (Maya NAO responde)
+    if tela == "aguardando_pagamento":
+        # Cliente manda comprovante, "ok", "paguei", etc
+        # Maya fica quieta — um humano (Shay) assume
+        if t in ("menu", "voltar", "🔙 voltar ao menu", "0"):
+            estado["tela"] = "menu"
+            estado["dados_pedido"] = {}
+            return mostrar_menu()
+        # Qualquer outra coisa → Maya nao responde
+        print(f"🤫 Maya silenciada para {telefone} (aguardando pagamento)")
+        return None
 
     # ═══════════════════════════════════════════
     # FALLBACK: IA
@@ -652,9 +679,9 @@ def _buscar_tema_handler(mensagem, estado):
         estado["tela"] = "pedido_tema"
         estado["dados_pedido"] = {}
         return (
-            f"Não encontrei \"{mensagem}\" no nosso catálogo pronto.\n\n"
-            f"Mas podemos criar um slide personalizado "
-            f"exatamente como você precisa. 💜\n\n"
+            f"Poderia ser mais especifico na sua pergunta? 💜\n\n"
+            f"Se quiser, posso chamar um de nossos atendentes "
+            f"para conversar melhor com voce.\n\n"
             f"[2] 🎨 Quero um slide personalizado\n"
             f"[7] 🆘 Falar com humano\n"
             f"[0] 🔙 Voltar ao menu"
@@ -675,12 +702,13 @@ def _mostrar_resumo(dados):
         metade_str = "a combinar"
 
     # Monta o resumo conforme o tipo
+    img_tag = " (imagem anexada)" if dados.get("tem_imagem") else ""
     if "Temas" in modelo:
         assunto = dados.get("assunto", dados.get("tema", ""))
         tema_design = dados.get("tema_design", "")
-        linha_tema = f"📝 Assunto: {assunto}\n🎨 Tema: {modelo} — {tema_design}\n"
+        linha_tema = f"📝 Assunto: {assunto}{img_tag}\n🎨 Tema: {modelo} — {tema_design}\n"
     else:
-        linha_tema = f"📝 Tema: {dados.get('tema', '')}\n🎨 Tipo: {modelo}\n"
+        linha_tema = f"📝 Tema: {dados.get('tema', '')}{img_tag}\n🎨 Tipo: {modelo}\n"
 
     # Aviso de páginas extras
     aviso_paginas = ""
@@ -697,7 +725,7 @@ def _mostrar_resumo(dados):
         f"{linha_tema}"
         f"📅 Prazo: {dados.get('prazo', '')}\n"
         f"👤 Nomes: {dados.get('nomes', 'Não')}\n"
-        f"📎 Extras: {dados.get('extras', 'Nenhum')}\n\n"
+        f"📎 Extras: {_truncar_extras(dados.get('extras', 'Nenhum'))}\n\n"
         f"💰 Valor total: {preco}\n"
         f"💳 Agora (50%): {metade_str} — o restante na entrega! 💜\n"
         f"{aviso_paginas}\n"
@@ -734,32 +762,55 @@ def _msg_pagamento(dados):
     )
 
 
-def _chamar_ia(mensagem: str, estado: dict) -> str:
-    """LLM como último recurso — mas antes tenta buscar tema no catálogo."""
-    # Tenta achar tema na mensagem antes de gastar tokens com IA
-    tema_encontrado, _ = buscar_tema(mensagem)
-    if tema_encontrado:
-        print(f"   🎯 Tema encontrado: {tema_encontrado['tema']}")
-        return (
-            f"Temos esse tema sim! 💜\n\n"
-            f"📄 {tema_encontrado['tema']}\n"
-            f"👉 {tema_encontrado['link']}\n\n"
-            f"É só comprar e receber na hora!\n\n"
-            f"[2] 🎨 Quero um personalizado\n"
-            f"[0] 🔙 Voltar ao menu  |  [7] 🆘 Falar com humano"
-        )
+def _truncar_extras(texto: str) -> str:
+    """Limita extras a 50 caracteres no resumo pra nao poluir a tela."""
+    if not texto or texto == "Nenhum":
+        return texto or "Nenhum"
+    if len(texto) > 50:
+        return texto[:50] + "..."
+    return texto
 
+
+def _salvar_historico(estado: dict, papel: str, texto: str):
+    """Guarda mensagem no historico da conversa (max 50, remove >7 dias)."""
+    agora = time.time()
+    hist = estado.setdefault("historico_ia", [])
+
+    # Limpa mensagens com mais de 7 dias
+    sete_dias = 7 * 24 * 3600
+    hist[:] = [h for h in hist if agora - h.get("t", 0) < sete_dias]
+
+    # Adiciona a nova
+    hist.append({"role": papel, "content": texto[:2000], "t": agora})
+
+    # Mantem so as ultimas 50
+    if len(hist) > 50:
+        hist[:] = hist[-50:]
+
+
+def _chamar_ia(mensagem: str, estado: dict) -> str:
+    """LLM com contexto completo da conversa (sem buscar catalogo antes)."""
     print("   🤖 IA fallback...")
     try:
         from app.config import cliente, MODELO
-        historico = [
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": mensagem},
-        ]
+
+        # Monta historico com contexto completo
+        hist = estado.get("historico_ia", [])
+        mensagens_ia = [{"role": "system", "content": SYSTEM_PROMPT}]
+
+        # Adiciona Historico da conversa (sem o campo "t")
+        for h in hist:
+            mensagens_ia.append({"role": h["role"], "content": h["content"]})
+
+        # Adiciona a mensagem atual
+        mensagens_ia.append({"role": "user", "content": mensagem})
+
+        print(f"   📚 Contexto IA: {len(mensagens_ia)} mensagens")
         resposta = cliente.chat.completions.create(
-            model=MODELO, messages=historico, temperature=0.7
+            model=MODELO, messages=mensagens_ia, temperature=0.7
         )
-        return resposta.choices[0].message.content + "\n\n[2] 🎨 Quero um Slide Personalizado  |  [0] 🔙 Voltar ao menu  |  [7] 🆘 Falar com humano"
+        texto = resposta.choices[0].message.content
+        return texto + "\n\n[2] 🎨 Quero um Slide Personalizado  |  [0] 🔙 Voltar ao menu  |  [7] 🆘 Falar com humano"
     except Exception as e:
         print(f"   ⚠️ Erro LLM: {e}")
         return (
@@ -802,9 +853,16 @@ async def responder(request: Request):
     data = await request.json()
     texto = data.get("body", "")
     telefone = data.get("from", "")
+    tipo = data.get("tipo", "texto")
 
     print(f"\n💬 {telefone}: {texto}")
-    resposta = maya_responder(texto, telefone)
+    resposta = maya_responder(texto, telefone, tipo)
+
+    # Salva no historico da IA (pra ter contexto em conversas futuras)
+    if telefone in clientes and resposta:
+        estado = clientes[telefone]
+        _salvar_historico(estado, "user", texto)
+        _salvar_historico(estado, "assistant", resposta)
 
     if resposta is None:
         print(f"🤫 Maya silenciada (atendimento humano)")
