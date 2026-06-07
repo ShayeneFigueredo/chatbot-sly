@@ -156,7 +156,9 @@ const sendServer = http.createServer(async (req, res) => {
     req.on("end", async () => {
       try {
         const { to, text } = JSON.parse(body);
-        const jid = to.includes("@") ? to : `${to}@s.whatsapp.net`;
+        // WhatsApp JID nao usa + no inicio
+        const numeroLimpo = to.startsWith("+") ? to.slice(1) : to;
+        const jid = numeroLimpo.includes("@") ? numeroLimpo : `${numeroLimpo}@s.whatsapp.net`;
         await globalSock.sendMessage(jid, { text });
         console.log(`📤 Notificacao enviada para ${to}`);
         res.writeHead(200, { "Content-Type": "application/json" });

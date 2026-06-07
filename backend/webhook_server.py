@@ -59,7 +59,7 @@ def mostrar_menu():
         "e também criamos do zero, do seu jeitinho. ✨\n\n"
         "Temos MUITA coisa legal no site e com super descontos! 💜\n"
         "Dá uma olhadinha:\n\n"
-        "👉 https://slydesign.com.br/loja/\n\n"
+        "👉 https://slydesign.com.br\n\n"
         "No que posso te ajudar?\n\n"
         "[1] 🛍️ Ver Slides Prontos\n"
         "[2] 🎨 Quero um Slide Personalizado\n"
@@ -145,7 +145,7 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
                 "Nossa, temos MUITA coisa legal no site! 💜\n"
                 "De trabalhos da escola até temas de facul, "
                 "dá uma olhadinha:\n\n"
-                "👉 https://slydesign.com.br/loja/\n\n"
+                "👉 https://slydesign.com.br\n\n"
                 "É só escolher, comprar e já cai no seu e-mail! 📧\n\n"
                 "Ou se quiser, me fala um tema que eu procuro pra você 🔍\n\n"
                 "[2] 🎨 Quero um Slide Personalizado\n"
@@ -197,7 +197,7 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
         if intencao == "listar_temas":
             return (
                 "Temos VÁRIOS temas! Dá uma olhadinha na loja: 💜\n\n"
-                "👉 https://slydesign.com.br/loja/\n\n"
+                "👉 https://slydesign.com.br\n\n"
                 "Ou me fala um tema específico que eu procuro pra você! 🔍"
             )
 
@@ -356,28 +356,25 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
         }
 
         if t == "6" or "diferença" in t or "diferenca" in t:
+            estado["tela"] = "pedido_tipo_diferenca"
             return (
-                "Visualmente são iguais! 🎨\n\n"
+                "Visualmente sao iguais! 🎨\n\n"
+                "📄 PDF — arquivo estatico, sem animacoes.\n"
                 "📱 Canva — link online, acessa pelo navegador.\n"
                 "💻 PowerPoint — arquivo PPTX offline e app.\n\n"
-                "Só muda a forma de acessar. Qual tipo você prefere?\n\n"
-                "[1] 🎬 Canva (Transições) — R$ 25,00\n"
-                "[2] 🎬 PowerPoint (Transições) — R$ 35,00\n"
-                "[3] 🎨 Canva Temas — R$ 28,00\n"
-                "[4] 🎨 PPTX Temas — R$ 38,00\n"
+                "So muda a forma de acessar. Qual tipo voce prefere?\n\n"
+                "[1] 📄 PDF — R$ 20,00\n"
+                "[2] 🎬 Canva (Transicoes) — R$ 25,00\n"
+                "[3] 🎬 PowerPoint (Transicoes) — R$ 35,00\n"
+                "[4] 🎨 Canva Temas — R$ 28,00\n"
+                "[5] 🎨 PPTX Temas — R$ 38,00\n"
                 "[0] 🔙 Voltar ao menu"
             )
 
-        # Mapeia números da tela de diferença
-        diff_map = {"1": "🎬 Canva (Transições)", "2": "🎬 PowerPoint (Transições)",
-                    "3": "🎨 Canva Temas", "4": "🎨 PPTX Temas"}
+        # Mapeia numeros normais
         if t in tipos:
             dados["modelo"] = tipos[t]
         elif t in tipos.values():
-            dados["modelo"] = t
-        elif t in diff_map:
-            dados["modelo"] = diff_map[t]
-        elif t in diff_map.values():
             dados["modelo"] = t
         elif t in ("canva", "📱 canva", "📱"):
             dados["modelo"] = "🎬 Canva (Transições)"
@@ -390,35 +387,85 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
 
         # Se escolheu Temas, guarda o assunto e pergunta QUAL tema
         if "Temas" in dados.get("modelo", ""):
-            # Salva o assunto original (ex: "povos astecas") antes de perguntar o tema visual
             dados["assunto"] = dados.get("tema", "")
             estado["tela"] = "pedido_qual_tema"
             if modo_edicao:
-                estado["modo_edicao"] = True  # mantém o flag pra pedido_qual_tema
+                estado["modo_edicao"] = True
             top5 = ", ".join(TEMAS_DISPONIVEIS[:5])
             return (
-                "Legal! Temos vários temas prontos. 💜\n\n"
+                "Legal! Temos varios temas prontos. 💜\n\n"
                 f"Os mais pedidos: {top5}...\n\n"
                 "E tem mais no site:\n"
-                "👉 https://slydesign.com.br/loja/\n\n"
-                "Se quiser um tema que não está na lista, "
-                "podemos criar do zero. Me diga qual tema você quer?\n\n"
+                "👉 https://slydesign.com.br\n\n"
+                "Se quiser um tema que nao esta na lista, "
+                "podemos criar do zero. Me diga qual tema voce quer?\n\n"
                 "[0] 🔙 Voltar ao menu"
             )
 
-        # Se está editando tipo (não-Temas), volta pro resumo
         if modo_edicao:
             estado["tela"] = "resumo"
             return _mostrar_resumo(dados)
 
-        # Se não é Temas e não está editando, continua fluxo normal
         estado["tela"] = "pedido_prazo"
         return (
             "Anotado! ✅\n\n"
-            "Agora sobre o PRAZO: até que dia posso te entregar?\n\n"
-            "💡 Recomendamos pedir com pelo menos 1 dia de antecedência "
-            "da sua apresentação.\n\n"
-            "Me conta: qual data você precisa? 📅\n\n"
+            "Agora sobre o PRAZO: ate que dia posso te entregar?\n\n"
+            "💡 Recomendamos pedir com pelo menos 1 dia de antecedencia "
+            "da sua apresentacao.\n\n"
+            "Me conta: qual data voce precisa? 📅\n\n"
+            "[0] 🔙 Voltar ao menu"
+        )
+
+    # PASSO 2b: Tipo apos ver diferenca (numeros diferentes!)
+    if tela == "pedido_tipo_diferenca":
+        diff_map = {
+            "1": "📄 PDF", "2": "🎬 Canva (Transições)",
+            "3": "🎬 PowerPoint (Transições)",
+            "4": "🎨 Canva Temas", "5": "🎨 PPTX Temas"
+        }
+
+        if t in diff_map:
+            dados["modelo"] = diff_map[t]
+        elif t in diff_map.values():
+            dados["modelo"] = t
+        elif t in ("canva", "📱 canva", "📱"):
+            dados["modelo"] = "🎬 Canva (Transições)"
+        elif t in ("powerpoint", "ppt", "💻", "pptx", "💻 powerpoint"):
+            dados["modelo"] = "🎬 PowerPoint (Transições)"
+        elif t in ("pdf", "📄 pdf", "📄"):
+            dados["modelo"] = "📄 PDF"
+        else:
+            dados["modelo"] = mensagem
+
+        modo_edicao = estado.pop("modo_edicao", False)
+
+        if "Temas" in dados.get("modelo", ""):
+            dados["assunto"] = dados.get("tema", "")
+            estado["tela"] = "pedido_qual_tema"
+            if modo_edicao:
+                estado["modo_edicao"] = True
+            top5 = ", ".join(TEMAS_DISPONIVEIS[:5])
+            return (
+                "Legal! Temos varios temas prontos. 💜\n\n"
+                f"Os mais pedidos: {top5}...\n\n"
+                "E tem mais no site:\n"
+                "👉 https://slydesign.com.br\n\n"
+                "Se quiser um tema que nao esta na lista, "
+                "podemos criar do zero. Me diga qual tema voce quer?\n\n"
+                "[0] 🔙 Voltar ao menu"
+            )
+
+        if modo_edicao:
+            estado["tela"] = "resumo"
+            return _mostrar_resumo(dados)
+
+        estado["tela"] = "pedido_prazo"
+        return (
+            "Anotado! ✅\n\n"
+            "Agora sobre o PRAZO: ate que dia posso te entregar?\n\n"
+            "💡 Recomendamos pedir com pelo menos 1 dia de antecedencia "
+            "da sua apresentacao.\n\n"
+            "Me conta: qual data voce precisa? 📅\n\n"
             "[0] 🔙 Voltar ao menu"
         )
 
@@ -440,12 +487,14 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
     if tela == "pedido_prazo":
         dados["prazo"] = mensagem
         if any(p in t for p in ["hoje", "hj", "mesmo dia", "ainda hoje"]):
+            dados["taxa_urgencia"] = True
             msg = (
-                "⚠️ Como é para hoje, temos uma taxa adicional de R$ 5,00 "
-                "e preciso verificar se ainda há vaga na agenda. "
+                "⚠️ Como e para hoje, temos uma taxa adicional de R$ 5,00 "
+                "e preciso verificar se ainda ha vaga na agenda. "
                 "Vou confirmar com a equipe, um momento!\n\n"
             )
         else:
+            dados.pop("taxa_urgencia", None)  # remove taxa se mudou pra outro dia
             msg = ""
         if estado.pop("modo_edicao", False):
             estado["tela"] = "resumo"
@@ -465,7 +514,11 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
         if t in ("não", "nao", "n", "não quero", "nao quero", "🚫 não quero"):
             dados["nomes"] = "Não"
         else:
-            dados["nomes"] = mensagem
+            # Limpa frase tipo "quero, vai ser joão e maria" → "joão e maria"
+            nomes_limpo = mensagem
+            for p in ["quero", "vai ser", "vai ser:", "quero,", "quero:"]:
+                nomes_limpo = nomes_limpo.replace(p, "")
+            dados["nomes"] = nomes_limpo.strip().strip(",").strip() or mensagem
         if estado.pop("modo_edicao", False):
             estado["tela"] = "resumo"
             return _mostrar_resumo(dados)
@@ -628,15 +681,18 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
 
 def _msg_precos():
     return (
-        "O valor depende do tipo de slide que você escolher. 💜\n\n"
+        "O valor depende do tipo de slide que voce escolher. 💜\n\n"
         "📄 PDF — R$ 20,00\n"
-        "🎬 Canva (Transições) — R$ 25,00\n"
-        "🎬 PowerPoint (Transições) — R$ 35,00\n"
+        "🎬 Canva (Transicoes) — R$ 25,00\n"
+        "🎬 PowerPoint (Transicoes) — R$ 35,00\n"
         "🎨 Slide Temas Canva — R$ 28,00\n"
         "🎨 Slide Temas PPTX — R$ 38,00\n\n"
-        "💡 No nosso catálogo você consegue ver exemplos "
-        "e explicações detalhadas de cada tipo:\n"
+        "💡 No nosso site voce consegue ver exemplos "
+        "e explicacoes detalhadas de cada tipo:\n"
         "👉 https://slydesign.com.br/personalizados/\n\n"
+        "🛍️ Tambem temos varios slides e modelos JA PRONTOS "
+        "com entrega imediata no site:\n"
+        "👉 https://slydesign.com.br\n\n"
         "[2] 🎨 Quero fazer meu pedido!\n"
         "[0] 🔙 Voltar ao menu"
     )
@@ -691,7 +747,18 @@ def _buscar_tema_handler(mensagem, estado):
 def _mostrar_resumo(dados):
     modelo = dados.get("modelo", "")
     modelo_limpo = modelo.split(" ", 1)[1] if " " in modelo else modelo
-    preco = PRECOS.get(modelo_limpo, "a combinar")
+    preco_base = PRECOS.get(modelo_limpo, "a combinar")
+
+    # Adiciona taxa de urgencia se for pra hoje
+    taxa_urgencia = dados.get("taxa_urgencia", False)
+    preco = preco_base
+    if taxa_urgencia:
+        try:
+            valor_str = preco_base.replace("R$ ", "").replace(",", ".")
+            total = float(valor_str) + 5
+            preco = f"R$ {total:.2f}".replace(".", ",")
+        except (ValueError, AttributeError):
+            pass
 
     # Calcula 50%
     try:
@@ -726,7 +793,8 @@ def _mostrar_resumo(dados):
         f"📅 Prazo: {dados.get('prazo', '')}\n"
         f"👤 Nomes: {dados.get('nomes', 'Não')}\n"
         f"📎 Extras: {_truncar_extras(dados.get('extras', 'Nenhum'))}\n\n"
-        f"💰 Valor total: {preco}\n"
+        f"💰 Valor total: {preco}"
+        f"{' (com taxa de urgencia R$ 5,00)' if taxa_urgencia else ''}\n"
         f"💳 Agora (50%): {metade_str} — o restante na entrega! 💜\n"
         f"{aviso_paginas}\n"
         f"Tá tudo certo?\n"
@@ -739,7 +807,16 @@ def _mostrar_resumo(dados):
 def _msg_pagamento(dados):
     modelo = dados.get("modelo", "")
     modelo_limpo = modelo.split(" ", 1)[1] if " " in modelo else modelo
-    preco = PRECOS.get(modelo_limpo, "a combinar")
+    preco_base = PRECOS.get(modelo_limpo, "a combinar")
+    taxa_urgencia = dados.get("taxa_urgencia", False)
+    preco = preco_base
+    if taxa_urgencia:
+        try:
+            valor_str = preco_base.replace("R$ ", "").replace(",", ".")
+            total = float(valor_str) + 5
+            preco = f"R$ {total:.2f}".replace(".", ",")
+        except (ValueError, AttributeError):
+            pass
 
     # Calcula 50%
     try:
@@ -875,6 +952,55 @@ async def responder(request: Request):
     resposta = re.sub(r'\[(\d)\]', r'*[ \1 ]*', resposta)
 
     return {"resposta": resposta}
+
+
+@app.get("/painel", response_class=HTMLResponse)
+async def painel():
+    """Painel de monitoramento — clientes ativos e pedidos pendentes."""
+    linhas = []
+    agora = time.time()
+    for tel, est in clientes.items():
+        tela = est.get("tela", "?")
+        dados = est.get("dados_pedido", {})
+        if tela == "menu" and not dados:
+            continue  # cliente so no menu, sem pedido
+        tema = dados.get("tema", "-")
+        modelo = dados.get("modelo", "-")
+        prazo = dados.get("prazo", "-")
+        status = "🟢 Ativo" if tela != "aguardando_pagamento" else "🟡 Aguardando pagamento"
+        linhas.append(
+            f"<tr><td>{tel}</td><td>{tela}</td><td>{tema}</td>"
+            f"<td>{modelo}</td><td>{prazo}</td><td>{status}</td></tr>"
+        )
+
+    tabela = "\n".join(linhas) if linhas else (
+        "<tr><td colspan='6' style='text-align:center;color:#888'>"
+        "Nenhum cliente ativo no momento</td></tr>"
+    )
+
+    return f"""
+    <html><head>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta http-equiv="refresh" content="30">
+    <title>Maya — Monitoramento</title>
+    <style>
+    body{{background:#1a1a2e;color:#e0e0e0;font-family:sans-serif;padding:20px}}
+    h1{{color:#e0aaff;margin-bottom:5px}}
+    h3{{color:#888;font-weight:normal;margin-top:0}}
+    table{{width:100%;border-collapse:collapse;margin-top:20px;font-size:14px}}
+    th{{background:#2a2a4e;color:#e0aaff;padding:10px;text-align:left}}
+    td{{padding:8px 10px;border-bottom:1px solid #333}}
+    tr:hover{{background:#2a2a3e}}
+    .footer{{color:#666;margin-top:30px;font-size:12px}}
+    </style></head><body>
+    <h1>Maya — Monitoramento</h1>
+    <h3>Atualiza a cada 30s | {len(linhas)} clientes ativos</h3>
+    <table>
+    <tr><th>Telefone</th><th>Tela</th><th>Tema</th><th>Modelo</th><th>Prazo</th><th>Status</th></tr>
+    {tabela}
+    </table>
+    <p class="footer">Sly Design — Maya v2.0</p>
+    </body></html>"""
 
 
 if __name__ == "__main__":
