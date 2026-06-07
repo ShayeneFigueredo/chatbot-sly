@@ -1356,6 +1356,22 @@ async def painel_confirmar(request: Request):
         })
         est["tela"] = "menu"
         est["dados_pedido"] = {}
+        # Envia mensagem final ao cliente
+        msg_final = (
+            "Pagamento confirmado! 💜\n\n"
+            "Seu pedido ja esta em producao. Assim que estiver pronto, "
+            "um de nossos atendentes entrara em contato por aqui "
+            "com uma pre-visualizacao de como ficou. ✨\n\n"
+            "Apos a aprovacao e o pagamento do valor restante, "
+            "liberamos o arquivo final pra voce!\n\n"
+            "Qualquer duvida e so chamar! 💜"
+        )
+        try:
+            import requests as _req
+            _req.post("http://127.0.0.1:8080/send",
+                     json={"to": tel, "text": msg_final}, timeout=5)
+        except Exception:
+            pass
         print(f"✅ Pedido de {tel} confirmado e salvo")
         return {"status": "ok"}
     return {"status": "erro"}
