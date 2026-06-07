@@ -22,6 +22,105 @@ from app.config import SYSTEM_PROMPT, PRECOS, TEMAS_DISPONIVEIS
 
 app = FastAPI()
 
+# ── Sistema de Login ──
+USUARIO = "shayenelf"
+SENHA = "135790"
+sessoes = {}  # token -> timestamp
+
+
+def verificar_login(request: Request) -> bool:
+    """Verifica se a sessao e valida."""
+    token = request.cookies.get("maya_token")
+    if token and token in sessoes:
+        # Sessao expira em 24h
+        if time.time() - sessoes[token] < 86400:
+            return True
+        del sessoes[token]
+    return False
+
+
+def gerar_token() -> str:
+    import secrets
+    token = secrets.token_hex(16)
+    sessoes[token] = time.time()
+    return token
+
+
+@app.get("/login", response_class=HTMLResponse)
+async def login_page(request: Request, erro: str = ""):
+    """Pagina de login."""
+    if verificar_login(request):
+        return _pagina_portal()
+    msg = '<p style="color:#f87171;text-align:center">Senha incorreta</p>' if erro else ""
+    return f"""
+    <html><head>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Maya — Login</title>
+    <style>
+    *{{box-sizing:border-box;margin:0;padding:0}}
+    body{{background:#0a0a14;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:'Segoe UI',sans-serif}}
+    form{{background:#1a1a2e;padding:30px;border-radius:16px;border:1px solid #333;width:90%;max-width:340px}}
+    h1{{color:#c084fc;text-align:center;margin-bottom:20px;font-size:1.3em}}
+    input{{width:100%;background:#0a0a14;border:1px solid #333;color:#ddd;padding:12px;border-radius:8px;margin-bottom:10px;font-size:.9em}}
+    button{{width:100%;background:#c084fc;color:#0a0a14;border:none;padding:12px;border-radius:8px;font-weight:bold;cursor:pointer;font-size:.9em}}
+    button:hover{{background:#a855f7}}
+    </style></head><body>
+    <form method="post" action="/login">
+    <h1>Maya — Sly Design</h1>
+    {msg}
+    <input name="usuario" placeholder="Usuario" required>
+    <input name="senha" type="password" placeholder="Senha" required>
+    <button type="submit">Entrar</button>
+    </form></body></html>"""
+
+
+@app.post("/login")
+async def login_action(request: Request):
+    """Processa o login."""
+    form = await request.form()
+    usuario = form.get("usuario", "")
+    senha = form.get("senha", "")
+    if usuario == USUARIO and senha == SENHA:
+        token = gerar_token()
+        resp = HTMLResponse(_pagina_portal())
+        resp.set_cookie("maya_token", token, httponly=True, max_age=86400)
+        return resp
+    return await login_page(request, erro="1")
+
+
+def _pagina_portal():
+    """Portal interno apos login — botoes para Painel e WhatsApp."""
+    return """
+    <html><head>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Maya — Portal</title>
+    <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#0a0a14;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:'Segoe UI',sans-serif}
+    .box{background:#1a1a2e;padding:30px;border-radius:16px;border:1px solid #333;width:90%;max-width:340px;text-align:center}
+    h1{color:#c084fc;margin-bottom:25px}
+    a{display:block;background:#2a2a4e;color:#c084fc;padding:14px;border-radius:10px;margin-bottom:10px;text-decoration:none;font-weight:bold;font-size:.95em}
+    a:hover{background:#3a3a5e}
+    a.wpp{background:#1a3a2a;color:#4ade80}
+    a.wpp:hover{background:#2a4a3a}
+    </style></head><body>
+    <div class="box">
+    <h1>Maya — Portal</h1>
+    <a href="/painel">Painel de Gestao</a>
+    <a href="/qrcode" class="wpp">WhatsApp QR Code</a>
+    </div></body></html>"""
+
+
+# Middleware de protecao para /painel*, /qrcode e APIs internas
+@app.middleware("http")
+async def proteger_rotas(request: Request, call_next):
+    path = request.url.path
+    rotas_protegidas = ("/painel", "/qrcode")
+    if any(path == r or path.startswith(r + "/") or path.startswith(r + "?") for r in rotas_protegidas):
+        if not verificar_login(request):
+            return await login_page(request)
+    return await call_next(request)
+
 # ── Configurações de notificação ──
 SHAY_NUMERO = "+5538997507651"
 META_TOKEN = os.getenv("META_TOKEN")
@@ -913,8 +1012,19 @@ async def health_check():
 async def qrcode():
     """Pagina com QR Code pra escanear no celular."""
     try:
-        with open("/tmp/qrcode.html", "r") as f:
-            return f.read()
+        conteudo = open("/tmp/qrcode.html", "r").read()
+        # Adiciona link clicavel pra abrir no WhatsApp (celular)
+        link_match = None
+        import re as _re
+        match = _re.search(r'https://wa\.me/settings/linked_devices[^"\s<]+', conteudo)
+        if match:
+            link_match = match.group(0)
+        if link_match:
+            conteudo = conteudo.replace("</body>",
+                f'<p style="text-align:center;margin-top:20px">'
+                f'📱 <a href="{link_match}" style="color:#c084fc;font-size:1.1em">'
+                f'Abrir no WhatsApp (se nao conseguir escanear)</a></p></body>')
+        return conteudo
     except FileNotFoundError:
         return """
         <html><head>
@@ -954,53 +1064,276 @@ async def responder(request: Request):
     return {"resposta": resposta}
 
 
+@app.post("/historico")
+async def salvar_historico(request: Request):
+    """Recebe mensagens da Shay pra salvar no historico do cliente."""
+    data = await request.json()
+    telefone = data.get("telefone", "")
+    papel = data.get("papel", "assistant")
+    texto = data.get("texto", "")
+    if telefone and texto:
+        estado = clientes.setdefault(telefone, {"tela": "menu", "dados_pedido": {}, "historico_ia": []})
+        _salvar_historico(estado, papel, texto)
+        print(f"📝 Historico salvo: {papel} → {telefone}")
+        return {"status": "ok"}
+    return {"status": "ignored"}
+
+
 @app.get("/painel", response_class=HTMLResponse)
 async def painel():
-    """Painel de monitoramento — clientes ativos e pedidos pendentes."""
-    linhas = []
-    agora = time.time()
+    """Painel de gestao profissional (HTML do frontend/)."""
+    try:
+        with open("frontend/painel.html", "r") as f:
+            return f.read()
+    except FileNotFoundError:
+        return "<h1>Painel nao encontrado</h1>"
+
+
+# ── API do Painel (endpoints JSON) ──
+
+@app.get("/painel/dados")
+async def painel_dados():
+    """Retorna JSON com todos os clientes ativos."""
+    cli_list = []
+    aguardando = 0
     for tel, est in clientes.items():
         tela = est.get("tela", "?")
         dados = est.get("dados_pedido", {})
         if tela == "menu" and not dados:
-            continue  # cliente so no menu, sem pedido
-        tema = dados.get("tema", "-")
-        modelo = dados.get("modelo", "-")
-        prazo = dados.get("prazo", "-")
-        status = "🟢 Ativo" if tela != "aguardando_pagamento" else "🟡 Aguardando pagamento"
-        linhas.append(
-            f"<tr><td>{tel}</td><td>{tela}</td><td>{tema}</td>"
-            f"<td>{modelo}</td><td>{prazo}</td><td>{status}</td></tr>"
+            continue
+        if tela == "aguardando_pagamento":
+            aguardando += 1
+
+        modelo = dados.get("modelo", "")
+        modelo_limpo = modelo.split(" ", 1)[1] if " " in modelo else modelo
+        preco_base = PRECOS.get(modelo_limpo, "-")
+
+        is_aguardando = tela == "aguardando_pagamento"
+        is_humano = atendimento_humano.get(tel, False)
+
+        cli_list.append({
+            "telefone": tel,
+            "tela": tela,
+            "tema": dados.get("tema", dados.get("assunto", "-")),
+            "modelo": modelo,
+            "prazo": dados.get("prazo", "-"),
+            "nomes": dados.get("nomes", "-"),
+            "valor": preco_base,
+            "humano": is_humano,
+            "aguardando": is_aguardando,
+            "statusCls": "status-humano" if is_humano else ("status-pagamento" if is_aguardando else "status-ativo"),
+            "statusTxt": "Atendimento humano" if is_humano else ("Aguardando pagamento" if is_aguardando else "Ativo"),
+        })
+
+    return {"clientes": cli_list, "total": len(cli_list), "aguardando": aguardando}
+
+
+@app.post("/painel/bloquear")
+async def painel_bloquear(request: Request):
+    """Bloqueia Maya para um numero (atendimento humano)."""
+    data = await request.json()
+    tel = data.get("telefone", "")
+    if tel:
+        atendimento_humano[tel] = True
+        print(f"🙋 Painel: Maya bloqueada para {tel}")
+        return {"status": "ok"}
+    return {"status": "erro"}
+
+
+@app.post("/painel/liberar")
+async def painel_liberar(request: Request):
+    """Libera Maya para um numero."""
+    data = await request.json()
+    tel = data.get("telefone", "")
+    if tel:
+        atendimento_humano.pop(tel, None)
+        print(f"🤖 Painel: Maya liberada para {tel}")
+        return {"status": "ok"}
+    return {"status": "erro"}
+
+
+@app.post("/painel/rejeitar")
+async def painel_rejeitar(request: Request):
+    """Rejeita pedido (ex: sem vaga hoje) e notifica cliente."""
+    data = await request.json()
+    tel = data.get("telefone", "")
+    motivo = data.get("motivo", "sem disponibilidade")
+    if tel and tel in clientes:
+        est = clientes[tel]
+        est["tela"] = "menu"
+        est["dados_pedido"] = {}
+
+        # Notifica o cliente
+        msg = (
+            f"Infelizmente nao temos mais vagas para hoje... 😕\n\n"
+            f"Mas podemos entregar amanha sem a taxa de urgencia! "
+            f"Se preferir, faremos a devolucao do Pix agora mesmo.\n\n"
+            f"Me diga como prefere? 💜\n\n"
+            f"[0] 🔙 Voltar ao menu"
         )
+        # Envia via ponte interna
+        try:
+            import requests as req
+            req.post("http://127.0.0.1:8080/send",
+                     json={"to": tel, "text": msg}, timeout=5)
+        except Exception:
+            pass
 
-    tabela = "\n".join(linhas) if linhas else (
-        "<tr><td colspan='6' style='text-align:center;color:#888'>"
-        "Nenhum cliente ativo no momento</td></tr>"
-    )
+        print(f"❌ Painel: pedido de {tel} rejeitado ({motivo})")
+        return {"status": "ok"}
+    return {"status": "erro"}
 
-    return f"""
-    <html><head>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta http-equiv="refresh" content="30">
-    <title>Maya — Monitoramento</title>
-    <style>
-    body{{background:#1a1a2e;color:#e0e0e0;font-family:sans-serif;padding:20px}}
-    h1{{color:#e0aaff;margin-bottom:5px}}
-    h3{{color:#888;font-weight:normal;margin-top:0}}
-    table{{width:100%;border-collapse:collapse;margin-top:20px;font-size:14px}}
-    th{{background:#2a2a4e;color:#e0aaff;padding:10px;text-align:left}}
-    td{{padding:8px 10px;border-bottom:1px solid #333}}
-    tr:hover{{background:#2a2a3e}}
-    .footer{{color:#666;margin-top:30px;font-size:12px}}
-    </style></head><body>
-    <h1>Maya — Monitoramento</h1>
-    <h3>Atualiza a cada 30s | {len(linhas)} clientes ativos</h3>
-    <table>
-    <tr><th>Telefone</th><th>Tela</th><th>Tema</th><th>Modelo</th><th>Prazo</th><th>Status</th></tr>
-    {tabela}
-    </table>
-    <p class="footer">Sly Design — Maya v2.0</p>
-    </body></html>"""
+
+# ── Webhook do Site (Yampi) ──
+
+@app.post("/webhook/site")
+async def webhook_site(request: Request):
+    """Recebe eventos do site (Yampi) e processa conforme o tipo.
+
+    Eventos suportados:
+    - order.created / order.approved: adiciona pedido ao sistema
+    - order.payment_denied: registra pagamento recusado
+    - cart.abandoned: ignora (carrinho abandonado nao e pedido real)
+    """
+    try:
+        data = await request.json()
+        evento = data.get("event", data.get("type", "order.created"))
+
+        # Carrinho abandonado → ignora (nao pagou)
+        if "abandoned" in str(evento).lower() or "abandonado" in str(evento).lower():
+            print(f"🛒 Carrinho abandonado — ignorado")
+            return {"status": "ignored", "motivo": "carrinho abandonado"}
+
+        # Pagamento recusado → registra mas nao adiciona como pedido
+        if "denied" in str(evento).lower() or "negado" in str(evento).lower() or "recusado" in str(evento).lower():
+            print(f"💳 Pagamento recusado — registrado para acompanhamento")
+            return {"status": "noted", "motivo": "pagamento recusado"}
+
+        # Pedido criado ou aprovado → adiciona ao sistema
+        order = data.get("order", data.get("data", data))
+        nome = order.get("customer", {}).get("name", order.get("nome", ""))
+        items = order.get("items", [])
+        produto = items[0].get("name", "") if items else order.get("produto", "")
+        valor = float(order.get("total", order.get("valor", 0)))
+
+        from backend.pedidos import adicionar, adicionar_faturamento_site
+        from datetime import datetime
+
+        mes = datetime.now().month
+        adicionar({
+            "cliente": nome,
+            "arquivo": produto,
+            "tema": f"Site — {produto}",
+            "valor": f"R$ {valor:.2f}".replace(".", ","),
+            "situacao": "Pago (Site)",
+            "pg": "Pago",
+            "responsavel": "SF",
+            "origem": "site",
+            "mes": mes,
+        })
+        # Atualiza faturamento do site no mes atual
+        from backend.pedidos import _carregar, _salvar
+        db = _carregar()
+        db.setdefault("faturamento_site", {})[str(mes)] = round(
+            float(db.get("faturamento_site", {}).get(str(mes), 0)) + valor, 2
+        )
+        _salvar(db)
+        print(f"🛒 Pedido site: {nome} — {produto} — R$ {valor}")
+        return {"status": "ok"}
+    except Exception as e:
+        print(f"⚠️ Erro webhook site: {e}")
+        return {"status": "erro", "msg": str(e)}
+
+
+# ── Taxas ──
+
+@app.get("/taxas")
+async def taxas():
+    """Retorna informacoes sobre taxas do site."""
+    return {
+        "yampi": "2.5% por transacao",
+        "mercado_pago": "~0.87% (ex: R$ 14,99 -> R$ 14,86)",
+        "exemplo": {
+            "valor_venda": "R$ 14,99",
+            "taxa_yampi": "R$ 0,37",
+            "taxa_mercado_pago": "R$ 0,13",
+            "liquido": "R$ 14,49",
+        }
+    }
+
+
+# ── API de Pedidos e Faturamento ──
+
+@app.get("/painel/mes/{mes}")
+async def painel_mes(mes: int):
+    """Retorna pedidos e faturamento de um mes."""
+    from backend.pedidos import listar_por_mes, faturamento
+    pedidos = listar_por_mes(mes)
+    fat = faturamento()
+    return {
+        "pedidos": pedidos,
+        "faturamento": fat["mensal"].get(mes, {"pedidos": 0, "site": 0, "total": 0})
+    }
+
+
+@app.get("/painel/faturamento")
+async def painel_faturamento():
+    """Retorna faturamento completo do ano."""
+    from backend.pedidos import faturamento
+    return faturamento()
+
+
+@app.post("/painel/adicionar-manual")
+async def painel_adicionar_manual(request: Request):
+    """Adiciona pedido manual (Instagram, telefone, etc)."""
+    from backend.pedidos import adicionar
+    data = await request.json()
+    adicionar(data)
+    return {"status": "ok"}
+
+
+@app.post("/painel/editar-pedido")
+async def painel_editar_pedido(request: Request):
+    """Edita situacao de um pedido."""
+    from backend.pedidos import atualizar_situacao
+    data = await request.json()
+    atualizar_situacao(data.get("id"), data.get("situacao", "Feito"))
+    return {"status": "ok"}
+
+
+@app.post("/painel/confirmar")
+async def painel_confirmar(request: Request):
+    """Confirma pedido e adiciona ao banco."""
+    from backend.pedidos import adicionar
+    data = await request.json()
+    tel = data.get("telefone", "")
+    if tel and tel in clientes:
+        est = clientes[tel]
+        dados = est.get("dados_pedido", {})
+        modelo = dados.get("modelo", "")
+        modelo_limpo = modelo.split(" ", 1)[1] if " " in modelo else modelo
+        preco_base = PRECOS.get(modelo_limpo, "")
+        if dados.get("taxa_urgencia"):
+            try:
+                total = float(preco_base.replace("R$ ", "").replace(",", ".")) + 5
+                preco_base = f"R$ {total:.2f}".replace(".", ",")
+            except (ValueError, AttributeError):
+                pass
+        adicionar({
+            "cliente": tel,
+            "arquivo": dados.get("modelo", ""),
+            "tema": dados.get("tema", dados.get("assunto", "")),
+            "valor": preco_base,
+            "situacao": "Novo",
+            "pg": "50% pago",
+            "responsavel": "SF",
+            "origem": "whatsapp",
+        })
+        est["tela"] = "menu"
+        est["dados_pedido"] = {}
+        print(f"✅ Pedido de {tel} confirmado e salvo")
+        return {"status": "ok"}
+    return {"status": "erro"}
 
 
 if __name__ == "__main__":

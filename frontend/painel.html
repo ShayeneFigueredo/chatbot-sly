@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Maya — Sly Design</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0a0a14;color:#ddd;font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;padding:12px}
+h1{color:#c084fc;font-size:1.2em;margin-bottom:12px}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px}
+.tab{background:#1a1a2e;color:#888;border:none;padding:8px 12px;border-radius:8px 8px 0 0;cursor:pointer;font-size:.78em}
+.tab.active{background:#2a2a4e;color:#c084fc}
+.tab.extra{background:#1e1212;color:#f87171;margin-left:auto}
+.tab.extra.active{background:#3a1a1a;color:#fca5a5}
+.panel{display:none;animation:fade .3s}
+.panel.active{display:block}
+@keyframes fade{from{opacity:0}}
+.grid{display:grid;grid-template-columns:1fr;gap:10px}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;background:#111120;border-radius:12px;padding:8px}
+table{width:100%;border-collapse:collapse;min-width:550px;font-size:.75em}
+th{background:#1a1a30;color:#c084fc;padding:7px 5px;text-align:left;position:sticky;top:0}
+td{padding:5px;border-bottom:1px solid #1a1a2e;white-space:nowrap}
+tr:hover{background:#1a1a30}
+.fat-sidebar{background:#111120;border-radius:12px;padding:12px}
+.fat-sidebar h3{color:#c084fc;font-size:.9em;margin-bottom:8px}
+.fat-row{display:flex;justify-content:space-between;padding:4px 0;font-size:.78em;border-bottom:1px solid #1a1a2e}
+.fat-total{font-weight:bold;color:#c084fc;font-size:.85em;margin-top:8px;padding-top:8px;border-top:2px solid #333}
+.fat-site{color:#fbbf24}
+.cta-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.btn{background:#2a2a4e;color:#c084fc;border:1px solid #444;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:.78em}
+.btn:hover{background:#3a3a5e}
+.btn.sm{font-size:.7em;padding:4px 8px;border-radius:6px}
+.btn.danger{background:#3a1a1a;color:#fca5a5;border-color:#7f1d1d}
+.btn.success{background:#1a3a1a;color:#86efac;border-color:#14532d}
+.btn.warn{background:#3a2a1a;color:#fbbf24;border-color:#4a2a1a}
+.form-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.form-row input, .form-row select{flex:1;min-width:100px;background:#1a1a2e;border:1px solid #333;color:#ddd;padding:8px 10px;border-radius:8px;font-size:.8em}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 20px;border-radius:20px;font-size:.8em;z-index:200;opacity:0;transition:opacity .3s}
+.toast.show{opacity:1}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);z-index:100;align-items:center;justify-content:center}
+.modal.show{display:flex}
+.modal-box{background:#1a1a2e;border-radius:16px;padding:20px;max-width:450px;width:90%;border:1px solid #333;max-height:80vh;overflow-y:auto}
+.modal-box h3{color:#c084fc;margin-bottom:12px}
+.card{background:#1a1a2e;border-radius:10px;padding:12px;margin-bottom:8px}
+.card-head{display:flex;justify-content:space-between}
+.card-tel{color:#c084fc;font-weight:bold;font-size:.85em}
+.card-status{padding:3px 8px;border-radius:10px;font-size:.65em}
+.s-ativo{background:#1a3a1a;color:#4ade80}
+.s-pagamento{background:#3a2a1a;color:#fbbf24}
+.s-humano{background:#3a1a1a;color:#f87171}
+@media(min-width:900px){
+  body{max-width:1100px;margin:0 auto;padding:20px}
+  h1{font-size:1.5em}
+  .grid{grid-template-columns:1fr 280px}
+}
+</style>
+</head>
+<body>
+
+<h1>Maya — Gestao Sly Design</h1>
+
+<!-- Abas -->
+<div class="tabs" id="tabs"></div>
+
+<!-- Clientes ativos -->
+<div class="panel active" id="tab-clientes">
+  <div class="cta-bar">
+    <button class="btn" onclick="carregarClientes()">Atualizar</button>
+    <button class="btn" onclick="abrirModal('add')">+ Pedido Manual</button>
+  </div>
+  <div id="clientes">Carregando...</div>
+</div>
+
+<!-- Meses -->
+<div class="panel" id="tab-meses"></div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+let mesAtual = 6; // Junho 2026
+const MESES = ['','Janeiro','Fevereiro','Marco','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+function t(msg){const e=document.getElementById('toast');e.textContent=msg;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2500)}
+
+async function api(path,body){
+  const r=await fetch(path,{method:body?'POST':'GET',headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined});
+  return r.json();
+}
+
+// ===== CLIENTES ATIVOS =====
+async function carregarClientes(){
+  const d=await api('/painel/dados');
+  const el=document.getElementById('clientes');
+  if(!d.clientes.length){el.innerHTML='<div style="text-align:center;color:#555;padding:40px">Nenhum cliente ativo ✨</div>';return}
+  el.innerHTML=d.clientes.map(c=>`
+    <div class="card">
+      <div class="card-head">
+        <span class="card-tel">${c.telefone}</span>
+        <span class="card-status ${c.statusCls.replace('status-','s-')}">${c.statusTxt}</span>
+      </div>
+      <div style="color:#999;font-size:.75em;margin:5px 0">
+        <b>Tema:</b> ${c.tema}<br>
+        <b>Modelo:</b> ${c.modelo} | <b>Prazo:</b> ${c.prazo}<br>
+        <b>Valor:</b> ${c.valor}
+      </div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px">
+        ${c.aguardando?`
+          <button class="btn success sm" onclick="confirmar('${c.telefone}')">Confirmar</button>
+          <button class="btn warn sm" onclick="rejeitar('${c.telefone}')">Rejeitar</button>
+        `:''}
+        ${c.humano?
+          `<button class="btn sm" onclick="liberar('${c.telefone}')">Liberar Maya</button>`:
+          `<button class="btn danger sm" onclick="bloquear('${c.telefone}')">Bloquear Maya</button>`
+        }
+      </div>
+    </div>
+  `).join('');
+}
+
+async function bloquear(tel){await api('/painel/bloquear',{telefone:tel});t('Maya bloqueada');carregarClientes()}
+async function liberar(tel){await api('/painel/liberar',{telefone:tel});t('Maya liberada');carregarClientes()}
+async function confirmar(tel){
+  await api('/painel/confirmar',{telefone:tel});
+  t('Pedido confirmado e adicionado!');carregarClientes();carregarMes(mesAtual);
+}
+async function rejeitar(tel){
+  const m=prompt('Motivo (sem vaga hoje, reembolso...):');if(!m)return;
+  await api('/painel/rejeitar',{telefone:tel,motivo:m});
+  t('Pedido rejeitado');carregarClientes();
+}
+
+// ===== MESES =====
+async function carregarMes(mes){
+  mesAtual=mes;
+  const d=await api(`/painel/mes/${mes}`);
+  const ped=d.pedidos||[], fat=d.faturamento||{};
+  const el=document.getElementById('tab-meses');
+  let rows=ped.map(p=>`<tr>
+    <td>${p.entrega||p.data||''}</td><td>${p.cliente||''}</td><td>${p.arquivo||''}</td>
+    <td>${p.tema||''}</td><td>${p.valor||''}</td><td>${p.situacao||''}</td>
+    <td>${p.pg||''}</td><td>${p.responsavel||''}</td>
+    <td><button class="btn sm" onclick="editarPedido(${p.id})">Editar</button></td>
+  </tr>`).join('');
+  if(!rows)rows='<tr><td colspan="9" style="text-align:center;color:#555;padding:20px">Nenhum pedido neste mes</td></tr>';
+
+  el.innerHTML=`
+    <div class="grid">
+      <div class="table-wrap">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <span style="color:#c084fc;font-weight:bold">${MESES[mes]} 2026</span>
+          <span style="color:#888;font-size:.7em">${ped.length} pedidos</span>
+        </div>
+        <table>
+          <tr><th>Entrega</th><th>Cliente</th><th>Arquivo</th><th>Tema</th><th>Valor</th><th>Situacao</th><th>PG</th><th>Resp</th><th></th></tr>
+          ${rows}
+        </table>
+      </div>
+      <div class="fat-sidebar">
+        <h3>Faturamento — ${MESES[mes]}</h3>
+        <div class="fat-row"><span>Pedidos</span><span>R$ ${fat.pedidos?.toFixed(2)||'0.00'}</span></div>
+        <div class="fat-row fat-site"><span>Site</span><span>R$ ${fat.site?.toFixed(2)||'0.00'}</span></div>
+        <div class="fat-total"><span>Total</span><span>R$ ${fat.total?.toFixed(2)||'0.00'}</span></div>
+        <div style="margin-top:5px;font-size:.7em;color:#888">Shay: R$ ${(fat.total||0).toFixed(2)}</div>
+      </div>
+    </div>`;
+}
+
+// ===== INICIALIZAR =====
+function init(){
+  let tabs='<button class="tab active" onclick="abrirTab(\'clientes\')">Clientes Ativos</button>';
+  for(let m=1;m<=12;m++)tabs+=`<button class="tab" onclick="abrirTab('mes',${m})">${MESES[m].substring(0,3)}</button>`;
+  tabs+='<button class="tab extra" onclick="abrirTab(\'faturamento\')">Faturamento 2026</button>';
+  document.getElementById('tabs').innerHTML=tabs;
+  carregarClientes();
+}
+function abrirTab(tipo,mes){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  if(tipo==='clientes'){document.getElementById('tab-clientes').classList.add('active');document.querySelector('.tab').classList.add('active');carregarClientes()}
+  else if(tipo==='mes'){document.getElementById('tab-meses').classList.add('active');carregarMes(mes);highlightTab(mes)}
+  else if(tipo==='faturamento'){document.getElementById('tab-meses').classList.add('active');carregarFaturamento();highlightExtra()}
+}
+function highlightTab(mes){document.querySelectorAll('.tab').forEach((b,i)=>{if(i===mes)b.classList.add('active')})}
+function highlightExtra(){document.querySelector('.tab.extra').classList.add('active')}
+
+async function carregarFaturamento(){
+  const d=await api('/painel/faturamento');
+  const fat=d.mensal||{};
+  let rows='';
+  for(let m=1;m<=12;m++){
+    const f=fat[m]||{pedidos:0,site:0,total:0};
+    rows+=`<div class="fat-row"><span>${MESES[m]}</span><span>R$ ${f.total.toFixed(2)}</span></div>`;
+  }
+  document.getElementById('tab-meses').innerHTML=`
+    <div class="fat-sidebar" style="max-width:400px;margin:0 auto">
+      <h3>Faturamento 2026</h3>
+      ${rows}
+      <div class="fat-total"><span>TOTAL 2026</span><span>R$ ${(d.total_ano||0).toFixed(2)}</span></div>
+      <div style="margin-top:10px;font-size:.8em">
+        <div>Shay (SF): R$ ${(d.total_shay||0).toFixed(2)}</div>
+        <div style="color:#888">Samuel (SA): R$ ${(d.total_samuel||0).toFixed(2)}</div>
+        <div class="fat-site">Site: R$ ${(d.total_site||0).toFixed(2)}</div>
+      </div>
+    </div>`;
+}
+
+function abrirModal(tipo,id){
+  let html='';
+  if(tipo==='add'){
+    html=`<h3>+ Pedido Manual</h3>
+      <div class="form-row"><input placeholder="Cliente (telefone)" id="mCliente"><input placeholder="Data (dd/mm)" id="mData"></div>
+      <div class="form-row"><input placeholder="Arquivo/Tipo" id="mArquivo"><input placeholder="Tema" id="mTema"></div>
+      <div class="form-row"><input placeholder="Valor (ex: 25,00)" id="mValor"><input placeholder="Mes (1-12)" id="mMes" value="${mesAtual}"></div>
+      <div class="form-row">
+        <select id="mSituacao"><option>Novo</option><option>Feito</option><option>Em andamento</option></select>
+        <select id="mPg"><option>50% pago</option><option>Pago</option></select>
+        <select id="mResp"><option>SF</option><option>SA</option></select>
+      </div>
+      <button class="btn success" onclick="addManual()">Adicionar</button>`;
+  }else if(tipo==='edit'){
+    html=`<h3>Editar Pedido #${id}</h3>
+      <div class="form-row"><input placeholder="Situacao" id="eSituacao"><input placeholder="PG" id="ePg"></div>
+      <button class="btn success" onclick="salvarEdicao(${id})">Salvar</button>`;
+  }
+  const modal=document.createElement('div');modal.className='modal show';modal.id='modal';
+  modal.innerHTML=`<div class="modal-box">${html}<div style="margin-top:10px"><button class="btn" onclick="this.closest('.modal').remove()">Fechar</button></div></div>`;
+  document.body.appendChild(modal);
+}
+
+async function addManual(){
+  const d={
+    cliente:document.getElementById('mCliente').value,
+    data:document.getElementById('mData').value,
+    arquivo:document.getElementById('mArquivo').value,
+    tema:document.getElementById('mTema').value,
+    valor:'R$ '+document.getElementById('mValor').value,
+    mes:parseInt(document.getElementById('mMes').value)||mesAtual,
+    situacao:document.getElementById('mSituacao').value,
+    pg:document.getElementById('mPg').value,
+    responsavel:document.getElementById('mResp').value,
+    origem:'manual'
+  };
+  if(!d.cliente||!d.tema)return t('Preencha cliente e tema');
+  const r=await fetch('/painel/adicionar-manual',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});
+  if(r.ok){t('Pedido adicionado!');document.getElementById('modal').remove();carregarMes(mesAtual)}
+}
+
+async function editarPedido(id){
+  const s=prompt('Nova situacao (Feito/Em andamento/Cancelado):');
+  if(!s)return;
+  await fetch('/painel/editar-pedido',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,situacao:s})});
+  t('Pedido atualizado!');carregarMes(mesAtual);
+}
+
+init();
+</script>
+</body>
+</html>
