@@ -1,0 +1,13 @@
+.venv
+__pycache__
+*.pyc
+.git
+.gitignore
+node_modules
+tokens
+.vscode
+.claude
+*.md
+projeto
+docs
+frontend
