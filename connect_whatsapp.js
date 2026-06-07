@@ -46,6 +46,9 @@ async function start() {
       console.log("\n QR Code - Escaneie com WhatsApp:");
       qrcode.generate(qr, { small: true });
 
+      // Gera link do WhatsApp pra conectar sem escanear
+      const waLink = `https://wa.me/settings/linked_devices#${encodeURIComponent(qr)}`;
+
       // Salva pagina HTML pra abrir no celular
       const html = `<html><head>
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -53,15 +56,17 @@ async function start() {
 <style>body{background:#1a1a2e;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;margin:0;font-family:sans-serif}
 h2{color:#e0aaff;margin:10px}h3{color:#aaa;font-weight:normal;margin:5px}
 img{max-width:90vw;border-radius:12px;box-shadow:0 0 30px rgba(224,170,255,.3)}
-p{color:#888;margin-top:30px}
+a{color:#c084fc;font-size:1.1em;margin:15px;text-align:center}
+p{color:#888;margin-top:20px}
 </style></head><body>
 <h2>Maya Sly Design</h2>
 <h3>WhatsApp > Aparelhos Conectados</h3>
 <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qr)}">
-<p>QR Code Maya</p>
+<a href="${waLink}">📱 Abrir no WhatsApp (sem escanear)</a>
+<p>Se o link nao funcionar, escaneie o QR Code acima</p>
 </body></html>`;
       fs.writeFileSync("/tmp/qrcode.html", html);
-      console.log("\n📱 Abra no celular: https://chatbot-sly-oficial.onrender.com/qrcode");
+      console.log(`\n📱 QR + Link: ${waLink.substring(0, 80)}...`);
     }
 
     if (connection === "close") {

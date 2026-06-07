@@ -141,7 +141,8 @@ async function carregarMes(mes){
     <td>${p.entrega||p.data||''}</td><td>${p.cliente||''}</td><td>${p.arquivo||''}</td>
     <td>${p.tema||''}</td><td>${p.valor||''}</td><td>${p.situacao||''}</td>
     <td>${p.pg||''}</td><td>${p.responsavel||''}</td>
-    <td><button class="btn sm" onclick="editarPedido(${p.id})">Editar</button></td>
+    <td><button class="btn sm" onclick="editarPedido(${p.id},'${p.situacao||''}','${p.pg||''}','${p.valor||''}')">Editar</button>
+    <button class="btn danger sm" onclick="deletarPedido(${p.id})" style="margin-left:3px">X</button></td>
   </tr>`).join('');
   if(!rows)rows='<tr><td colspan="9" style="text-align:center;color:#555;padding:20px">Nenhum pedido neste mes</td></tr>';
 
@@ -247,11 +248,19 @@ async function addManual(){
   if(r.ok){t('Pedido adicionado!');document.getElementById('modal').remove();carregarMes(mesAtual)}
 }
 
-async function editarPedido(id){
-  const s=prompt('Nova situacao (Feito/Em andamento/Cancelado):');
-  if(!s)return;
-  await fetch('/painel/editar-pedido',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,situacao:s})});
+async function editarPedido(id,sit,pg,val){
+  const ns=prompt('Situacao (Feito/Em andamento/Cancelado):',sit||'');
+  const np=prompt('Pagamento (Pago/50% pago):',pg||'');
+  const nv=prompt('Valor (ex: R$ 25,00):',val||'');
+  if(!ns&&!np&&!nv)return;
+  const d={id};if(ns)d.situacao=ns;if(np)d.pg=np;if(nv)d.valor=nv;
+  await fetch('/painel/editar-pedido',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});
   t('Pedido atualizado!');carregarMes(mesAtual);
+}
+async function deletarPedido(id){
+  if(!confirm('Deletar pedido #'+id+'?'))return;
+  await fetch('/painel/deletar-pedido',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});
+  t('Pedido removido');carregarMes(mesAtual);
 }
 
 init();
