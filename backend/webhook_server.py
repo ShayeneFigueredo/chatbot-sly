@@ -113,6 +113,15 @@ def _pagina_portal():
     <h1>Maya — Portal</h1>
     <a href="/painel">Painel de Gestao</a>
     <a href="/qrcode" class="wpp">WhatsApp QR Code</a>
+    <a href="#" onclick="resetarWhatsApp()" style="background:#3a1a1a;color:#fca5a5">Resetar WhatsApp</a>
+    <script>
+    async function resetarWhatsApp(){
+      if(!confirm('Isso vai desconectar o WhatsApp. Depois voce precisara escanear o QR Code de novo. Continuar?'))return;
+      const r=await fetch('/qrcode/reset',{method:'POST'});
+      const d=await r.json();
+      alert(d.msg);if(d.status==='ok')location.href='/qrcode';
+    }
+    </script>
     </div></body></html>"""
 
 
@@ -1061,6 +1070,19 @@ async def health_check():
     return {"status": "ok", "maya": "online 💜"}
 
 
+@app.post("/qrcode/reset")
+async def qrcode_reset(request: Request):
+    """Reseta a sessao do WhatsApp (apaga auth e força novo QR Code)."""
+    import shutil
+    auth_dir = "/app/auth_info_baileys"
+    try:
+        shutil.rmtree(auth_dir, ignore_errors=True)
+        print("🔁 Sessao WhatsApp resetada — novo QR Code necessario")
+        return {"status": "ok", "msg": "Sessao resetada. Recarregue a pagina /qrcode"}
+    except Exception as e:
+        return {"status": "erro", "msg": str(e)}
+
+
 @app.get("/qrcode", response_class=HTMLResponse)
 async def qrcode():
     """Pagina com QR Code pra escanear no celular."""
@@ -1082,9 +1104,20 @@ async def qrcode():
         return """
         <html><head>
         <meta name="viewport" content="width=device-width,initial-scale=1">
-        <style>body{background:#1a1a2e;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;font-family:sans-serif}
-        h2{color:#e0aaff}</style></head><body>
+        <style>body{background:#1a1a2e;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;margin:0;font-family:Montserrat,sans-serif}
+        h2{color:#e0aaff;margin-bottom:20px}
+        button{background:#3a1a1a;color:#fca5a5;border:1px solid #7f1d1d;padding:12px 24px;border-radius:8px;cursor:pointer;font-size:.9em}
+        button:hover{background:#5a2a2a}
+        </style></head><body>
         <h2>Maya ja esta conectada! 💜</h2>
+        <button onclick="resetar()">Resetar WhatsApp</button>
+        <script>
+        async function resetar(){
+          if(!confirm('Resetar sessao WhatsApp? Precisara escanear o QR Code novamente.'))return;
+          await fetch('/qrcode/reset',{method:'POST'});
+          location.reload();
+        }
+        </script>
         </body></html>"""
 
 
