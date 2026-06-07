@@ -1,14 +1,12 @@
-# 🤖 Maya — Atendente Virtual com IA para E-commerce
+# Maya — Atendente Virtual da Sly Design
 
-Chatbot inteligente desenvolvido para automatizar o atendimento via WhatsApp da **[Sly Design](https://slydesign.com.br)**, loja especializada em slides personalizados.
-
-> **Este repositório é um projeto de portfólio.** O código demonstra arquitetura, fluxos e integrações — não é um produto open source para uso comercial.
+Chatbot com IA para atendimento automatizado via WhatsApp da **[Sly Design](https://slydesign.com.br)**, loja especializada em slides personalizados.
 
 ---
 
-## 🎯 O Problema
+## O Problema
 
-A Sly Design recebia dezenas de mensagens diárias no WhatsApp com perguntas repetitivas:
+A Sly Design recebe dezenas de mensagens diarias no WhatsApp com perguntas repetitivas:
 - "Quanto custa?"
 - "Tem tema X?"
 - "Faz pra hoje?"
@@ -18,116 +16,100 @@ A Sly Design recebia dezenas de mensagens diárias no WhatsApp com perguntas rep
 
 ---
 
-## 💡 A Solução
+## A Solucao
 
 A **Maya** — uma atendente virtual com IA que:
-- Entende o que o cliente quer, mesmo sem botões
-- Faz busca inteligente no catálogo (tolera erros de digitação)
+- Entende o que o cliente quer, mesmo sem botoes
+- Faz busca inteligente no catalogo (tolera erros de digitacao)
 - Conduz o fluxo completo de pedido personalizado
-- Aprendeu o tom de voz da marca Sly Design
+- Detecta quando o cliente envia imagens e orienta o proximo passo
+- Mantem contexto da conversa por 7 dias para respostas coerentes
 - Sabe quando passar para atendimento humano
+- Silencia automaticamente apos confirmacao de pagamento
 
 ---
 
-## 🏗️ Arquitetura
+## Arquitetura
 
 ```
-📱 WhatsApp ──▶ Meta Cloud API ──▶ Backend (Python/FastAPI)
-                                      │
-                                 ┌────▼────┐
-                                 │   LLM   │  (Groq + Llama 3.3 70B)
-                                 └────┬────┘
-                                      │
-🖥️ Dashboard ──▶ Streamlit ◀─────────┘
-                 (métricas, conversas, assumir)
+📱 WhatsApp ──▶ Baileys (WebSocket) ──▶ Backend Python (FastAPI)
+                                              │
+                                         ┌────▼────┐
+                                         │   LLM   │  (Groq + Llama 3.3 70B)
+                                         └────┬────┘
+                                              │
+📤 Notificacoes ──▶ Shay (WhatsApp pessoal) ◀┘
 ```
 
-### Módulos
+### Modulos
 
-| Módulo | Responsabilidade |
+| Modulo | Responsabilidade |
 |---|---|
-| `app/nlp.py` | Detector de intenções (7 categorias, zero tokens) |
-| `app/bot.py` | Fluxos de conversa, mensagens, máquina de estados |
-| `app/buscador.py` | Busca inteligente com tolerância a erros (difflib) |
-| `app/memoria.py` | Histórico, contador de tokens, persistência JSON |
-| `app/config.py` | System prompt, preços, catálogo, conexão IA |
-| `app/main.py` | Loop principal, orquestração dos fluxos |
+| `backend/webhook_server.py` | Servidor principal: maquina de estados, endpoints, fallback IA |
+| `connect_whatsapp.js` | Conexao WhatsApp via Baileys, delay natural, ponte de envio |
+| `app/nlp.py` | Detector de intencoes — 7 categorias, zero tokens |
+| `app/buscador.py` | Busca inteligente no catalogo com tolerancia a erros (difflib) |
+| `app/config.py` | System prompt, precos, catalogo, conexao com Groq |
 
-### Fluxo de Pedido (Máquina de Estados)
+### Maquina de Estados — Fluxo de Pedido
 
 ```
-MENU → Tema → Tipo → Prazo → Nomes → Extras → Resumo → Pagamento
-         ↓       ↓       ↓        ↓        ↓         ↓         ↓
-      [editar] [editar] [editar] [editar] [editar] [mudar] [Pix 50%]
+MENU → Tema → Tipo → Tema Visual → Prazo → Nomes → Extras → Resumo → Aguardando Pagamento
+        ↓       ↓         ↓          ↓        ↓         ↓         ↓              ↓
+     [editar] [editar]  [editar]   [editar] [editar]  [editar]  [mudar]    [Maya silencia]
 ```
 
 ---
 
-## 🧠 NLP — Entendendo Clientes Sem Botões
+## NLP — Entendendo Clientes Sem Gastar Tokens
 
-A Maya classifica mensagens livres em **7 intenções** usando processamento de linguagem natural local (sem gastar tokens da IA):
+A Maya classifica mensagens em **7 intencoes** usando processamento local, antes de decidir se chama a IA:
 
-| Intenção | Exemplo | Resposta |
+| Intencao | Exemplo | Resposta |
 |---|---|---|
-| `preco` | "quanto custa?" | Tabela de preços |
-| `buscar_tema` | "tem naruto?" | Busca inteligente no catálogo |
-| `prazo` | "faz pra hj?" | Prazos + taxa de urgência |
+| `preco` | "quanto custa?" | Tabela de precos completa |
+| `buscar_tema` | "tem naruto?" | Busca inteligente no catalogo |
+| `prazo` | "faz pra hj?" | Prazos + taxa de urgencia |
 | `listar_temas` | "quais temas?" | Link da loja |
 | `suporte_tecnico` | "comprei e deu erro" | Fluxo de suporte |
-| `ajuda_montagem` | "me ajuda a fazer?" | Tutoriais em vídeo |
-| `duvida` | "diferença canva ppt?" | IA responde |
+| `ajuda_montagem` | "me ajuda a fazer?" | Links de tutoriais |
+| `duvida` | "diferenca canva ppt?" | IA responde com contexto |
 
 ---
 
-## 🧪 Testes
-
-**47 testes automatizados** cobrindo todos os fluxos:
-
-```
-✅ 20 testes do detector NLP (intenções)
-✅ 27 testes do chatbot (menu, busca, pedido, pagamento, cancelamento...)
-```
-
----
-
-## 🛠️ Stack Tecnológica
+## Stack Tecnologica
 
 | Camada | Tecnologia | Motivo |
 |---|---|---|
-| IA / LLM | Groq API + Llama 3.3 70B | API gratuita para desenvolvimento |
-| Linguagem | Python 3.11+ | Ecossistema rico, curva amigável |
-| Busca | difflib (nativo Python) | Tolerância a erro de digitação, zero dependências |
-| NLP Local | Regex + palavras-chave | Classificação instantânea, zero custo |
-| Testes | unittest + mocks | Sem depender da API durante QA |
-| Persistência | JSON local | Simples, portátil, sem banco de dados |
+| Conexao WhatsApp | Baileys (WebSocket) | Sem navegador, leve, nao requer numero na Meta |
+| Backend | Python 3.13 + FastAPI | Performance, tipagem, async nativo |
+| IA / LLM | Groq API + Llama 3.3 70B | Gratuito para desenvolvimento, 128K contexto |
+| NLP Local | Palavras-chave + regex | Classificacao instantanea, zero custo de tokens |
+| Busca | difflib (nativo Python) | Tolerancia a erro de digitacao, zero dependencias |
+| Container | Docker (Python + Node.js) | Isolamento, reproducibilidade |
+| Deploy | Render (Docker) | CD automatico, HTTPS, 24/7 |
 
 ---
 
-## 📈 Métricas do Projeto
+## Deploy
 
-- **Semanas de desenvolvimento:** 2 (aprendendo IA do zero)
-- **Sessões de estudo:** 8 concluídas
-- **Temas no catálogo:** 47 produtos reais
-- **Intenções mapeadas:** 7 categorias
-- **Testes automatizados:** 47
+O servico roda 24/7 em um container Docker no Render.
 
----
+| Endpoint | Uso |
+|---|---|
+| `/health` | Health check — monitoramento e keep-alive |
+| `/qrcode` | QR Code para emparelhar WhatsApp via celular |
+| `/responder` | Processamento interno de mensagens (Baileys → Python) |
 
-## 🚧 Roadmap
+### Variaveis de Ambiente
 
-- [x] Busca inteligente no catálogo
-- [x] Fluxo completo de pedido personalizado
-- [x] Memória de conversa com persistência
-- [x] Detector de intenções NLP (sem tokens!)
-- [ ] Conexão com WhatsApp Business API
-- [ ] Dashboard com Streamlit
-- [ ] Deploy em produção
-- [ ] Integração com WordPress/Elementor
+| Variavel | Descricao |
+|---|---|
+| `GROQ_API_KEY` | Chave da API Groq (modelo llama-3.3-70b-versatile) |
+| `PORT` | Porta do servidor (Render define automaticamente) |
 
 ---
 
-## 👩‍💻 Sobre a Autora
+## Feito por
 
-Feito por **Shayene Figueredo** — empreendedora, dona da [Sly Design](https://slydesign.com.br), aprendendo IA do zero e documentando a jornada.
-
-📱 **Instagram:** [@sly_desgn](https://instagram.com/sly_desgn)
+**Shayene Figueredo** — fundadora da [Sly Design](https://slydesign.com.br).
