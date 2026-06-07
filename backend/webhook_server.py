@@ -49,7 +49,7 @@ def gerar_token() -> str:
 @app.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request, erro: str = ""):
     """Pagina de login (rota GET)."""
-    return HTMLResponse(await _html_login(request, erro))
+    return HTMLResponse(_html_login(request, erro))
 
 
 def _html_login(request: Request, erro: str = ""):
@@ -90,7 +90,7 @@ async def login_action(request: Request):
         resp = HTMLResponse(_pagina_portal())
         resp.set_cookie("maya_token", token, httponly=True, max_age=86400)
         return resp
-    return HTMLResponse(await _html_login(request, erro="1"))
+    return HTMLResponse(_html_login(request, erro="1"))
 
 
 def _pagina_portal():
@@ -123,7 +123,7 @@ async def proteger_rotas(request: Request, call_next):
     rotas_protegidas = ("/painel", "/qrcode")
     if any(path == r or path.startswith(r + "/") or path.startswith(r + "?") for r in rotas_protegidas):
         if not verificar_login(request):
-            return HTMLResponse(await _html_login(request))
+            return HTMLResponse(_html_login(request))
     return await call_next(request)
 
 # ── Configurações de notificação ──
