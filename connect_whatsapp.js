@@ -1,72 +1,126 @@
-const wppconnect = require('@wppconnect-team/wppconnect');
-const axios = require('axios');
+const {
+  makeWASocket,
+  useMultiFileAuthState,
+  DisconnectReason,
+  fetchLatestBaileysVersion,
+} = require("@whiskeysockets/baileys");
+const { Boom } = require("@hapi/boom");
+const axios = require("axios");
+const fs = require("fs");
+const qrcode = require("qrcode-terminal");
 
-// Usa o Chromium do sistema ou o do Puppeteer
-const chromePath = process.env.PUPPETEER_EXECUTABLE_PATH || require('puppeteer').executablePath();
-console.log(' Chrome:', chromePath);
+const AUTH_DIR = "/app/auth_info_baileys";
+const PORT = process.env.PORT || 10000;
 
-wppconnect.create({
-  session: 'maya-sly',
-  headless: true,
-  useChrome: false,
-  autoClose: 0,
-  catchQR: (base64Qr, asciiQR, attempts, urlCode) => {
-    // Salva o QR code como imagem pra ser acessada pelo navegador
-    const fs = require('fs');
-    const html = `<html><head>
+async function start() {
+  // Carrega sessao salva (ou cria nova)
+  const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
+
+  // Pega versao mais recente do WhatsApp Web
+  const { version } = await fetchLatestBaileysVersion();
+  console.log(" WhatsApp Web version:", version.join("."));
+
+  const sock = makeWASocket({
+    version,
+    auth: state,
+    printQRInTerminal: false, // vamos gerar o nosso proprio
+  });
+
+  // Salva credenciais automaticamente (~2MB)
+  sock.ev.on("creds.update", saveCreds);
+
+  // QR Code / conexao
+  sock.ev.on("connection.update", (update) => {
+    const { connection, lastDisconnect, qr } = update;
+
+    if (qr) {
+      // Gera QR code no terminal + salva como HTML
+      console.log("\n QR Code - Escaneie com WhatsApp:");
+      qrcode.generate(qr, { small: true });
+
+      // Salva pagina HTML pra abrir no celular
+      const html = `<html><head>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Maya - QR Code</title>
 <style>body{background:#1a1a2e;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;margin:0;font-family:sans-serif}
-h2{color:#e0aaff;margin:10px}
-h3{color:#aaa;font-weight:normal;margin:5px}
+h2{color:#e0aaff;margin:10px}h3{color:#aaa;font-weight:normal;margin:5px}
 img{max-width:90vw;border-radius:12px;box-shadow:0 0 30px rgba(224,170,255,.3)}
 p{color:#888;margin-top:30px}
 </style></head><body>
 <h2>Maya Sly Design</h2>
-<h3>Escaneie com WhatsApp > Aparelhos Conectados</h3>
-<img src="${base64Qr}">
-<p>Att ${attempts} · QR expira em ~30s</p>
+<h3>WhatsApp > Aparelhos Conectados</h3>
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qr)}">
+<p>QR Code Maya</p>
 </body></html>`;
-    fs.writeFileSync('/tmp/qrcode.html', html);
-    console.log('\n══════════════════════════════════════════');
-    console.log('📱 ABRA NO CELULAR (QR code):');
-    console.log('   https://chatbot-sly-oficial.onrender.com/qrcode');
-    console.log('   Depois: WhatsApp → Aparelhos Conectados');
-    console.log('══════════════════════════════════════════\n');
-  },
-  puppeteerOptions: {
-    executablePath: chromePath,
-    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
-  }
-}).then((client) => {
-  console.log('✅ Conectado ao WhatsApp!');
+      fs.writeFileSync("/tmp/qrcode.html", html);
+      console.log("\n📱 Abra no celular: https://chatbot-sly-oficial.onrender.com/qrcode");
+    }
 
-  client.onMessage(async (message) => {
-    if (message.isGroupMsg) return;
-    if (!message.body || message.from === 'status@broadcast') return;
+    if (connection === "close") {
+      const code = lastDisconnect?.error instanceof Boom
+        ? lastDisconnect.error.output.statusCode
+        : null;
 
-    const from = message.from.replace('@c.us', '');
-    const body = message.body;
-    console.log(`\n💬 ${from}: ${body}`);
+      if (code === DisconnectReason.loggedOut) {
+        console.log(" Sessao desconectada. Apagando auth...");
+        fs.rmSync(AUTH_DIR, { recursive: true, force: true });
+      }
 
-    try {
-      // ✨ Efeito "digitando..."
-      await client.startTyping(message.from);
+      console.log(" Reconectando em 3s...");
+      setTimeout(start, 3000);
+    }
 
-      const port = process.env.PORT || 8000;
-      const resp = await axios.post(`http://localhost:${port}/responder`, {
-        from: from, body: body
-      }, { timeout: 30000 });
-
-      // Para de "digitar" e envia a resposta
-      await client.stopTyping(message.from);
-      await client.sendText(message.from, resp.data.resposta);
-      console.log(`🤖 Maya: ${resp.data.resposta.slice(0, 80)}...`);
-    } catch (e) {
-      await client.stopTyping(message.from);
-      console.log('⚠️ Erro:', e.message);
+    if (connection === "open") {
+      console.log("✅ Maya conectada ao WhatsApp!");
+      // Remove o QR code antigo
+      try { fs.unlinkSync("/tmp/qrcode.html"); } catch {}
     }
   });
 
-  console.log('📱 Pronto! Mande "oi" no WhatsApp pra testar 💜');
-}).catch((err) => console.log('Erro:', err.message));
+  // Recebe mensagens
+  sock.ev.on("messages.upsert", async (m) => {
+    const msg = m.messages[0];
+    if (!msg || !msg.message || msg.key.fromMe) return;
+
+    // Pega o texto
+    const texto =
+      msg.message.conversation ||
+      msg.message.extendedTextMessage?.text ||
+      msg.message.imageMessage?.caption ||
+      "";
+
+    const jid = msg.key.remoteJid;
+    if (!texto || !jid) return;
+
+    // Extrai so o numero (remove @s.whatsapp.net)
+    const telefone = jid.replace("@s.whatsapp.net", "").replace(/:.*/, "");
+    console.log(`\n💬 ${telefone}: ${texto}`);
+
+    try {
+      // "digitando..."
+      await sock.sendPresenceUpdate("composing", jid);
+
+      const resp = await axios.post(
+        `http://localhost:${PORT}/responder`,
+        { from: telefone, body: texto },
+        { timeout: 30000 }
+      );
+
+      await sock.sendPresenceUpdate("paused", jid);
+
+      const resposta = resp.data.resposta;
+      if (resposta) {
+        await sock.sendMessage(jid, { text: resposta });
+        console.log(`🤖 Maya: ${resposta.slice(0, 80)}...`);
+      }
+    } catch (e) {
+      await sock.sendPresenceUpdate("paused", jid);
+      console.log(" Erro:", e.message);
+    }
+  });
+}
+
+start().catch((err) => {
+  console.log("Erro fatal:", err.message);
+  setTimeout(start, 5000);
+});
