@@ -21,14 +21,13 @@ __pycache__/
 
 # Arquivos de estudo (não vão pro GitHub)
 projeto/
-backend/
 docs/
 
-# Node modules e testes WhatsApp
+# Backend: sobe codigo, mas NAO o .env com chaves
+backend/.env
+
+# Node: sobe codigo e lock, mas NAO node_modules nem sessoes
 node_modules/
-package-lock.json
-connect_whatsapp.js
-test_puppeteer.js
 tokens/
 
 # Arquivos de sistema
