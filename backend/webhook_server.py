@@ -134,6 +134,39 @@ PHONE_NUMBER_ID = "1174471599080821"
 # ── Clientes em atendimento humano (Maya não responde) ──
 atendimento_humano = {}  # {telefone: True}
 
+# Persistencia do estado dos clientes (sobrevive a reinicios)
+import os as _os
+# Salva no disco persistente do Render (mesmo diretorio da sessao WhatsApp)
+ARQUIVO_ESTADO = "/app/auth_info_baileys/estado_clientes.json"
+
+def _salvar_estado_clientes():
+    """Salva o estado de todos os clientes em disco."""
+    try:
+        dados = {
+            "clientes": clientes,
+            "atendimento_humano": atendimento_humano,
+        }
+        with open(ARQUIVO_ESTADO, "w", encoding="utf-8") as f:
+            json.dump(dados, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(f"⚠️ Erro ao salvar estado: {e}")
+
+def _carregar_estado_clientes():
+    """Carrega o estado dos clientes do disco (se existir)."""
+    global clientes, atendimento_humano
+    if _os.path.exists(ARQUIVO_ESTADO):
+        try:
+            with open(ARQUIVO_ESTADO, "r", encoding="utf-8") as f:
+                dados = json.load(f)
+            clientes = dados.get("clientes", {})
+            atendimento_humano = dados.get("atendimento_humano", {})
+            print(f"📂 Estado restaurado: {len(clientes)} clientes")
+        except Exception as e:
+            print(f"⚠️ Erro ao carregar estado: {e}")
+
+# Carrega estado salvo ao iniciar o servidor
+_carregar_estado_clientes()
+
 
 def notificar_shay(mensagem: str):
     """Envia uma notificacao WhatsApp pro numero pessoal da Shay via Baileys."""
@@ -463,15 +496,16 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
             estado["tela"] = "pedido_tipo_diferenca"
             return (
                 "Visualmente sao iguais! 🎨\n\n"
-                "📄 PDF — arquivo estatico, sem animacoes.\n"
-                "📱 Canva — link online, acessa pelo navegador.\n"
-                "💻 PowerPoint — arquivo PPTX offline e app.\n\n"
-                "So muda a forma de acessar. Qual tipo voce prefere?\n\n"
-                "[1] 📄 PDF — R$ 20,00\n"
-                "[2] 🎬 Canva (Transicoes) — R$ 25,00\n"
-                "[3] 🎬 PowerPoint (Transicoes) — R$ 35,00\n"
-                "[4] 🎨 Canva Temas — R$ 28,00\n"
-                "[5] 🎨 PPTX Temas — R$ 38,00\n"
+                "📱 Canva — e um link online. Precisa de internet "
+                "pra apresentar, mas nao ocupa espaco no celular/PC.\n\n"
+                "💻 PowerPoint — e um arquivo PPTX que voce baixa. "
+                "Nao precisa de internet pra apresentar.\n\n"
+                "Qual tipo voce prefere?\n\n"
+                "[1] 🎬 Canva (Transicoes) — R$ 25,00\n"
+                "[2] 🎬 PowerPoint (Transicoes) — R$ 35,00\n"
+                "[3] 🎨 Canva Temas — R$ 28,00\n"
+                "[4] 🎨 PPTX Temas — R$ 38,00\n"
+                "[5] 📄 PDF — R$ 20,00\n"
                 "[0] 🔙 Voltar ao menu"
             )
 
@@ -503,6 +537,7 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
                 "👉 https://slydesign.com.br\n\n"
                 "Se quiser um tema que nao esta na lista, "
                 "podemos criar do zero. Me diga qual tema voce quer?\n\n"
+                "[8] 🎨 Quero o design sobre o MEU assunto\n"
                 "[0] 🔙 Voltar ao menu"
             )
 
@@ -523,9 +558,8 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
     # PASSO 2b: Tipo apos ver diferenca (numeros diferentes!)
     if tela == "pedido_tipo_diferenca":
         diff_map = {
-            "1": "📄 PDF", "2": "🎬 Canva (Transições)",
-            "3": "🎬 PowerPoint (Transições)",
-            "4": "🎨 Canva Temas", "5": "🎨 PPTX Temas"
+            "1": "🎬 Canva (Transições)", "2": "🎬 PowerPoint (Transições)",
+            "3": "🎨 Canva Temas", "4": "🎨 PPTX Temas", "5": "📄 PDF"
         }
 
         if t in diff_map:
@@ -556,6 +590,7 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
                 "👉 https://slydesign.com.br\n\n"
                 "Se quiser um tema que nao esta na lista, "
                 "podemos criar do zero. Me diga qual tema voce quer?\n\n"
+                "[8] 🎨 Quero o design sobre o MEU assunto\n"
                 "[0] 🔙 Voltar ao menu"
             )
 
@@ -575,6 +610,25 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
 
     # PASSO 2.5: Qual tema? (slides temas)
     if tela == "pedido_qual_tema":
+        # Cliente quer o design sobre o proprio assunto, nao um tema pronto
+        if t == "8" or "design sobre" in t or "meu assunto" in t:
+            # Troca de "Temas" para "Transicoes" mantendo Canva ou PPTX
+            modelo_atual = dados.get("modelo", "")
+            if "PPTX" in modelo_atual or "PowerPoint" in modelo_atual:
+                dados["modelo"] = "🎬 PowerPoint (Transições)"
+            else:
+                dados["modelo"] = "🎬 Canva (Transições)"
+            # Remove o tema_design e o assunto extra (vai usar o tema original)
+            dados.pop("tema_design", None)
+            dados.pop("assunto", None)
+            estado["tela"] = "pedido_prazo"
+            return (
+                "Certo! Vamos criar o design com base no SEU assunto. 🎨\n\n"
+                "Agora sobre o PRAZO: ate que dia posso te entregar?\n\n"
+                "Me conta: qual data voce precisa? 📅\n\n"
+                "[0] 🔙 Voltar ao menu"
+            )
+
         dados["tema_design"] = mensagem  # tema visual (ex: "pequena sereia"), NÃO sobrescreve o assunto
         if estado.pop("modo_edicao", False):
             estado["tela"] = "resumo"
@@ -590,7 +644,7 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
     # PASSO 3: Prazo
     if tela == "pedido_prazo":
         dados["prazo"] = mensagem
-        if any(p in t for p in ["hoje", "hj", "mesmo dia", "ainda hoje"]):
+        if any(p in t for p in ["hoje", "hj", "mesmo dia", "ainda hoje", "ate 00", "ate as", "ate meia"]):
             dados["taxa_urgencia"] = True
             msg = (
                 "⚠️ Como e para hoje, temos uma taxa adicional de R$ 5,00 "
@@ -607,9 +661,9 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
         return (
             f"{msg}"
             f"Anotei o prazo! 📅\n\n"
-            f"Quer adicionar os NOMES de vocês no slide?\n"
-            f"Se sim, me diga quais nomes.\n"
-            f"Se não, é só responder 'não'. 💜\n\n"
+            f"Quer adicionar os NOMES de voces no slide?\n"
+            f"Se sim, mande todos os nomes em uma unica mensagem.\n"
+            f"Se nao, e so responder 'nao'. 💜\n\n"
             f"[0] 🔙 Voltar ao menu"
         )
 
@@ -629,20 +683,14 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
         estado["tela"] = "pedido_extras"
         dados["extras"] = ""
         return (
-            "Quase lá! 📝\n\n"
-            "Quer adicionar mais alguma informação?\n"
-            "Ex: resumo, tópicos específicos, jeito que quer o design, "
-            "referências, arquivos...\n"
-            "Ah, e a pesquisa do conteúdo é por nossa conta se você "
-            "preferir! 🔍\n\n"
-            "⚠️ Importante: depois que o slide estiver pronto, qualquer "
-            "alteração tem uma taxa de R$ 1,50 por página editada.\n\n"
-            "📄 Nosso limite padrão é de 10 páginas. A partir da 11ª, "
-            "cada página extra tem custo de R$ 1,50.\n\n"
-            "Se o conteúdo for muito grande, você prefere:\n"
-            "[1] 📝 Pode resumir para caber em 10 páginas\n"
-            "[2] ➕ Pode adicionar tudo (te aviso quantas páginas deu)\n\n"
-            "Pode mandar quantas mensagens quiser. 💜\n\n"
+            "Quer adicionar alguma informacao extra? 💜\n"
+            "Ex: resumo, topicos, referencias, como quer o design...\n"
+            "(a pesquisa do conteudo e por nossa conta! 🔍)\n\n"
+            "⚠️ Alteracoes pos-entrega: R$ 1,50/pagina editada.\n"
+            "📄 Limite: 10 pags. Extra: +R$ 1,50/pag.\n\n"
+            "Se o conteudo for muito grande:\n"
+            "[1] 📝 Resumir em 10 paginas\n"
+            "[2] ➕ Adicionar tudo (te aviso quantas deu)\n\n"
             "[3] ✅ Finalizar Pedido\n"
             "[0] 🔙 Voltar ao menu"
         )
@@ -1058,7 +1106,8 @@ async def responder(request: Request):
 
     if resposta is None:
         print(f"🤫 Maya silenciada (atendimento humano)")
-        return {"resposta": None}  # não envia nada pro cliente
+        _salvar_estado_clientes()
+        return {"resposta": None}
 
     print(f"🤖 Maya: {resposta[:100]}...")
 
@@ -1066,6 +1115,7 @@ async def responder(request: Request):
     import re
     resposta = re.sub(r'\[(\d)\]', r'*[ \1 ]*', resposta)
 
+    _salvar_estado_clientes()
     return {"resposta": resposta}
 
 
@@ -1079,6 +1129,9 @@ async def salvar_historico(request: Request):
     if telefone and texto:
         estado = clientes.setdefault(telefone, {"tela": "menu", "dados_pedido": {}, "historico_ia": []})
         _salvar_historico(estado, papel, texto)
+        # Marca o cliente como "shay_respondeu" pra aparecer no painel
+        if papel == "assistant" and "[Shay]:" in texto:
+            estado["shay_respondeu"] = True
         print(f"📝 Historico salvo: {papel} → {telefone}")
         return {"status": "ok"}
     return {"status": "ignored"}
@@ -1104,8 +1157,14 @@ async def painel_dados():
     for tel, est in clientes.items():
         tela = est.get("tela", "?")
         dados = est.get("dados_pedido", {})
-        if tela == "menu" and not dados:
+        shay_msg = est.get("shay_respondeu", False)
+        is_humano = atendimento_humano.get(tel, False)
+
+        # Mostrar se: tem pedido, ou ta bloqueado, ou Shay mandou msg
+        tem_atividade = (tela != "menu" or dados or is_humano or shay_msg)
+        if not tem_atividade:
             continue
+
         if tela == "aguardando_pagamento":
             aguardando += 1
 
@@ -1114,7 +1173,20 @@ async def painel_dados():
         preco_base = PRECOS.get(modelo_limpo, "-")
 
         is_aguardando = tela == "aguardando_pagamento"
-        is_humano = atendimento_humano.get(tel, False)
+
+        # Determina status visual
+        if is_humano:
+            status_cls = "status-humano"
+            status_txt = "Bloqueado"
+        elif is_aguardando:
+            status_cls = "status-pagamento"
+            status_txt = "Aguardando pagamento"
+        elif shay_msg:
+            status_cls = "status-shay"
+            status_txt = "Shay respondeu"
+        else:
+            status_cls = "status-ativo"
+            status_txt = "Ativo"
 
         cli_list.append({
             "telefone": tel,
@@ -1126,8 +1198,9 @@ async def painel_dados():
             "valor": preco_base,
             "humano": is_humano,
             "aguardando": is_aguardando,
-            "statusCls": "status-humano" if is_humano else ("status-pagamento" if is_aguardando else "status-ativo"),
-            "statusTxt": "Atendimento humano" if is_humano else ("Aguardando pagamento" if is_aguardando else "Ativo"),
+            "shay_msg": shay_msg,
+            "statusCls": status_cls,
+            "statusTxt": status_txt,
         })
 
     return {"clientes": cli_list, "total": len(cli_list), "aguardando": aguardando}
@@ -1140,6 +1213,7 @@ async def painel_bloquear(request: Request):
     tel = data.get("telefone", "")
     if tel:
         atendimento_humano[tel] = True
+        _salvar_estado_clientes()
         print(f"🙋 Painel: Maya bloqueada para {tel}")
         return {"status": "ok"}
     return {"status": "erro"}
@@ -1152,6 +1226,7 @@ async def painel_liberar(request: Request):
     tel = data.get("telefone", "")
     if tel:
         atendimento_humano.pop(tel, None)
+        _salvar_estado_clientes()
         print(f"🤖 Painel: Maya liberada para {tel}")
         return {"status": "ok"}
     return {"status": "erro"}
@@ -1167,6 +1242,7 @@ async def painel_rejeitar(request: Request):
         est = clientes[tel]
         est["tela"] = "menu"
         est["dados_pedido"] = {}
+        _salvar_estado_clientes()
 
         # Notifica o cliente
         msg = (
@@ -1196,54 +1272,70 @@ async def webhook_site(request: Request):
     """Recebe eventos do site (Yampi) e processa conforme o tipo.
 
     Eventos suportados:
-    - order.created / order.approved: adiciona pedido ao sistema
-    - order.payment_denied: registra pagamento recusado
-    - cart.abandoned: ignora (carrinho abandonado nao e pedido real)
+    - order.created / order.approved / order.paid: adiciona pedido
+    - order.payment_denied: ignora
+    - cart.abandoned / notification.cart_abandoned: ignora
+    - outros: ignora (nao sabemos o que e)
     """
     try:
         data = await request.json()
-        evento = data.get("event", data.get("type", "order.created"))
+        print(f"📨 Webhook Yampi: {json.dumps(data, ensure_ascii=False)[:300]}")
 
-        # Carrinho abandonado → ignora (nao pagou)
-        if "abandoned" in str(evento).lower() or "abandonado" in str(evento).lower():
-            print(f"🛒 Carrinho abandonado — ignorado")
-            return {"status": "ignored", "motivo": "carrinho abandonado"}
+        # Detecta o tipo de evento (Yampi usa 'event' ou 'type')
+        evento = str(data.get("event", data.get("type", ""))).lower()
+        if not evento:
+            # Tenta achar em outros campos comuns
+            evento = str(data.get("hook", {}).get("event", "")).lower()
 
-        # Pagamento recusado → registra mas nao adiciona como pedido
-        if "denied" in str(evento).lower() or "negado" in str(evento).lower() or "recusado" in str(evento).lower():
-            print(f"💳 Pagamento recusado — registrado para acompanhamento")
-            return {"status": "noted", "motivo": "pagamento recusado"}
+        # Eventos que devem ser IGNORADOS
+        ignorar = ["abandoned", "abandonado", "cart.", "denied", "negado",
+                    "recusado", "created", "updated", "criado", "atualizado",
+                    "nota fiscal", "cashback", "produto", "cliente",
+                    "endereco", "estoque"]
+        if any(p in evento for p in ignorar):
+            print(f"🛒 Evento Yampi ignorado: {evento}")
+            return {"status": "ignored", "evento": evento}
 
-        # Pedido criado ou aprovado → adiciona ao sistema
+        # So processa pedidos PAGOS/APROVADOS
+        if not any(p in evento for p in ["approved", "aprovado", "paid", "pago"]):
+            print(f"🛒 Evento Yampi nao processado: {evento}")
+            return {"status": "skipped", "evento": evento}
+
+        # Extrai dados do pedido (Yampi pode mandar em varios formatos)
         order = data.get("order", data.get("data", data))
         nome = order.get("customer", {}).get("name", order.get("nome", ""))
-        items = order.get("items", [])
-        produto = items[0].get("name", "") if items else order.get("produto", "")
-        valor = float(order.get("total", order.get("valor", 0)))
+        items = order.get("items", order.get("products", []))
+        produto = items[0].get("name", items[0].get("title", "")) if items else order.get("produto", "")
+        valor = float(order.get("total", order.get("valor", order.get("amount", 0))))
 
-        from backend.pedidos import adicionar, adicionar_faturamento_site
+        # So adiciona se tiver valor real
+        if valor <= 0:
+            print(f"⚠️ Pedido site com valor R$0 ignorado: {nome} — {produto}")
+            return {"status": "ignored", "motivo": "valor zerado"}
+
+        from backend.pedidos import adicionar
         from datetime import datetime
 
         mes = datetime.now().month
         adicionar({
-            "cliente": nome,
-            "arquivo": produto,
-            "tema": f"Site — {produto}",
+            "cliente": nome or "Site",
+            "arquivo": produto or "Slide",
+            "tema": f"Site — {produto or 'Slide'}",
             "valor": f"R$ {valor:.2f}".replace(".", ","),
             "situacao": "Pago (Site)",
             "pg": "Pago",
             "responsavel": "SF",
             "origem": "site",
             "mes": mes,
+            "data": datetime.now().strftime("%d/%m"),
         })
         # Atualiza faturamento do site no mes atual
         from backend.pedidos import _carregar, _salvar
         db = _carregar()
-        db.setdefault("faturamento_site", {})[str(mes)] = round(
-            float(db.get("faturamento_site", {}).get(str(mes), 0)) + valor, 2
-        )
+        atual = float(db.get("faturamento_site", {}).get(str(mes), 0))
+        db.setdefault("faturamento_site", {})[str(mes)] = round(atual + valor, 2)
         _salvar(db)
-        print(f"🛒 Pedido site: {nome} — {produto} — R$ {valor}")
+        print(f"🛒 Pedido site adicionado: {nome} — {produto} — R$ {valor}")
         return {"status": "ok"}
     except Exception as e:
         print(f"⚠️ Erro webhook site: {e}")
@@ -1271,14 +1363,33 @@ async def taxas():
 
 @app.get("/painel/mes/{mes}")
 async def painel_mes(mes: int):
-    """Retorna pedidos e faturamento de um mes."""
+    """Retorna pedidos e faturamento de um mes (ordenado por data de entrega)."""
     from backend.pedidos import listar_por_mes, faturamento
     pedidos = listar_por_mes(mes)
+    # Ordena por data de entrega (dd/mm)
+    def _ordenar_data(p):
+        try:
+            partes = p.get("entrega", p.get("data", "99/99")).split("/")
+            return (int(partes[0]), int(partes[1]))
+        except:
+            return (99, 99)
+    pedidos.sort(key=_ordenar_data)
     fat = faturamento()
     return {
         "pedidos": pedidos,
         "faturamento": fat["mensal"].get(mes, {"pedidos": 0, "site": 0, "total": 0})
     }
+
+
+@app.get("/painel/hoje")
+async def painel_hoje():
+    """Retorna pedidos com entrega para hoje."""
+    from backend.pedidos import _carregar
+    from datetime import datetime
+    hoje = datetime.now().strftime("%d/%m")
+    db = _carregar()
+    pedidos_hoje = [p for p in db["pedidos"] if p.get("entrega", p.get("data", "")) == hoje]
+    return {"pedidos": pedidos_hoje, "data": hoje}
 
 
 @app.get("/painel/faturamento")
@@ -1312,6 +1423,43 @@ async def painel_editar_pedido(request: Request):
             break
     _salvar(db)
     return {"status": "ok"}
+
+
+@app.post("/painel/cutucar")
+async def painel_cutucar(request: Request):
+    """Cutuca cliente que parou de responder."""
+    data = await request.json()
+    tel = data.get("telefone", "")
+    if tel:
+        msg = (
+            "Oie! Quer continuar o seu pedido? 💜\n"
+            "Se preferir, posso chamar um de nossos atendentes "
+            "para continuar a conversa com voce."
+        )
+        try:
+            import requests as _req
+            _req.post("http://127.0.0.1:8080/send",
+                     json={"to": tel, "text": msg}, timeout=5)
+            print(f" Cutucando {tel}")
+        except Exception:
+            pass
+        return {"status": "ok"}
+    return {"status": "erro"}
+
+
+@app.post("/painel/finalizar")
+async def painel_finalizar(request: Request):
+    """Finaliza atendimento de um cliente manualmente."""
+    data = await request.json()
+    tel = data.get("telefone", "")
+    if tel and tel in clientes:
+        clientes[tel]["tela"] = "menu"
+        clientes[tel]["dados_pedido"] = {}
+        atendimento_humano.pop(tel, None)
+        _salvar_estado_clientes()
+        print(f" Atendimento finalizado: {tel}")
+        return {"status": "ok"}
+    return {"status": "erro"}
 
 
 @app.post("/painel/deletar-pedido")
@@ -1356,6 +1504,7 @@ async def painel_confirmar(request: Request):
         })
         est["tela"] = "menu"
         est["dados_pedido"] = {}
+        _salvar_estado_clientes()
         # Envia mensagem final ao cliente
         msg_final = (
             "Pagamento confirmado! 💜\n\n"

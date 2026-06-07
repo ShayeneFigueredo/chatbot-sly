@@ -85,6 +85,7 @@ def faturamento():
     total_ano = sum(fat[m]["total"] for m in range(1, 13))
     total_shay = 0.0
     total_samuel = 0.0
+    a_receber = 0.0
     for p in db["pedidos"]:
         try:
             val = float(p.get("valor", "0").replace("R$", "").replace(",", ".").strip())
@@ -92,15 +93,31 @@ def faturamento():
                 total_samuel += val
             else:
                 total_shay += val
+            # Calcula 50% restante para pedidos nao pagos totalmente
+            if p.get("pg", "") in ("50% pago", "Aguardando"):
+                a_receber += val * 0.5
         except (ValueError, AttributeError):
             pass
 
+    # Calcula bruto do site (sem taxas)
+    site_bruto = 0.0
+    for p in db["pedidos"]:
+        if p.get("origem") == "site":
+            try:
+                site_bruto += float(p.get("valor", "0").replace("R$", "").replace(",", ".").strip())
+            except (ValueError, AttributeError):
+                pass
+
+    total_site_liquido = round(sum(fat[m]["site"] for m in range(1, 13)), 2)
     return {
         "mensal": fat,
         "total_ano": round(total_ano, 2),
         "total_shay": round(total_shay, 2),
         "total_samuel": round(total_samuel, 2),
-        "total_site": round(sum(fat[m]["site"] for m in range(1, 13)), 2),
+        "total_site": total_site_liquido,
+        "total_site_bruto": round(site_bruto, 2),
+        "taxas_site": round(site_bruto - total_site_liquido, 2),
+        "a_receber": round(a_receber, 2),
     }
 
 
