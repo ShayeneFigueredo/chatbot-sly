@@ -24,6 +24,8 @@ async function start() {
     version,
     auth: state,
     printQRInTerminal: false, // vamos gerar o nosso proprio
+    syncFullHistory: false,   // evita erros de sincronizacao
+    fireInitQueries: false,   // nao puxa historico antigo
   });
 
   // Salva credenciais automaticamente (~2MB)
