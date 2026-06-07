@@ -89,7 +89,32 @@ p{color:#888;margin-top:30px}
   // Recebe mensagens
   sock.ev.on("messages.upsert", async (m) => {
     const msg = m.messages[0];
-    if (!msg || !msg.message || msg.key.fromMe) return;
+    if (!msg || !msg.message) return;
+
+    // Mensagem enviada por Shay (do celular)? Salva no historico do cliente
+    if (msg.key.fromMe) {
+      const jid = msg.key.remoteJid;
+      if (!jid || jid === "status@broadcast") return;
+      const meuTexto =
+        msg.message.conversation ||
+        msg.message.extendedTextMessage?.text ||
+        msg.message.imageMessage?.caption ||
+        "";
+      if (meuTexto) {
+        const telefone = jid.replace("@s.whatsapp.net", "").replace(/:.*/, "");
+        try {
+          await axios.post(
+            `http://localhost:${PORT}/historico`,
+            { telefone: telefone, papel: "assistant", texto: "[Shay]: " + meuTexto },
+            { timeout: 5000 }
+          );
+          console.log(`📝 Contexto salvo: Shay → ${telefone}`);
+        } catch (e) {
+          // silencioso — nao atrapalha o fluxo
+        }
+      }
+      return;
+    }
 
     // Detecta o tipo de mensagem (texto, imagem, documento)
     let tipo = "texto";
@@ -156,6 +181,12 @@ const sendServer = http.createServer(async (req, res) => {
     req.on("end", async () => {
       try {
         const { to, text } = JSON.parse(body);
+        if (!globalSock) {
+          console.log("⚠️ WhatsApp ainda nao conectado. Notificacao nao enviada.");
+          res.writeHead(503, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ status: "waiting" }));
+          return;
+        }
         // WhatsApp JID nao usa + no inicio
         const numeroLimpo = to.startsWith("+") ? to.slice(1) : to;
         const jid = numeroLimpo.includes("@") ? numeroLimpo : `${numeroLimpo}@s.whatsapp.net`;
