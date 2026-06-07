@@ -145,7 +145,7 @@ atendimento_humano = {}  # {telefone: True}
 
 # Persistencia do estado dos clientes (sobrevive a reinicios)
 import os as _os
-# Salva no disco persistente do Render (mesmo diretorio da sessao WhatsApp)
+# Salva no disco persistente do Render
 ARQUIVO_ESTADO = "/app/auth_info_baileys/estado_clientes.json"
 
 def _salvar_estado_clientes():
@@ -1072,11 +1072,19 @@ async def health_check():
 
 @app.post("/qrcode/reset")
 async def qrcode_reset(request: Request):
-    """Reseta a sessao do WhatsApp (apaga auth e força novo QR Code)."""
-    import shutil
+    """Reseta a sessao do WhatsApp (apaga auth e força novo QR Code).
+    NAO apaga o estado dos clientes (estado_clientes.json)."""
+    import glob as _glob
     auth_dir = "/app/auth_info_baileys"
     try:
-        shutil.rmtree(auth_dir, ignore_errors=True)
+        # Apaga apenas arquivos de sessao do Baileys, preservando estado_clientes.json
+        for f in _glob.glob(f"{auth_dir}/*"):
+            if "estado_clientes" not in f:
+                if _os.path.isdir(f):
+                    import shutil
+                    shutil.rmtree(f, ignore_errors=True)
+                else:
+                    _os.remove(f)
         print("🔁 Sessao WhatsApp resetada — novo QR Code necessario")
         return {"status": "ok", "msg": "Sessao resetada. Recarregue a pagina /qrcode"}
     except Exception as e:
