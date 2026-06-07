@@ -1299,10 +1299,30 @@ async def painel_adicionar_manual(request: Request):
 
 @app.post("/painel/editar-pedido")
 async def painel_editar_pedido(request: Request):
-    """Edita situacao de um pedido."""
-    from backend.pedidos import atualizar_situacao
+    """Edita campos de um pedido."""
+    from backend.pedidos import _carregar, _salvar
     data = await request.json()
-    atualizar_situacao(data.get("id"), data.get("situacao", "Feito"))
+    pid = data.get("id")
+    db = _carregar()
+    for p in db["pedidos"]:
+        if p["id"] == pid:
+            for campo in ["situacao", "pg", "valor", "tema", "cliente", "responsavel"]:
+                if campo in data and data[campo]:
+                    p[campo] = data[campo]
+            break
+    _salvar(db)
+    return {"status": "ok"}
+
+
+@app.post("/painel/deletar-pedido")
+async def painel_deletar_pedido(request: Request):
+    """Remove um pedido."""
+    from backend.pedidos import _carregar, _salvar
+    data = await request.json()
+    pid = data.get("id")
+    db = _carregar()
+    db["pedidos"] = [p for p in db["pedidos"] if p["id"] != pid]
+    _salvar(db)
     return {"status": "ok"}
 
 
