@@ -179,7 +179,6 @@ const sendServer = http.createServer(async (req, res) => {
 sendServer.listen(SEND_PORT, "127.0.0.1", () => {
   console.log(`📡 API interna de envio: porta ${SEND_PORT}`);
 });
-}
 
 start().catch((err) => {
   console.log("Erro fatal:", err.message);
