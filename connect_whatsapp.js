@@ -11,10 +11,27 @@ wppconnect.create({
   useChrome: false,
   autoClose: 0,
   catchQR: (base64Qr, asciiQR, attempts, urlCode) => {
+    // Salva o QR code como imagem pra ser acessada pelo navegador
+    const fs = require('fs');
+    const html = `<html><head>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Maya - QR Code</title>
+<style>body{background:#1a1a2e;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;margin:0;font-family:sans-serif}
+h2{color:#e0aaff;margin:10px}
+h3{color:#aaa;font-weight:normal;margin:5px}
+img{max-width:90vw;border-radius:12px;box-shadow:0 0 30px rgba(224,170,255,.3)}
+p{color:#888;margin-top:30px}
+</style></head><body>
+<h2>Maya Sly Design</h2>
+<h3>Escaneie com WhatsApp > Aparelhos Conectados</h3>
+<img src="${base64Qr}">
+<p>Att ${attempts} · QR expira em ~30s</p>
+</body></html>`;
+    fs.writeFileSync('/tmp/qrcode.html', html);
     console.log('\n══════════════════════════════════════════');
-    console.log('📱 ABRA ESTE LINK NO SEU NAVEGADOR:');
-    console.log(urlCode);
-    console.log('   Depois escaneie com WhatsApp → Aparelhos Conectados');
+    console.log('📱 ABRA NO CELULAR (QR code):');
+    console.log('   https://chatbot-sly-oficial.onrender.com/qrcode');
+    console.log('   Depois: WhatsApp → Aparelhos Conectados');
     console.log('══════════════════════════════════════════\n');
   },
   puppeteerOptions: {
