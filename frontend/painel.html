@@ -4,12 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Maya — Sly Design</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#0a0a14;color:#ddd;font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;padding:12px}
-h1{color:#c084fc;font-size:1.2em;margin-bottom:12px}
+body{background:#0a0a14;color:#ddd;font-family:'Montserrat',sans-serif;font-size:15px;padding:14px}
+h1{color:#c084fc;font-size:1.3em;margin-bottom:12px;font-weight:700}
 .tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px}
-.tab{background:#1a1a2e;color:#888;border:none;padding:8px 12px;border-radius:8px 8px 0 0;cursor:pointer;font-size:.78em}
+.tab{background:#1a1a2e;color:#888;border:none;padding:8px 12px;border-radius:8px 8px 0 0;cursor:pointer;font-size:.8em;font-family:'Montserrat',sans-serif}
 .tab.active{background:#2a2a4e;color:#c084fc}
 .tab.extra{background:#1e1212;color:#f87171;margin-left:auto}
 .tab.extra.active{background:#3a1a1a;color:#fca5a5}
@@ -17,81 +18,126 @@ h1{color:#c084fc;font-size:1.2em;margin-bottom:12px}
 .panel.active{display:block}
 @keyframes fade{from{opacity:0}}
 .grid{display:grid;grid-template-columns:1fr;gap:10px}
-.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;background:#111120;border-radius:12px;padding:8px}
-table{width:100%;border-collapse:collapse;min-width:550px;font-size:.75em}
-th{background:#1a1a30;color:#c084fc;padding:7px 5px;text-align:left;position:sticky;top:0}
-td{padding:5px;border-bottom:1px solid #1a1a2e;white-space:nowrap}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;background:#111120;border-radius:12px;padding:10px}
+table{width:100%;border-collapse:collapse;min-width:600px;font-size:.78em}
+th{background:#1a1a30;color:#c084fc;padding:7px 5px;text-align:left;position:sticky;top:0;font-weight:600}
+td{padding:5px;border-bottom:1px solid #1a1a2e}
+td input,td select{background:#0a0a14;border:1px solid #333;color:#ddd;padding:4px 6px;border-radius:5px;font-size:.82em;font-family:'Montserrat',sans-serif}
+td select{cursor:pointer}
+td select:hover{border-color:#c084fc}
 tr:hover{background:#1a1a30}
-.fat-sidebar{background:#111120;border-radius:12px;padding:12px}
-.fat-sidebar h3{color:#c084fc;font-size:.9em;margin-bottom:8px}
-.fat-row{display:flex;justify-content:space-between;padding:4px 0;font-size:.78em;border-bottom:1px solid #1a1a2e}
-.fat-total{font-weight:bold;color:#c084fc;font-size:.85em;margin-top:8px;padding-top:8px;border-top:2px solid #333}
+tr.feito{background:#0a1a0a}tr.feito:hover{background:#0f2a0f}
+tr.andamento{background:#1a1a0a}tr.andamento:hover{background:#2a2a0f}
+tr.novo{background:#0a0a1a}tr.novo:hover{background:#0f0f2a}
+tr.cancelado{background:#1a0a0a}tr.cancelado:hover{background:#2a0f0f}
+tr.pago_site{background:#0a1a1a}tr.pago_site:hover{background:#0f2a2a}
+td .badge{padding:2px 8px;border-radius:10px;font-size:.7em;font-weight:600;display:inline-block}
+.bg-verde{background:#1a3a1a;color:#4ade80}.bg-amarelo{background:#3a3a1a;color:#fbbf24}
+.bg-azul{background:#1a2a3a;color:#93c5fd}.bg-vermelho{background:#3a1a1a;color:#f87171}
+.bg-roxo{background:#2a1a3a;color:#c084fc}.bg-ciano{background:#1a2a2a;color:#67e8f9}
+.dt{color:#c084fc;font-weight:700}
+.fat-sidebar{background:#111120;border-radius:12px;padding:14px}
+.fat-sidebar h3{color:#c084fc;font-size:.95em;margin-bottom:8px;font-weight:600}
+.fat-row{display:flex;justify-content:space-between;padding:5px 0;font-size:.8em;border-bottom:1px solid #1a1a2e}
+.fat-total{font-weight:700;color:#c084fc;font-size:.9em;margin-top:8px;padding-top:8px;border-top:2px solid #333}
 .fat-site{color:#fbbf24}
+.fat-ano{background:#1a1a2e;border-radius:10px;padding:12px;margin-bottom:10px}
+.fat-ano h3{color:#c084fc;font-size:.9em;margin-bottom:5px;font-weight:600}
+.fat-ano .big{font-size:1.4em;color:#c084fc;font-weight:700}
+.fat-ano .sub{font-size:.75em;color:#888}
 .cta-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-.btn{background:#2a2a4e;color:#c084fc;border:1px solid #444;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:.78em}
+.btn{background:#2a2a4e;color:#c084fc;border:1px solid #444;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:.8em;font-family:'Montserrat',sans-serif;transition:background .2s}
 .btn:hover{background:#3a3a5e}
-.btn.sm{font-size:.7em;padding:4px 8px;border-radius:6px}
+.btn.sm{font-size:.7em;padding:5px 9px;border-radius:6px}
 .btn.danger{background:#3a1a1a;color:#fca5a5;border-color:#7f1d1d}
 .btn.success{background:#1a3a1a;color:#86efac;border-color:#14532d}
 .btn.warn{background:#3a2a1a;color:#fbbf24;border-color:#4a2a1a}
+.btn.info{background:#1a2a3a;color:#93c5fd;border-color:#1e3a5f}
 .form-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
-.form-row input, .form-row select{flex:1;min-width:100px;background:#1a1a2e;border:1px solid #333;color:#ddd;padding:8px 10px;border-radius:8px;font-size:.8em}
+.form-row input,.form-row select{flex:1;min-width:100px;background:#1a1a2e;border:1px solid #333;color:#ddd;padding:8px 10px;border-radius:8px;font-size:.82em;font-family:'Montserrat',sans-serif}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 20px;border-radius:20px;font-size:.8em;z-index:200;opacity:0;transition:opacity .3s}
 .toast.show{opacity:1}
-.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);z-index:100;align-items:center;justify-content:center}
-.modal.show{display:flex}
-.modal-box{background:#1a1a2e;border-radius:16px;padding:20px;max-width:450px;width:90%;border:1px solid #333;max-height:80vh;overflow-y:auto}
-.modal-box h3{color:#c084fc;margin-bottom:12px}
-.card{background:#1a1a2e;border-radius:10px;padding:12px;margin-bottom:8px}
-.card-head{display:flex;justify-content:space-between}
-.card-tel{color:#c084fc;font-weight:bold;font-size:.85em}
-.card-status{padding:3px 8px;border-radius:10px;font-size:.65em}
+.card{background:#1a1a2e;border-radius:10px;padding:14px;margin-bottom:8px}
+.card-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px}
+.card-tel{color:#c084fc;font-weight:700;font-size:.88em}
+.card-status{padding:3px 10px;border-radius:10px;font-size:.68em;font-weight:600}
 .s-ativo{background:#1a3a1a;color:#4ade80}
 .s-pagamento{background:#3a2a1a;color:#fbbf24}
 .s-humano{background:#3a1a1a;color:#f87171}
+.s-shay{background:#1a2a3a;color:#93c5fd}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);z-index:100;align-items:center;justify-content:center}
+.modal.show{display:flex}
+.modal-box{background:#1a1a2e;border-radius:16px;padding:20px;max-width:480px;width:90%;border:1px solid #333;max-height:85vh;overflow-y:auto}
+.modal-box h3{color:#c084fc;margin-bottom:12px}
 @media(min-width:900px){
-  body{max-width:1100px;margin:0 auto;padding:20px}
+  body{max-width:1140px;margin:0 auto;padding:22px}
   h1{font-size:1.5em}
-  .grid{grid-template-columns:1fr 280px}
+  .grid{grid-template-columns:1fr 290px}
 }
 </style>
 </head>
 <body>
 
 <h1>Maya — Gestao Sly Design</h1>
-
-<!-- Abas -->
 <div class="tabs" id="tabs"></div>
 
-<!-- Clientes ativos -->
 <div class="panel active" id="tab-clientes">
+  <div class="fat-ano" id="fatAno"></div>
+  <div class="table-wrap" id="slidesHoje" style="margin-bottom:14px"></div>
   <div class="cta-bar">
-    <button class="btn" onclick="carregarClientes()">Atualizar</button>
-    <button class="btn" onclick="abrirModal('add')">+ Pedido Manual</button>
+    <button class="btn" onclick="carregarTudo()">Atualizar</button>
+    <button class="btn success" onclick="abrirModal('add')">+ Pedido Manual</button>
   </div>
   <div id="clientes">Carregando...</div>
 </div>
 
-<!-- Meses -->
 <div class="panel" id="tab-meses"></div>
-
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script>
-let mesAtual = 6; // Junho 2026
-const MESES = ['','Janeiro','Fevereiro','Marco','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const MESES=['','Janeiro','Fevereiro','Marco','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const TIPOS=['📄 PDF','🎬 Canva (Transicoes)','🎬 PowerPoint (Transicoes)','🎨 Canva Temas','🎨 PPTX Temas','Modelo','Banner','Post','Arte','Video','Mapa Mental','Trabalho Escrito','Outro'];
+const SITUACOES=['Novo','Em andamento','Feito','Cancelado','Pago (Site)'];
+const PAGAMENTOS=['Aguardando','50% pago','Pago'];
+const RESP=['SF','SA'];
+let mesAtual=6,autoRefresh,tabAtiva='clientes';
 
-function t(msg){const e=document.getElementById('toast');e.textContent=msg;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2500)}
+function t(m){const e=document.getElementById('toast');e.textContent=m;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2500)}
+async function api(p,b){const r=await fetch(p,{method:b?'POST':'GET',headers:b?{'Content-Type':'application/json'}:{},body:b?JSON.stringify(b):undefined});return r.json()}
 
-async function api(path,body){
-  const r=await fetch(path,{method:body?'POST':'GET',headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined});
-  return r.json();
+// ===== HELPERS =====
+function sel(id,opts,val){return `<select id="${id}" style="width:100%">${opts.map(o=>`<option ${o.trim()===String(val).trim()?'selected':''}>${o.trim()}</option>`).join('')}</select>`}
+function badgeClass(sit){
+  if(sit==='Feito'||sit==='Pago (Site)')return'bg-verde';if(sit==='Em andamento')return'bg-amarelo';
+  if(sit==='Cancelado')return'bg-vermelho';if(sit==='Novo')return'bg-azul';return'bg-roxo';
 }
+function pgClass(pg){if(pg==='Pago')return'bg-verde';if(pg==='50% pago')return'bg-amarelo';return'bg-roxo'}
+function rowClass(sit){if(sit==='Feito'||sit==='Pago (Site)')return'feito';if(sit==='Em andamento')return'andamento';if(sit==='Cancelado')return'cancelado';if(sit==='Novo')return'novo';return''}
+function esc(s){return(s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;')}
+
+// ===== AUTO REFRESH =====
+function ir(){clearInterval(autoRefresh);autoRefresh=setInterval(()=>{if(tabAtiva==='clientes')carregarClientes()},30000)}
 
 // ===== CLIENTES ATIVOS =====
 async function carregarClientes(){
-  const d=await api('/painel/dados');
+  const[d,f,h]=await Promise.all([api('/painel/dados'),api('/painel/faturamento'),api('/painel/hoje')]);
+  document.getElementById('fatAno').innerHTML=`<h3>Faturamento 2026</h3><div class="big">R$ ${(f.total_ano||0).toFixed(2)}</div><div class="sub" style="font-size:.82em;line-height:1.8">
+    <div>Shayene (SF): <b style="color:#c084fc">R$ ${(f.total_shay||0).toFixed(2)}</b></div>
+    <div style="color:#888">Samuel (SA): R$ ${(f.total_samuel||0).toFixed(2)}</div>
+    <div class="fat-site">Site (liquido): R$ ${(f.total_site||0).toFixed(2)}</div>
+    <div style="color:#888;font-size:.75em">Bruto: R$ ${(f.total_site_bruto||0).toFixed(2)} | Taxas: R$ ${(f.taxas_site||0).toFixed(2)}</div>
+    <div style="color:#fbbf24">A receber (50% restante): <b>R$ ${(f.a_receber||0).toFixed(2)}</b></div>
+    <div style="color:#888;margin-top:2px">Aguardando pagamento: ${d.aguardando||0} clientes</div>
+  </div>`;
+
+  // Slides para hoje
+  const ph=h.pedidos||[];
+  document.getElementById('slidesHoje').innerHTML=ph.length?`
+    <div style="color:#c084fc;font-weight:700;margin-bottom:6px">📅 Slides para Hoje (${h.data})</div>
+    <table><tr><th>Entrega</th><th>Cliente</th><th>Arquivo</th><th>Tema</th><th>Valor</th><th>Sit</th><th>PG</th></tr>
+    ${ph.map(p=>`<tr class="${rowClass(p.situacao||'')}"><td class="dt">${p.entrega||p.data||''}</td><td>${p.cliente||''}</td><td>${p.arquivo||''}</td><td>${p.tema||''}</td><td>${p.valor||''}</td><td><span class="badge ${badgeClass(p.situacao||'')}">${p.situacao||''}</span></td><td><span class="badge ${pgClass(p.pg||'')}">${p.pg||''}</span></td></tr>`).join('')}
+    </table>`:'<div style="text-align:center;color:#555;padding:10px;font-size:.8em">Nenhum slide para hoje ✨</div>';
+
   const el=document.getElementById('clientes');
   if(!d.clientes.length){el.innerHTML='<div style="text-align:center;color:#555;padding:40px">Nenhum cliente ativo ✨</div>';return}
   el.innerHTML=d.clientes.map(c=>`
@@ -100,169 +146,116 @@ async function carregarClientes(){
         <span class="card-tel">${c.telefone}</span>
         <span class="card-status ${c.statusCls.replace('status-','s-')}">${c.statusTxt}</span>
       </div>
-      <div style="color:#999;font-size:.75em;margin:5px 0">
-        <b>Tema:</b> ${c.tema}<br>
-        <b>Modelo:</b> ${c.modelo} | <b>Prazo:</b> ${c.prazo}<br>
-        <b>Valor:</b> ${c.valor}
+      <div style="color:#999;font-size:.77em;margin:6px 0"><b>Tema:</b> ${c.tema}<br><b>Modelo:</b> ${c.modelo} | <b>Prazo:</b> ${c.prazo}<br><b>Valor:</b> ${c.valor}</div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">
+        ${c.aguardando?`<button class="btn success sm" onclick="confirmar('${c.telefone}')">Confirmar</button><button class="btn warn sm" onclick="rejeitar('${c.telefone}')">Rejeitar</button>`:''}
+        <button class="btn info sm" onclick="cutucar('${c.telefone}')">Cutucar</button>
+        ${c.humano?`<button class="btn sm" onclick="liberar('${c.telefone}')">Liberar Maya</button>`:`<button class="btn danger sm" onclick="bloquear('${c.telefone}')">Bloquear Maya</button>`}
+        <button class="btn sm" onclick="finalizar('${c.telefone}')" style="color:#888">Finalizar</button>
       </div>
-      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px">
-        ${c.aguardando?`
-          <button class="btn success sm" onclick="confirmar('${c.telefone}')">Confirmar</button>
-          <button class="btn warn sm" onclick="rejeitar('${c.telefone}')">Rejeitar</button>
-        `:''}
-        ${c.humano?
-          `<button class="btn sm" onclick="liberar('${c.telefone}')">Liberar Maya</button>`:
-          `<button class="btn danger sm" onclick="bloquear('${c.telefone}')">Bloquear Maya</button>`
-        }
-      </div>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
 async function bloquear(tel){await api('/painel/bloquear',{telefone:tel});t('Maya bloqueada');carregarClientes()}
 async function liberar(tel){await api('/painel/liberar',{telefone:tel});t('Maya liberada');carregarClientes()}
-async function confirmar(tel){
-  await api('/painel/confirmar',{telefone:tel});
-  t('Pedido confirmado e adicionado!');carregarClientes();carregarMes(mesAtual);
-}
-async function rejeitar(tel){
-  const m=prompt('Motivo (sem vaga hoje, reembolso...):');if(!m)return;
-  await api('/painel/rejeitar',{telefone:tel,motivo:m});
-  t('Pedido rejeitado');carregarClientes();
-}
+async function confirmar(tel){await api('/painel/confirmar',{telefone:tel});t('Pedido confirmado!');carregarClientes();if(tabAtiva==='mes')carregarMes(mesAtual)}
+async function rejeitar(tel){const m=prompt('Motivo:');if(!m)return;await api('/painel/rejeitar',{telefone:tel,motivo:m});t('Rejeitado');carregarClientes()}
+async function cutucar(tel){await api('/painel/cutucar',{telefone:tel});t('Cutucando...')}
+async function finalizar(tel){if(!confirm('Finalizar atendimento de '+tel+'?'))return;await api('/painel/finalizar',{telefone:tel});t('Finalizado');carregarClientes()}
 
 // ===== MESES =====
 async function carregarMes(mes){
-  mesAtual=mes;
-  const d=await api(`/painel/mes/${mes}`);
-  const ped=d.pedidos||[], fat=d.faturamento||{};
-  const el=document.getElementById('tab-meses');
-  let rows=ped.map(p=>`<tr>
-    <td>${p.entrega||p.data||''}</td><td>${p.cliente||''}</td><td>${p.arquivo||''}</td>
-    <td>${p.tema||''}</td><td>${p.valor||''}</td><td>${p.situacao||''}</td>
-    <td>${p.pg||''}</td><td>${p.responsavel||''}</td>
-    <td><button class="btn sm" onclick="editarPedido(${p.id},'${p.situacao||''}','${p.pg||''}','${p.valor||''}')">Editar</button>
-    <button class="btn danger sm" onclick="deletarPedido(${p.id})" style="margin-left:3px">X</button></td>
-  </tr>`).join('');
+  mesAtual=mes;const d=await api(`/painel/mes/${mes}`);const ped=d.pedidos||[],fat=d.faturamento||{};
+  let rows='';
+  ped.forEach(p=>{
+    const arquivo=p.arquivo||'';const ehTemas=arquivo.includes('Temas');
+    rows+=`<tr id="row${p.id}" class="${rowClass(p.situacao||'')}">
+      <td><input value="${esc(p.entrega||p.data||'')}" id="e${p.id}_entrega" style="width:50px" placeholder="dd/mm"></td>
+      <td><input value="${esc(p.cliente||'')}" id="e${p.id}_cliente" style="width:95px"></td>
+      <td>${sel('e'+p.id+'_arquivo',TIPOS,arquivo)}${ehTemas?`<input value="${esc(p.tema_design||'')}" id="e${p.id}_temadesign" placeholder="Qual tema?" style="width:85px;margin-top:3px;font-size:.7em">`:''}</td>
+      <td><input value="${esc(p.tema||'')}" id="e${p.id}_tema" style="width:115px"></td>
+      <td><input value="${esc(p.valor||'')}" id="e${p.id}_valor" style="width:65px"></td>
+      <td>${sel('e'+p.id+'_sit',SITUACOES,p.situacao||'Novo')}</td>
+      <td>${sel('e'+p.id+'_pg',PAGAMENTOS,p.pg||'Aguardando')}</td>
+      <td>${sel('e'+p.id+'_resp',RESP,p.responsavel||'SF')}</td>
+      <td style="white-space:nowrap"><button class="btn success sm" onclick="salvarLinha(${p.id})">Salvar</button><button class="btn danger sm" onclick="deletarPedido(${p.id})" style="margin-left:3px">X</button></td>
+    </tr>`;
+  });
   if(!rows)rows='<tr><td colspan="9" style="text-align:center;color:#555;padding:20px">Nenhum pedido neste mes</td></tr>';
-
-  el.innerHTML=`
+  document.getElementById('tab-meses').innerHTML=`
     <div class="grid">
       <div class="table-wrap">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <span style="color:#c084fc;font-weight:bold">${MESES[mes]} 2026</span>
-          <span style="color:#888;font-size:.7em">${ped.length} pedidos</span>
+          <span style="color:#c084fc;font-weight:700">${MESES[mes]} 2026</span>
+          <span style="color:#888;font-size:.72em">${ped.length} pedidos</span>
         </div>
-        <table>
-          <tr><th>Entrega</th><th>Cliente</th><th>Arquivo</th><th>Tema</th><th>Valor</th><th>Situacao</th><th>PG</th><th>Resp</th><th></th></tr>
-          ${rows}
-        </table>
+        <table><tr><th>Entr.</th><th>Cliente</th><th>Arquivo</th><th>Tema</th><th>Valor</th><th>Sit</th><th>PG</th><th>Resp</th><th></th></tr>${rows}</table>
       </div>
-      <div class="fat-sidebar">
-        <h3>Faturamento — ${MESES[mes]}</h3>
-        <div class="fat-row"><span>Pedidos</span><span>R$ ${fat.pedidos?.toFixed(2)||'0.00'}</span></div>
-        <div class="fat-row fat-site"><span>Site</span><span>R$ ${fat.site?.toFixed(2)||'0.00'}</span></div>
-        <div class="fat-total"><span>Total</span><span>R$ ${fat.total?.toFixed(2)||'0.00'}</span></div>
-        <div style="margin-top:5px;font-size:.7em;color:#888">Shay: R$ ${(fat.total||0).toFixed(2)}</div>
-      </div>
+      <div class="fat-sidebar"><h3>${MESES[mes]}</h3><div class="fat-row"><span>Pedidos</span><span>R$ ${fat.pedidos?.toFixed(2)||'0.00'}</span></div><div class="fat-row fat-site"><span>Site</span><span>R$ ${fat.site?.toFixed(2)||'0.00'}</span></div><div class="fat-total" style="font-size:1.1em"><span>Total</span><span>R$ ${fat.total?.toFixed(2)||'0.00'}</span></div></div>
     </div>`;
 }
 
-// ===== INICIALIZAR =====
+async function salvarLinha(id){
+  const d={id};
+  ['entrega','cliente','tema','valor','temadesign'].forEach(k=>{const v=document.getElementById('e'+id+'_'+k);if(v)d[k==='temadesign'?'tema_design':k]=v.value});
+  ['arquivo','sit','pg','resp'].forEach(k=>{const v=document.getElementById('e'+id+'_'+k);if(v)d[k==='sit'?'situacao':k==='resp'?'responsavel':k]=v.value});
+  // Se arquivo mudou pra Temas e tem tema_design, junta no modelo
+  if(d.arquivo&&d.arquivo.includes('Temas')&&d.tema_design)d.arquivo=d.arquivo+' — '+d.tema_design;
+  await api('/painel/editar-pedido',d);t('Salvo!');carregarMes(mesAtual);
+}
+async function deletarPedido(id){if(!confirm('Deletar #'+id+'?'))return;await api('/painel/deletar-pedido',{id});t('Removido');carregarMes(mesAtual)}
+
+// ===== FATURAMENTO =====
+async function carregarFaturamento(){
+  const d=await api('/painel/faturamento');const fat=d.mensal||{};let rows='';
+  for(let m=1;m<=12;m++){const f=fat[m]||{pedidos:0,site:0,total:0};rows+=`<div class="fat-row"><span>${MESES[m]}</span><span>R$ ${f.total.toFixed(2)}</span></div>`}
+  document.getElementById('tab-meses').innerHTML=`<div class="fat-sidebar" style="max-width:480px;margin:0 auto"><h3>Faturamento 2026</h3>${rows}<div class="fat-total" style="font-size:1.15em"><span>TOTAL 2026</span><span>R$ ${(d.total_ano||0).toFixed(2)}</span></div><div style="margin-top:12px;font-size:.85em;line-height:2">
+    <div><b>Shayene (SF):</b> <span style="color:#c084fc;font-weight:700">R$ ${(d.total_shay||0).toFixed(2)}</span></div>
+    <div style="color:#888"><b>Samuel (SA):</b> R$ ${(d.total_samuel||0).toFixed(2)}</div>
+    <div class="fat-site"><b>Site (liquido):</b> R$ ${(d.total_site||0).toFixed(2)}</div>
+    <div style="color:#888;font-size:.75em">Bruto: R$ ${(d.total_site_bruto||0).toFixed(2)} | Taxas: R$ ${(d.taxas_site||0).toFixed(2)}</div>
+    <div style="color:#fbbf24;margin-top:4px"><b>A receber:</b> R$ ${(d.a_receber||0).toFixed(2)} <span style="font-size:.75em;color:#888">(50% restante)</span></div>
+  </div></div>`;
+}
+
+// ===== MODAL =====
+function abrirModal(tipo){
+  let h='';
+  if(tipo==='add'){
+    h=`<h3>+ Pedido Manual</h3>
+    <div class="form-row"><input placeholder="Cliente (telefone)" id="mCliente"><input placeholder="Data (dd/mm)" id="mData"></div>
+    <div class="form-row"><select id="mArquivo">${TIPOS.map(t=>`<option>${t}</option>`).join('')}</select><input placeholder="Tema" id="mTema"></div>
+    <div class="form-row"><input placeholder="Valor (ex: 25,00)" id="mValor">${sel('mMes',MESES.slice(1),MESES[mesAtual])}</div>
+    <div class="form-row">${sel('mSit',SITUACOES,'Novo')}${sel('mPg',PAGAMENTOS,'Aguardando')}${sel('mResp',RESP,'SF')}</div>
+    <button class="btn success" onclick="addManual()">Adicionar</button>`;
+  }
+  const m=document.createElement('div');m.className='modal show';m.id='modal';
+  m.innerHTML=`<div class="modal-box">${h}<div style="margin-top:10px"><button class="btn" onclick="this.closest('.modal').remove()">Fechar</button></div></div>`;
+  document.body.appendChild(m);
+}
+async function addManual(){
+  const d={cliente:document.getElementById('mCliente').value,data:document.getElementById('mData').value,arquivo:document.getElementById('mArquivo').value,tema:document.getElementById('mTema').value,valor:'R$ '+document.getElementById('mValor').value,mes:MESES.indexOf(document.getElementById('mMes').value),situacao:document.getElementById('mSit').value,pg:document.getElementById('mPg').value,responsavel:document.getElementById('mResp').value,origem:'manual'};
+  if(!d.cliente||!d.tema)return t('Preencha cliente e tema');
+  await api('/painel/adicionar-manual',d);
+  t('Adicionado!');document.getElementById('modal').remove();carregarTudo();
+}
+
+// ===== INIT =====
 function init(){
   let tabs='<button class="tab active" onclick="abrirTab(\'clientes\')">Clientes Ativos</button>';
   for(let m=1;m<=12;m++)tabs+=`<button class="tab" onclick="abrirTab('mes',${m})">${MESES[m].substring(0,3)}</button>`;
   tabs+='<button class="tab extra" onclick="abrirTab(\'faturamento\')">Faturamento 2026</button>';
-  document.getElementById('tabs').innerHTML=tabs;
-  carregarClientes();
+  document.getElementById('tabs').innerHTML=tabs;carregarTudo();ir();
 }
 function abrirTab(tipo,mes){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  tabAtiva=tipo;
   if(tipo==='clientes'){document.getElementById('tab-clientes').classList.add('active');document.querySelector('.tab').classList.add('active');carregarClientes()}
-  else if(tipo==='mes'){document.getElementById('tab-meses').classList.add('active');carregarMes(mes);highlightTab(mes)}
-  else if(tipo==='faturamento'){document.getElementById('tab-meses').classList.add('active');carregarFaturamento();highlightExtra()}
+  else if(tipo==='mes'){document.getElementById('tab-meses').classList.add('active');carregarMes(mes);document.querySelectorAll('.tab').forEach((b,i)=>{if(i===mes)b.classList.add('active')})}
+  else if(tipo==='faturamento'){document.getElementById('tab-meses').classList.add('active');carregarFaturamento();document.querySelector('.tab.extra').classList.add('active')}
 }
-function highlightTab(mes){document.querySelectorAll('.tab').forEach((b,i)=>{if(i===mes)b.classList.add('active')})}
-function highlightExtra(){document.querySelector('.tab.extra').classList.add('active')}
-
-async function carregarFaturamento(){
-  const d=await api('/painel/faturamento');
-  const fat=d.mensal||{};
-  let rows='';
-  for(let m=1;m<=12;m++){
-    const f=fat[m]||{pedidos:0,site:0,total:0};
-    rows+=`<div class="fat-row"><span>${MESES[m]}</span><span>R$ ${f.total.toFixed(2)}</span></div>`;
-  }
-  document.getElementById('tab-meses').innerHTML=`
-    <div class="fat-sidebar" style="max-width:400px;margin:0 auto">
-      <h3>Faturamento 2026</h3>
-      ${rows}
-      <div class="fat-total"><span>TOTAL 2026</span><span>R$ ${(d.total_ano||0).toFixed(2)}</span></div>
-      <div style="margin-top:10px;font-size:.8em">
-        <div>Shay (SF): R$ ${(d.total_shay||0).toFixed(2)}</div>
-        <div style="color:#888">Samuel (SA): R$ ${(d.total_samuel||0).toFixed(2)}</div>
-        <div class="fat-site">Site: R$ ${(d.total_site||0).toFixed(2)}</div>
-      </div>
-    </div>`;
-}
-
-function abrirModal(tipo,id){
-  let html='';
-  if(tipo==='add'){
-    html=`<h3>+ Pedido Manual</h3>
-      <div class="form-row"><input placeholder="Cliente (telefone)" id="mCliente"><input placeholder="Data (dd/mm)" id="mData"></div>
-      <div class="form-row"><input placeholder="Arquivo/Tipo" id="mArquivo"><input placeholder="Tema" id="mTema"></div>
-      <div class="form-row"><input placeholder="Valor (ex: 25,00)" id="mValor"><input placeholder="Mes (1-12)" id="mMes" value="${mesAtual}"></div>
-      <div class="form-row">
-        <select id="mSituacao"><option>Novo</option><option>Feito</option><option>Em andamento</option></select>
-        <select id="mPg"><option>50% pago</option><option>Pago</option></select>
-        <select id="mResp"><option>SF</option><option>SA</option></select>
-      </div>
-      <button class="btn success" onclick="addManual()">Adicionar</button>`;
-  }else if(tipo==='edit'){
-    html=`<h3>Editar Pedido #${id}</h3>
-      <div class="form-row"><input placeholder="Situacao" id="eSituacao"><input placeholder="PG" id="ePg"></div>
-      <button class="btn success" onclick="salvarEdicao(${id})">Salvar</button>`;
-  }
-  const modal=document.createElement('div');modal.className='modal show';modal.id='modal';
-  modal.innerHTML=`<div class="modal-box">${html}<div style="margin-top:10px"><button class="btn" onclick="this.closest('.modal').remove()">Fechar</button></div></div>`;
-  document.body.appendChild(modal);
-}
-
-async function addManual(){
-  const d={
-    cliente:document.getElementById('mCliente').value,
-    data:document.getElementById('mData').value,
-    arquivo:document.getElementById('mArquivo').value,
-    tema:document.getElementById('mTema').value,
-    valor:'R$ '+document.getElementById('mValor').value,
-    mes:parseInt(document.getElementById('mMes').value)||mesAtual,
-    situacao:document.getElementById('mSituacao').value,
-    pg:document.getElementById('mPg').value,
-    responsavel:document.getElementById('mResp').value,
-    origem:'manual'
-  };
-  if(!d.cliente||!d.tema)return t('Preencha cliente e tema');
-  const r=await fetch('/painel/adicionar-manual',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});
-  if(r.ok){t('Pedido adicionado!');document.getElementById('modal').remove();carregarMes(mesAtual)}
-}
-
-async function editarPedido(id,sit,pg,val){
-  const ns=prompt('Situacao (Feito/Em andamento/Cancelado):',sit||'');
-  const np=prompt('Pagamento (Pago/50% pago):',pg||'');
-  const nv=prompt('Valor (ex: R$ 25,00):',val||'');
-  if(!ns&&!np&&!nv)return;
-  const d={id};if(ns)d.situacao=ns;if(np)d.pg=np;if(nv)d.valor=nv;
-  await fetch('/painel/editar-pedido',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});
-  t('Pedido atualizado!');carregarMes(mesAtual);
-}
-async function deletarPedido(id){
-  if(!confirm('Deletar pedido #'+id+'?'))return;
-  await fetch('/painel/deletar-pedido',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});
-  t('Pedido removido');carregarMes(mesAtual);
-}
-
+async function carregarTudo(){carregarClientes();if(tabAtiva==='mes')carregarMes(mesAtual)}
 init();
 </script>
 </body>

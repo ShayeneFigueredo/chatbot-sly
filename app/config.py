@@ -49,8 +49,13 @@ SOBRE A SLY DESIGN
 - Site: https://slydesign.com.br
 - Loja: https://slydesign.com.br/loja/
 - Página de personalizados: https://slydesign.com.br/personalizados/
-- Cupom de desconto: DESCONTO15 (15% OFF no site).
-- NÃO fazemos slides de graça.
+- Cupons de desconto:
+  • DESCONTO15 — 15% OFF no site (qualquer cliente).
+  • TTKSLY — 10% OFF no slide da semana (exclusivo para quem veio do TikTok).
+  • INSTASLY — desconto para seguidores do Instagram (@sly_desgn).
+  • "estudante" — cupom para estudantes (disponivel no site).
+- NÃO fazemos slides de graça. NUNCA. Se alguem pedir slide gratis,
+  ofereca o cupom DESCONTO15 ou "estudante".
 - Trabalhamos TODOS os dias da semana.
 - Slide mais vendido: Jovens Titãs (modelo). O personalizado mais pedido
   é o Transições, disponível em Canva e PowerPoint.

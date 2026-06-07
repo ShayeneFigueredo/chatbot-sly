@@ -17,6 +17,7 @@ const SHAY_NUMERO = "5538997507651";
 
 // Guarda referencia global pro socket (usada pelo servidor HTTP)
 let globalSock = null;
+let reconnectTentativas = 0;
 
 async function start() {
   // Carrega sessao salva (ou cria nova)
@@ -29,9 +30,12 @@ async function start() {
   const sock = makeWASocket({
     version,
     auth: state,
-    printQRInTerminal: false, // vamos gerar o nosso proprio
-    syncFullHistory: false,   // evita erros de sincronizacao
-    fireInitQueries: false,   // nao puxa historico antigo
+    printQRInTerminal: false,
+    syncFullHistory: false,
+    fireInitQueries: false,
+    emitOwnEvents: false,
+    markOnlineOnConnect: false,
+    defaultQueryTimeoutMs: 60000,
   });
 
   // Salva credenciais automaticamente (~2MB)
@@ -74,19 +78,24 @@ p{color:#888;margin-top:20px}
         ? lastDisconnect.error.output.statusCode
         : null;
 
+      // So apaga a sessao se for logout REAL
       if (code === DisconnectReason.loggedOut) {
-        console.log(" Sessao desconectada. Apagando auth...");
-        fs.rmSync(AUTH_DIR, { recursive: true, force: true });
+        console.log(" Sessao encerrada pelo WhatsApp. Apagando auth...");
+        try { fs.rmSync(AUTH_DIR, { recursive: true, force: true }); } catch {}
+        reconnectTentativas = 0;
       }
 
-      console.log(" Reconectando em 3s...");
-      setTimeout(start, 3000);
+      // Backoff: 3s, 6s, 12s, 24s, max 60s
+      const delay = Math.min(3000 * Math.pow(2, reconnectTentativas), 60000);
+      reconnectTentativas++;
+      console.log(` Reconectando em ${delay/1000}s (tentativa ${reconnectTentativas})...`);
+      setTimeout(start, delay);
     }
 
     if (connection === "open") {
       console.log("✅ Maya conectada ao WhatsApp!");
+      reconnectTentativas = 0; // reset contador
       globalSock = sock;
-      // Remove o QR code antigo
       try { fs.unlinkSync("/tmp/qrcode.html"); } catch {}
     }
   });
