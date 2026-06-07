@@ -1,0 +1,126 @@
+{
+  message: 'Server is running on port: 21465',
+  level: 'info',
+  timestamp: '2026-06-06T04:52:23.837Z'
+}
+{
+  message: '\x1B[31m Visit 127.0.0.1:21465/api-docs for Swagger docs',
+  level: 'info',
+  timestamp: '2026-06-06T04:52:23.846Z'
+}
+{
+  message: 'WPPConnect-Server version: 2.8.6',
+  level: 'info',
+  timestamp: '2026-06-06T04:52:23.847Z'
+}
+{
+  code: 'ERR_INVALID_URL',
+  input: '127.0.0.1:21465/api/mayasly2026/start-all',
+  level: 'error',
+  message: 'Invalid URL',
+  stack: 'TypeError: Invalid URL\n' +
+    '    at new URL (node:internal/url:806:29)\n' +
+    '    at dispatchHttpRequest (/mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/axios/dist/node/axios.cjs:3414:20)\n' +
+    '    at /mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/axios/dist/node/axios.cjs:3258:5\n' +
+    '    at new Promise (<anonymous>)\n' +
+    '    at wrapAsync (/mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/axios/dist/node/axios.cjs:3242:10)\n' +
+    '    at http (/mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/axios/dist/node/axios.cjs:3316:10)\n' +
+    '    at Axios.dispatchRequest (/mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/axios/dist/node/axios.cjs:4984:10)\n' +
+    '    at Axios._request (/mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/axios/dist/node/axios.cjs:5267:33)\n' +
+    '    at Axios.request (/mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/axios/dist/node/axios.cjs:5129:25)\n' +
+    '    at Axios.httpMethod [as post] (/mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/axios/dist/node/axios.cjs:5299:19)\n' +
+    '    at Function.wrap [as post] (/mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/axios/dist/node/axios.cjs:27:15)\n' +
+    '    at startAllSessions (/mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/@wppconnect/server/dist/util/functions.js:242:26)\n' +
+    '    at Server.<anonymous> (/mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/@wppconnect/server/dist/index.js:126:72)\n' +
+    '    at Object.onceWrapper (node:events:638:28)\n' +
+    '    at Server.emit (node:events:536:35)\n' +
+    '    at emitListeningNT (node:net:1951:10)\n' +
+    '    at Axios.request (/mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/axios/dist/node/axios.cjs:5133:41)\n' +
+    '    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n' +
+    '    at async startAllSessions (/mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/@wppconnect/server/dist/util/functions.js:242:5)',
+  timestamp: '2026-06-06T04:52:23.923Z'
+}
+{
+  message: 'Server is running on port: 21465',
+  level: 'info',
+  timestamp: '2026-06-06T05:06:59.322Z'
+}
+{
+  message: '\x1B[31m Visit 127.0.0.1:21465/api-docs for Swagger docs',
+  level: 'info',
+  timestamp: '2026-06-06T05:06:59.340Z'
+}
+{
+  message: 'WPPConnect-Server version: 2.8.6',
+  level: 'info',
+  timestamp: '2026-06-06T05:06:59.342Z'
+}
+{
+  code: 'ERR_INVALID_URL',
+  input: '127.0.0.1:21465/api/mayasly2026/start-all',
+  level: 'error',
+  message: 'Invalid URL',
+  stack: 'TypeError: Invalid URL\n' +
+    '    at new URL (node:internal/url:806:29)\n' +
+    '    at dispatchHttpRequest (/mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/axios/dist/node/axios.cjs:3414:20)\n' +
+    '    at /mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/axios/dist/node/axios.cjs:3258:5\n' +
+    '    at new Promise (<anonymous>)\n' +
+    '    at wrapAsync (/mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/axios/dist/node/axios.cjs:3242:10)\n' +
+    '    at http (/mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/axios/dist/node/axios.cjs:3316:10)\n' +
+    '    at Axios.dispatchRequest (/mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/axios/dist/node/axios.cjs:4984:10)\n' +
+    '    at Axios._request (/mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/axios/dist/node/axios.cjs:5267:33)\n' +
+    '    at Axios.request (/mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/axios/dist/node/axios.cjs:5129:25)\n' +
+    '    at Axios.httpMethod [as post] (/mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/axios/dist/node/axios.cjs:5299:19)\n' +
+    '    at Function.wrap [as post] (/mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/axios/dist/node/axios.cjs:27:15)\n' +
+    '    at startAllSessions (/mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/@wppconnect/server/dist/util/functions.js:242:26)\n' +
+    '    at Server.<anonymous> (/mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/@wppconnect/server/dist/index.js:126:72)\n' +
+    '    at Object.onceWrapper (node:events:638:28)\n' +
+    '    at Server.emit (node:events:536:35)\n' +
+    '    at emitListeningNT (node:net:1951:10)\n' +
+    '    at Axios.request (/mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/axios/dist/node/axios.cjs:5133:41)\n' +
+    '    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n' +
+    '    at async startAllSessions (/mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/@wppconnect/server/dist/util/functions.js:242:5)',
+  timestamp: '2026-06-06T05:06:59.357Z'
+}
+{
+  message: 'Server is running on port: 21465',
+  level: 'info',
+  timestamp: '2026-06-06T05:11:11.220Z'
+}
+{
+  message: '\x1B[31m Visit 127.0.0.1:21465/api-docs for Swagger docs',
+  level: 'info',
+  timestamp: '2026-06-06T05:11:11.226Z'
+}
+{
+  message: 'WPPConnect-Server version: 2.8.6',
+  level: 'info',
+  timestamp: '2026-06-06T05:11:11.228Z'
+}
+{
+  code: 'ERR_INVALID_URL',
+  input: '127.0.0.1:21465/api/mayasly2026/start-all',
+  level: 'error',
+  message: 'Invalid URL',
+  stack: 'TypeError: Invalid URL\n' +
+    '    at new URL (node:internal/url:806:29)\n' +
+    '    at dispatchHttpRequest (/mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/axios/dist/node/axios.cjs:3414:20)\n' +
+    '    at /mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/axios/dist/node/axios.cjs:3258:5\n' +
+    '    at new Promise (<anonymous>)\n' +
+    '    at wrapAsync (/mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/axios/dist/node/axios.cjs:3242:10)\n' +
+    '    at http (/mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/axios/dist/node/axios.cjs:3316:10)\n' +
+    '    at Axios.dispatchRequest (/mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/axios/dist/node/axios.cjs:4984:10)\n' +
+    '    at Axios._request (/mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/axios/dist/node/axios.cjs:5267:33)\n' +
+    '    at Axios.request (/mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/axios/dist/node/axios.cjs:5129:25)\n' +
+    '    at Axios.httpMethod [as post] (/mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/axios/dist/node/axios.cjs:5299:19)\n' +
+    '    at Function.wrap [as post] (/mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/axios/dist/node/axios.cjs:27:15)\n' +
+    '    at startAllSessions (/mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/@wppconnect/server/dist/util/functions.js:242:26)\n' +
+    '    at Server.<anonymous> (/mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/@wppconnect/server/dist/index.js:126:72)\n' +
+    '    at Object.onceWrapper (node:events:638:28)\n' +
+    '    at Server.emit (node:events:536:35)\n' +
+    '    at emitListeningNT (node:net:1951:10)\n' +
+    '    at Axios.request (/mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/axios/dist/node/axios.cjs:5133:41)\n' +
+    '    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n' +
+    '    at async startAllSessions (/mnt/c/aprendendo-IA/chatbot-sly/backend/wppconnect/node_modules/@wppconnect/server/dist/util/functions.js:242:5)',
+  timestamp: '2026-06-06T05:11:11.238Z'
+}

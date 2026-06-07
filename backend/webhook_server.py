@@ -9,6 +9,7 @@ import sys
 import json
 import requests
 from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse
 from dotenv import load_dotenv
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -778,6 +779,22 @@ async def health():
 @app.get("/health")
 async def health_check():
     return {"status": "ok", "maya": "online 💜"}
+
+
+@app.get("/qrcode", response_class=HTMLResponse)
+async def qrcode():
+    """Pagina com QR Code pra escanear no celular."""
+    try:
+        with open("/tmp/qrcode.html", "r") as f:
+            return f.read()
+    except FileNotFoundError:
+        return """
+        <html><head>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <style>body{background:#1a1a2e;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;font-family:sans-serif}
+        h2{color:#e0aaff}</style></head><body>
+        <h2>Maya ja esta conectada! 💜</h2>
+        </body></html>"""
 
 
 @app.post("/responder")
