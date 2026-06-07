@@ -10,6 +10,13 @@ wppconnect.create({
   headless: true,
   useChrome: false,
   autoClose: 0,
+  catchQR: (base64Qr, asciiQR, attempts, urlCode) => {
+    console.log('\n══════════════════════════════════════════');
+    console.log('📱 ABRA ESTE LINK NO SEU NAVEGADOR:');
+    console.log(urlCode);
+    console.log('   Depois escaneie com WhatsApp → Aparelhos Conectados');
+    console.log('══════════════════════════════════════════\n');
+  },
   puppeteerOptions: {
     executablePath: chromePath,
     args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
