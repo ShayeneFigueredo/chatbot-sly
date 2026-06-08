@@ -210,12 +210,6 @@ clientes = {}
 
 def mostrar_menu():
     return (
-        "Oieee! Eu sou a Maya, atendente virtual da Sly Design! 💜\n\n"
-        "Aqui a gente tem slides prontos super legais "
-        "e também criamos do zero, do seu jeitinho. ✨\n\n"
-        "Temos MUITA coisa legal no site e com super descontos! 💜\n"
-        "Dá uma olhadinha:\n\n"
-        "👉 https://slydesign.com.br\n\n"
         "No que posso te ajudar?\n\n"
         "[1] 🛍️ Ver Slides Prontos\n"
         "[2] 🎨 Quero um Slide Personalizado\n"
@@ -988,7 +982,8 @@ def _msg_boas_vindas():
         "[1] 🙋 Quero falar com um atendente\n"
         "    (assim que possível alguém da equipe te responde)\n\n"
         "[2] 🤖 Quero fazer meu pedido com a Maya\n"
-        "    (nossa assistente virtual, rapidinho!)"
+        "    (nossa assistente virtual, rapidinho!)\n\n"
+        "💡 Digite o número 1 ou 2 para escolher!"
     )
 
 
