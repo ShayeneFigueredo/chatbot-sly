@@ -103,7 +103,7 @@ const RESP=['SF','SA'];
 let mesAtual=6,autoRefresh,tabAtiva='clientes';
 
 function t(m){const e=document.getElementById('toast');e.textContent=m;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2500)}
-async function api(p,b){const r=await fetch(p,{method:b?'POST':'GET',headers:b?{'Content-Type':'application/json'}:{},body:b?JSON.stringify(b):undefined});return r.json()}
+async function api(p,b){const r=await fetch(p,{method:b?'POST':'GET',credentials:'same-origin',headers:b?{'Content-Type':'application/json'}:{},body:b?JSON.stringify(b):undefined});if(!r.ok){throw new Error('HTTP '+r.status)}const t=await r.text();try{return JSON.parse(t)}catch(e){console.error('API erro:',t.slice(0,100));return{}}}
 
 // ===== HELPERS =====
 function sel(id,opts,val){return `<select id="${id}" style="width:100%">${opts.map(o=>`<option ${o.trim()===String(val).trim()?'selected':''}>${o.trim()}</option>`).join('')}</select>`}
