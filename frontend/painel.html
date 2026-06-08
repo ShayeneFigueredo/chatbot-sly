@@ -64,6 +64,7 @@ td .badge{padding:2px 8px;border-radius:10px;font-size:.7em;font-weight:600;disp
 .s-ativo{background:#1a3a1a;color:#4ade80}
 .s-pagamento{background:#3a2a1a;color:#fbbf24}
 .s-humano{background:#3a1a1a;color:#f87171}
+.s-aguardando-humano{background:#3a1a2a;color:#fca5a5}
 .s-shay{background:#1a2a3a;color:#93c5fd}
 .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);z-index:100;align-items:center;justify-content:center}
 .modal.show{display:flex}
@@ -128,6 +129,7 @@ async function carregarClientes(){
     <div style="color:#888;font-size:.75em">Bruto: R$ ${(f.total_site_bruto||0).toFixed(2)} | Taxas: R$ ${(f.taxas_site||0).toFixed(2)}</div>
     <div style="color:#fbbf24">A receber (50% restante): <b>R$ ${(f.a_receber||0).toFixed(2)}</b></div>
     <div style="color:#888;margin-top:2px">Aguardando pagamento: ${d.aguardando||0} clientes</div>
+    <div style="color:#fca5a5;margin-top:2px">Querem atendente: ${d.aguardando_humano||0} clientes</div>
   </div>`;
 
   // Slides para hoje
@@ -140,20 +142,25 @@ async function carregarClientes(){
 
   const el=document.getElementById('clientes');
   if(!d.clientes.length){el.innerHTML='<div style="text-align:center;color:#555;padding:40px">Nenhum cliente ativo ✨</div>';return}
-  el.innerHTML=d.clientes.map(c=>`
-    <div class="card">
+  el.innerHTML=d.clientes.map(c=>{
+    const info=c.quer_atendente
+      ?`<div style="color:#fca5a5;font-size:.8em;margin:6px 0">🆘 Este cliente pediu para falar com um <b>atendente humano</b>.</div>`
+      :`<div style="color:#999;font-size:.77em;margin:6px 0"><b>Tema:</b> ${c.tema}<br><b>Modelo:</b> ${c.modelo} | <b>Prazo:</b> ${c.prazo}<br><b>Valor:</b> ${c.valor}</div>`;
+    const botoes=c.quer_atendente
+      ?`<button class="btn danger sm" onclick="bloquear('${c.telefone}')">Assumir Atendimento</button>
+        <button class="btn sm" onclick="finalizar('${c.telefone}')" style="color:#888">Finalizar</button>`
+      :`${c.aguardando?`<button class="btn success sm" onclick="confirmar('${c.telefone}')">Confirmar</button><button class="btn warn sm" onclick="rejeitar('${c.telefone}')">Rejeitar</button>`:''}
+        <button class="btn info sm" onclick="cutucar('${c.telefone}')">Cutucar</button>
+        ${c.humano?`<button class="btn sm" onclick="liberar('${c.telefone}')">Liberar Maya</button>`:`<button class="btn danger sm" onclick="bloquear('${c.telefone}')">Bloquear Maya</button>`}
+        <button class="btn sm" onclick="finalizar('${c.telefone}')" style="color:#888">Finalizar</button>`;
+    return`<div class="card">
       <div class="card-head">
         <span class="card-tel">📱 ${c.telefone}</span>
         <span class="card-status ${c.statusCls.replace('status-','s-')}">${c.statusTxt}</span>
       </div>
-      <div style="color:#999;font-size:.77em;margin:6px 0"><b>Tema:</b> ${c.tema}<br><b>Modelo:</b> ${c.modelo} | <b>Prazo:</b> ${c.prazo}<br><b>Valor:</b> ${c.valor}</div>
-      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">
-        ${c.aguardando?`<button class="btn success sm" onclick="confirmar('${c.telefone}')">Confirmar</button><button class="btn warn sm" onclick="rejeitar('${c.telefone}')">Rejeitar</button>`:''}
-        <button class="btn info sm" onclick="cutucar('${c.telefone}')">Cutucar</button>
-        ${c.humano?`<button class="btn sm" onclick="liberar('${c.telefone}')">Liberar Maya</button>`:`<button class="btn danger sm" onclick="bloquear('${c.telefone}')">Bloquear Maya</button>`}
-        <button class="btn sm" onclick="finalizar('${c.telefone}')" style="color:#888">Finalizar</button>
-      </div>
-    </div>`).join('');
+      ${info}
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">${botoes}</div>
+    </div>`}).join('');
 }
 
 async function bloquear(tel){await api('/painel/bloquear',{telefone:tel});t('Maya bloqueada');carregarClientes()}
