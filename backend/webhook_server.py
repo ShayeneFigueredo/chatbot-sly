@@ -1437,6 +1437,9 @@ async def responder(request: Request):
     telefone = data.get("from", "")
     tipo = data.get("tipo", "texto")
 
+    # Normaliza numero: remove sufixos @lid, @s.whatsapp.net, @g.us
+    telefone = telefone.replace("@lid", "").replace("@s.whatsapp.net", "").replace("@g.us", "").split(":")[0]
+
     print(f"\n💬 {telefone}: {texto}")
     resposta = maya_responder(texto, telefone, tipo)
 
@@ -1466,6 +1469,8 @@ async def salvar_historico(request: Request):
     """Recebe mensagens da Shay pra salvar no historico do cliente."""
     data = await request.json()
     telefone = data.get("telefone", "")
+    # Normaliza numero
+    telefone = telefone.replace("@lid", "").replace("@s.whatsapp.net", "").replace("@g.us", "").split(":")[0]
     papel = data.get("papel", "assistant")
     texto = data.get("texto", "")
     if telefone and texto:

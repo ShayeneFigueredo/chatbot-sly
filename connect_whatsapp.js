@@ -115,7 +115,7 @@ p{color:#888;margin-top:20px}
         msg.message.imageMessage?.caption ||
         "";
       if (meuTexto) {
-        const telefone = jid.replace("@s.whatsapp.net", "").replace(/:.*/, "");
+        const telefone = jid.replace(/@s\.whatsapp\.net/, "").replace(/@lid/, "").replace(/@g\.us/, "").replace(/:.*/, "");
         try {
           await axios.post(
             `http://localhost:${PORT}/historico`,
@@ -152,8 +152,8 @@ p{color:#888;margin-top:20px}
     // Imagens sem legenda passam adiante (Maya trata)
     if (!texto && tipo === "texto") return;
 
-    // Extrai so o numero (remove @s.whatsapp.net)
-    const telefone = jid.replace("@s.whatsapp.net", "").replace(/:.*/, "");
+    // Extrai so o numero (remove @s.whatsapp.net, @lid, @g.us, e :XX)
+    const telefone = jid.replace(/@s\.whatsapp\.net/, "").replace(/@lid/, "").replace(/@g\.us/, "").replace(/:.*/, "");
     const tag = tipo !== "texto" ? ` [${tipo}]` : "";
     console.log(`\n💬 ${telefone}${tag}: ${texto || "(sem legenda)"}`);
 
