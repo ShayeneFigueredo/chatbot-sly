@@ -1360,19 +1360,23 @@ async def painel_dados():
     """Retorna JSON com todos os clientes ativos."""
     cli_list = []
     aguardando = 0
+    aguardando_humano_count = 0
     for tel, est in clientes.items():
         tela = est.get("tela", "?")
         dados = est.get("dados_pedido", {})
         shay_msg = est.get("shay_respondeu", False)
         is_humano = atendimento_humano.get(tel, False)
 
-        # Mostrar se: tem pedido, ou ta bloqueado, ou Shay mandou msg
-        tem_atividade = (tela != "menu" or dados or is_humano or shay_msg)
+        # Mostrar se: tem pedido, ou ta bloqueado, ou Shay mandou msg,
+        # ou esta esperando atendente humano
+        tem_atividade = (tela not in ("menu", "boas_vindas", "explicacao") or dados or is_humano or shay_msg)
         if not tem_atividade:
             continue
 
         if tela == "aguardando_pagamento":
             aguardando += 1
+        if tela == "aguardando_humano":
+            aguardando_humano_count += 1
 
         modelo = dados.get("modelo", "")
         modelo_limpo = modelo.split(" ", 1)[1] if " " in modelo else modelo
@@ -1384,6 +1388,9 @@ async def painel_dados():
         if is_humano:
             status_cls = "status-humano"
             status_txt = "Bloqueado"
+        elif tela == "aguardando_humano":
+            status_cls = "status-aguardando-humano"
+            status_txt = "Quer atendente"
         elif is_aguardando:
             status_cls = "status-pagamento"
             status_txt = "Aguardando pagamento"
@@ -1404,6 +1411,7 @@ async def painel_dados():
             "valor": preco_base,
             "humano": is_humano,
             "aguardando": is_aguardando,
+            "quer_atendente": tela == "aguardando_humano",
             "shay_msg": shay_msg,
             "statusCls": status_cls,
             "statusTxt": status_txt,
@@ -1415,7 +1423,7 @@ async def painel_dados():
         tel = tel.replace("@lid", "").replace("@s.whatsapp.net", "").replace("@g.us", "")
         c["telefone"] = tel
 
-    return {"clientes": cli_list, "total": len(cli_list), "aguardando": aguardando}
+    return {"clientes": cli_list, "total": len(cli_list), "aguardando": aguardando, "aguardando_humano": aguardando_humano_count}
 
 
 @app.post("/painel/bloquear")
