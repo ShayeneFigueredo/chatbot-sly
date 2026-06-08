@@ -1,5 +1,5 @@
 """
-Teste do novo fluxo de boas-vindas da Maya.
+Teste do novo fluxo de boas-vindas da Maya + menu de tipo simplificado.
 Simula as 3 conversas problematicas para verificar se o novo fluxo resolve.
 """
 import sys, os
@@ -25,7 +25,7 @@ def simular_conversa(numero, mensagens, titulo):
         if resp is None:
             resp_str = "🔇 (Maya silenciada)"
         else:
-            resp_str = resp[:120] + ("..." if len(resp) > 120 else "")
+            resp_str = resp[:130] + ("..." if len(resp) > 130 else "")
         print(f"\n👤 [{i+1}] {msg}")
         print(f"🤖 Maya: {resp_str}")
 
@@ -38,8 +38,7 @@ def simular_conversa(numero, mensagens, titulo):
 
 
 # ═══════════════════════════════════════════════
-# TESTE 1: Chat da Fran (Chat 3 — o pior caso)
-# Problema original: "2" virou tema, "Simm" virou nome, dados todos errados
+# TESTE 1: Chat da Fran — fluxo completo com novo menu de tipo
 # ═══════════════════════════════════════════════
 simular_conversa(
     "+558597241556",
@@ -47,10 +46,11 @@ simular_conversa(
         "Olá bom dia",
         "Boa tarde",
         "Sou a Fran",
-        "2",                    # Deveria ir pra boas-vindas → Maya
-        "ok entendi",           # Deveria ir pra explicacao → Ok → menu
-        "2",                    # Agora sim: menu → pedido personalizado
+        "2",                    # Escolhe Maya
+        "ok entendi",           # Entendeu → menu
+        "2",                    # Slide personalizado
         "Crise de 1929 — Trabalho de História",  # Tema
+        "1",                    # Já escolhi (ver opções completas)
         "2",                    # Canva Transições
         "Até quinta feira data 11/06",            # Prazo
         "Francielly e Maria",                     # Nomes
@@ -58,67 +58,67 @@ simular_conversa(
         "3",                    # Finalizar
         "1",                    # Confirmar
     ],
-    "Chat da Fran — da bagunça ao pedido correto"
+    "Chat da Fran — novo fluxo de tipo simplificado"
 )
 
 
 # ═══════════════════════════════════════════════
-# TESTE 2: Chat do CRISPR (Chat 1)
-# Problema original: menu duplicado, "FALAR COM HUMANO" confuso
+# TESTE 2: Chat CRISPR — com dúvida Canva vs PPT
 # ═══════════════════════════════════════════════
 simular_conversa(
     "+559885997971",
     [
         "oiii",
         "bom dia",
-        "2",                    # Escolhe Maya
+        "2",                    # Maya
         "ok entendi",           # Entendeu
         "2",                    # Slide personalizado
         "Tecnologias de edição genética CRISPR",
-        "2",                    # Canva
+        "2",                    # Diferença Canva vs PPT (dúvida)
+        "1",                    # Já escolhi → opções completas
+        "2",                    # Canva Transições
         "até hoje as 13h",      # Urgente
         "Victor, Francisco, Edinailson, Jonatas, Karleilson, Loruan, Kemilly",
         "3",                    # Finalizar extras
-        # Agora simula "FALAR COM HUMANO" no resumo
-        "FALAR COM HUMANO",
+        "FALAR COM HUMANO",     # No resumo
     ],
-    "Chat CRISPR — fluxo normal + pedido de humano no resumo"
+    "Chat CRISPR — dúvida Canva vs PPT + Já escolhi"
 )
 
 
 # ═══════════════════════════════════════════════
-# TESTE 3: Chat do Slide pra Sexta (Chat 2)
-# Problema original: Maya confusa, cliente ecoou mensagens
+# TESTE 3: Chat Slide pra Sexta — fluxo direto
 # ═══════════════════════════════════════════════
 simular_conversa(
     "+5522991016567",
     [
         "bom dia",
-        "2",                    # Escolhe Maya
+        "2",                    # Maya
         "ok",                   # Entendeu
-        "teria como fazer um slide para sexta?",  # NLP → prazo
+        "teria como fazer um slide para sexta?",  # NLP
         "2",                    # Fazer pedido
         "Direito Constitucional — Controle de Constitucionalidade",
+        "1",                    # Já escolhi
         "1",                    # PDF
         "consegue entregar até quinta?",
         "João e Pedro",
         "3",                    # Finalizar extras
         "1",                    # Confirmar
     ],
-    "Chat Slide pra Sexta — cliente pergunta antes de começar pedido"
+    "Chat Slide pra Sexta — Já escolhi direto"
 )
 
 
 # ═══════════════════════════════════════════════
-# TESTE 4: Cliente escolhe HUMANO primeiro, depois muda pra Maya
+# TESTE 4: Humano travado → destrava Maya
 # ═══════════════════════════════════════════════
 simular_conversa(
     "+551199999999",
     [
         "oi",
         "1",                    # Humano!
-        "alguem me responde?",  # Deveria ser IGNORADO (Maya travada)
-        "cade vcs????",         # Deveria ser IGNORADO
+        "alguem me responde?",  # IGNORADO
+        "cade vcs????",         # IGNORADO
         "2",                    # Destrava → Maya
         "sim, entendi",         # Ok → menu
         "4",                    # Quanto custa?
@@ -128,7 +128,31 @@ simular_conversa(
 
 
 # ═══════════════════════════════════════════════
-# TESTE 5: Cliente escreve "maya" pra destravar do aguardando humano
+# TESTE 5: Dúvida Transições vs Temas (NOVO)
+# ═══════════════════════════════════════════════
+simular_conversa(
+    "+551197777777",
+    [
+        "oi",
+        "2",                    # Maya
+        "ok",                   # Entendeu
+        "2",                    # Slide personalizado
+        "Sustentabilidade",
+        "3",                    # Dúvida: Transições vs Temas
+        "1",                    # Já escolhi → opções completas
+        "4",                    # Canva Temas
+        "Netflix",              # Qual tema visual
+        "semana que vem",
+        "Maria e José",
+        "3",                    # Finalizar
+        "1",                    # Confirmar
+    ],
+    "Dúvida Transições vs Temas + Canva Temas + Netflix"
+)
+
+
+# ═══════════════════════════════════════════════
+# TESTE 6: Destrava com 'maya'
 # ═══════════════════════════════════════════════
 simular_conversa(
     "+551198888888",
@@ -136,7 +160,7 @@ simular_conversa(
         "Boa noite",
         "quero falar com uma pessoa",
         "cade vcs",             # IGNORADO
-        "por favor maya",       # Destrava (contém "maya")
+        "por favor maya",       # Destrava
         "pronto",               # Ok → menu
         "3",                    # Consultar tema
         "harry potter",         # Busca
@@ -148,10 +172,11 @@ simular_conversa(
 print("\n\n" + "="*60)
 print("✅ TODOS OS TESTES CONCLUÍDOS!")
 print("="*60)
-print("\nVerifique manualmente se:")
-print("1. ❌ Nenhum dado errado nos pedidos (tema='2', nomes='Simm')")
-print("2. ✅ Menu NUNCA aparece duplicado")
-print("3. ✅ Clientes em aguardando_humano NÃO recebem resposta da Maya")
-print("4. ✅ 'maya' ou '2' destravam o aguardando_humano")
-print("5. ✅ Explicação aparece ANTES do menu com 5 opções")
-print("6. ✅ Fluxo de pedido funciona normalmente depois do menu")
+print("\nVerifique:")
+print("1. ✅ Tema nunca é número ('2', '1')")
+print("2. ✅ Nomes nunca são 'Simm'")
+print("3. ✅ Menu simplificado de tipo aparece (3 botões)")
+print("4. ✅ 'Já escolhi' mostra opções completas")
+print("5. ✅ Dúvida Canva vs PPT funciona")
+print("6. ✅ Dúvida Transições vs Temas funciona (NOVO)")
+print("7. ✅ Tipo inválido repete pergunta (não vira modelo errado)")

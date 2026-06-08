@@ -499,20 +499,12 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
                     "Vi a imagem e a legenda! 📸\n\n"
                     f"Entendi que o assunto é \"{mensagem.strip()}\".\n\n"
                     "Agora me conta: qual TIPO de slide você prefere?\n\n"
-                    "Você pode conferir exemplos de cada tipo aqui:\n"
+                    "Você pode ver exemplos em vídeo de cada tipo aqui "
+                    "(é só rolar pra baixo no site):\n"
                     "👉 https://slydesign.com.br/personalizados/\n\n"
-                    "[1] 📄 PDF — R$ 20,00\n"
-                    "   Slide com design sobre seu assunto, sem animações\n\n"
-                    "[2] 🎬 Canva (Transições) — R$ 25,00\n"
-                    "   Design feito com base no seu assunto, com movimentos,\n"
-                    "   efeitos e animações. Link online\n\n"
-                    "[3] 🎬 PowerPoint (Transições) — R$ 35,00\n"
-                    "   Mesmo do Canva, mas arquivo PPTX offline\n\n"
-                    "[4] 🎨 Slide Temas Canva — R$ 28,00\n"
-                    "   Tema visual criativo (ex: Netflix, Spotify). Link online\n\n"
-                    "[5] 🎨 Slide Temas PPTX — R$ 38,00\n"
-                    "   Tema visual criativo em arquivo PPTX offline\n\n"
-                    "[6] 🤔 Diferença entre Canva e PowerPoint\n\n"
+                    "[1] ✅ Já escolhi o meu tipo de slide\n"
+                    "[2] 🤔 Diferença entre Canva e PowerPoint\n"
+                    "[3] 🎨 Diferença entre Transições e Temas\n\n"
                     "[0] 🔙 Voltar ao menu"
                 )
             # Imagem sem legenda → pede pra digitar
@@ -532,46 +524,54 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
         return (
             "Certo, anotei o tema! 📝\n\n"
             "Agora me conta: qual TIPO de slide você prefere?\n\n"
-            "Você pode conferir exemplos de cada tipo aqui:\n"
+            "Você pode ver exemplos em vídeo de cada tipo aqui "
+            "(é só rolar pra baixo no site):\n"
             "👉 https://slydesign.com.br/personalizados/\n\n"
-            "[1] 📄 PDF — R$ 20,00\n"
-            "   Slide com design sobre seu assunto, sem animações\n\n"
-            "[2] 🎬 Canva (Transições) — R$ 25,00\n"
-            "   Design feito com base no seu assunto, com movimentos,\n"
-            "   efeitos e animações. Link online\n\n"
-            "[3] 🎬 PowerPoint (Transições) — R$ 35,00\n"
-            "   Mesmo do Canva, mas arquivo PPTX offline\n\n"
-            "[4] 🎨 Slide Temas Canva — R$ 28,00\n"
-            "   Tema visual criativo (ex: Netflix, Spotify). Link online\n\n"
-            "[5] 🎨 Slide Temas PPTX — R$ 38,00\n"
-            "   Tema visual criativo em arquivo PPTX offline\n\n"
-            "[6] 🤔 Diferença entre Canva e PowerPoint\n\n"
+            "[1] ✅ Já escolhi o meu tipo de slide\n"
+            "[2] 🤔 Diferença entre Canva e PowerPoint\n"
+            "[3] 🎨 Diferença entre Transições e Temas\n\n"
             "[0] 🔙 Voltar ao menu"
         )
 
     # PASSO 2: Tipo
     if tela == "pedido_tipo":
+        # ── Menu simplificado (primeira visita) ──
+        if not estado.get("mostrou_opcoes"):
+            if t in ("1", "ja escolhi", "já escolhi", "escolhi", "escolher", "quero escolher"):
+                estado["mostrou_opcoes"] = True
+                return _msg_tipos_completo()
+            if t in ("2",) or "canva" in t or "powerpoint" in t or "diferenca" in t or "diferença" in t:
+                estado["tela"] = "pedido_tipo_diferenca"
+                return _msg_diferenca_canva_ppt()
+            if t in ("3",) or "transic" in t or "temas" in t:
+                estado["tela"] = "pedido_tipo_temas_diferenca"
+                return _msg_diferenca_transicoes_temas()
+            # Qualquer outra coisa → repete menu simplificado
+            return (
+                "Certo, anotei o tema! 📝\n\n"
+                "Agora me conta: qual TIPO de slide você prefere?\n\n"
+                "Você pode ver exemplos em vídeo de cada tipo aqui "
+                "(é só rolar pra baixo no site):\n"
+                "👉 https://slydesign.com.br/personalizados/\n\n"
+                "[1] ✅ Já escolhi o meu tipo de slide\n"
+                "[2] 🤔 Diferença entre Canva e PowerPoint\n"
+                "[3] 🎨 Diferença entre Transições e Temas\n\n"
+                "[0] 🔙 Voltar ao menu"
+            )
+
+        # ── Opções completas (depois de "Já escolhi") ──
         tipos = {
             "1": "📄 PDF", "2": "🎬 Canva (Transições)", "3": "🎬 PowerPoint (Transições)",
             "4": "🎨 Canva Temas", "5": "🎨 PPTX Temas"
         }
 
+        # "6" ou palavras de dúvida → ainda pode tirar dúvida mesmo nas opções completas
         if t == "6" or "diferença" in t or "diferenca" in t:
             estado["tela"] = "pedido_tipo_diferenca"
-            return (
-                "Visualmente sao iguais! 🎨\n\n"
-                "📱 Canva — e um link online. Precisa de internet "
-                "pra apresentar, mas nao ocupa espaco no celular/PC.\n\n"
-                "💻 PowerPoint — e um arquivo PPTX que voce baixa. "
-                "Nao precisa de internet pra apresentar.\n\n"
-                "Qual tipo voce prefere?\n\n"
-                "[1] 🎬 Canva (Transicoes) — R$ 25,00\n"
-                "[2] 🎬 PowerPoint (Transicoes) — R$ 35,00\n"
-                "[3] 🎨 Canva Temas — R$ 28,00\n"
-                "[4] 🎨 PPTX Temas — R$ 38,00\n"
-                "[5] 📄 PDF — R$ 20,00\n"
-                "[0] 🔙 Voltar ao menu"
-            )
+            return _msg_diferenca_canva_ppt()
+        if t == "7" or "transic" in t or "tema " in t:
+            estado["tela"] = "pedido_tipo_temas_diferenca"
+            return _msg_diferenca_transicoes_temas()
 
         # Mapeia numeros normais
         if t in tipos:
@@ -582,8 +582,20 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
             dados["modelo"] = "🎬 Canva (Transições)"
         elif t in ("powerpoint", "ppt", "💻", "pptx", "💻 powerpoint"):
             dados["modelo"] = "🎬 PowerPoint (Transições)"
+        elif t in ("pdf", "📄 pdf", "📄"):
+            dados["modelo"] = "📄 PDF"
         else:
-            dados["modelo"] = mensagem
+            # Não reconheceu → repete as opções
+            return (
+                "Não entendi qual tipo você quer... 😅\n\n"
+                "Digite o número do tipo de slide:\n\n"
+                "[1] 📄 PDF — R$ 20,00\n"
+                "[2] 🎬 Canva (Transições) — R$ 25,00\n"
+                "[3] 🎬 PowerPoint (Transições) — R$ 35,00\n"
+                "[4] 🎨 Canva Temas — R$ 28,00\n"
+                "[5] 🎨 PPTX Temas — R$ 38,00\n\n"
+                "[0] 🔙 Voltar ao menu"
+            )
 
         modo_edicao = estado.pop("modo_edicao", False)
 
@@ -609,6 +621,7 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
             estado["tela"] = "resumo"
             return _mostrar_resumo(dados)
 
+        estado.pop("mostrou_opcoes", None)  # limpa flag
         estado["tela"] = "pedido_prazo"
         return (
             "Anotado! ✅\n\n"
@@ -619,13 +632,23 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
             "[0] 🔙 Voltar ao menu"
         )
 
-    # PASSO 2b: Tipo apos ver diferenca (numeros diferentes!)
+    # PASSO 2b: Diferença Canva vs PowerPoint
     if tela == "pedido_tipo_diferenca":
+        # "Já escolhi" → volta pras opções completas
+        if t in ("1",) or "ja escolhi" in t or "já escolhi" in t or "escolhi" in t:
+            estado["tela"] = "pedido_tipo"
+            estado["mostrou_opcoes"] = True
+            return _msg_tipos_completo()
+        # Dúvida sobre transições vs temas
+        if "transic" in t or "tema " in t:
+            estado["tela"] = "pedido_tipo_temas_diferenca"
+            return _msg_diferenca_transicoes_temas()
+
+        # Tipo apos ver diferença (números 1-5)
         diff_map = {
             "1": "🎬 Canva (Transições)", "2": "🎬 PowerPoint (Transições)",
             "3": "🎨 Canva Temas", "4": "🎨 PPTX Temas", "5": "📄 PDF"
         }
-
         if t in diff_map:
             dados["modelo"] = diff_map[t]
         elif t in diff_map.values():
@@ -637,10 +660,10 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
         elif t in ("pdf", "📄 pdf", "📄"):
             dados["modelo"] = "📄 PDF"
         else:
-            dados["modelo"] = mensagem
+            # Não reconheceu → repete a explicação
+            return _msg_diferenca_canva_ppt()
 
         modo_edicao = estado.pop("modo_edicao", False)
-
         if "Temas" in dados.get("modelo", ""):
             dados["assunto"] = dados.get("tema", "")
             estado["tela"] = "pedido_qual_tema"
@@ -657,11 +680,10 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
                 "[8] 🎨 Quero o design sobre o MEU assunto\n"
                 "[0] 🔙 Voltar ao menu"
             )
-
         if modo_edicao:
             estado["tela"] = "resumo"
             return _mostrar_resumo(dados)
-
+        estado.pop("mostrou_opcoes", None)
         estado["tela"] = "pedido_prazo"
         return (
             "Anotado! ✅\n\n"
@@ -671,6 +693,20 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
             "Me conta: qual data voce precisa? 📅\n\n"
             "[0] 🔙 Voltar ao menu"
         )
+
+    # PASSO 2c: Diferença Transições vs Temas (NOVO)
+    if tela == "pedido_tipo_temas_diferenca":
+        # "Já escolhi" → volta pras opções completas
+        if t in ("1",) or "ja escolhi" in t or "já escolhi" in t or "escolhi" in t:
+            estado["tela"] = "pedido_tipo"
+            estado["mostrou_opcoes"] = True
+            return _msg_tipos_completo()
+        # Dúvida sobre canva vs ppt
+        if "canva" in t or "powerpoint" in t or "ppt" in t:
+            estado["tela"] = "pedido_tipo_diferenca"
+            return _msg_diferenca_canva_ppt()
+        # Qualquer outra coisa → repete explicação
+        return _msg_diferenca_transicoes_temas()
 
     # PASSO 2.5: Qual tema? (slides temas)
     if tela == "pedido_qual_tema":
@@ -962,6 +998,65 @@ def _msg_precos():
     )
 
 
+def _msg_tipos_completo():
+    """Opções completas de tipos de slide (após 'Já escolhi')."""
+    return (
+        "Agora me conta: qual TIPO de slide você prefere?\n\n"
+        "[1] 📄 PDF — R$ 20,00\n"
+        "   Slide com design sobre seu assunto, sem animações\n\n"
+        "[2] 🎬 Canva (Transições) — R$ 25,00\n"
+        "   Design feito com base no seu assunto, com movimentos,\n"
+        "   efeitos e animações. Link online\n\n"
+        "[3] 🎬 PowerPoint (Transições) — R$ 35,00\n"
+        "   Mesmo do Canva, mas arquivo PPTX offline\n\n"
+        "[4] 🎨 Slide Temas Canva — R$ 28,00\n"
+        "   Tema visual criativo (ex: Netflix, Spotify). Link online\n\n"
+        "[5] 🎨 Slide Temas PPTX — R$ 38,00\n"
+        "   Tema visual criativo em arquivo PPTX offline\n\n"
+        "[6] 🤔 Diferença entre Canva e PowerPoint\n"
+        "[7] 🎨 Diferença entre Transições e Temas\n\n"
+        "[0] 🔙 Voltar ao menu"
+    )
+
+
+def _msg_diferenca_canva_ppt():
+    """Explica diferença Canva vs PowerPoint."""
+    return (
+        "Visualmente sao iguais! 🎨\n\n"
+        "📱 Canva — e um link online. Precisa de internet "
+        "pra apresentar, mas nao ocupa espaco no celular/PC.\n\n"
+        "💻 PowerPoint — e um arquivo PPTX que voce baixa. "
+        "Nao precisa de internet pra apresentar.\n\n"
+        "Qual tipo voce prefere?\n\n"
+        "[1] 🎬 Canva (Transicoes) — R$ 25,00\n"
+        "[2] 🎬 PowerPoint (Transicoes) — R$ 35,00\n"
+        "[3] 🎨 Canva Temas — R$ 28,00\n"
+        "[4] 🎨 PPTX Temas — R$ 38,00\n"
+        "[5] 📄 PDF — R$ 20,00\n\n"
+        "💡 Digite 'ja escolhi' se ja souber qual quer"
+        " ou 'transicoes vs temas' pra entender a diferença.\n\n"
+        "[0] 🔙 Voltar ao menu"
+    )
+
+
+def _msg_diferenca_transicoes_temas():
+    """Explica diferença Transições vs Temas com vídeos."""
+    return (
+        "🎬 TRANSICOES: O design e feito com base no SEU assunto. "
+        "Cada slide e criado do zero com o conteudo que voce enviar.\n\n"
+        "📺 Exemplo de Transicoes:\n"
+        "👉 https://youtu.be/pHkjUpiV9Ds\n\n"
+        "🎨 TEMAS: Seu assunto e inserido em um design TEMATICO "
+        "(ex: Netflix, Spotify, Jovens Titas...). "
+        "O visual segue um estilo pronto.\n\n"
+        "📺 Exemplo de Temas:\n"
+        "👉 https://youtu.be/beDVpp41KPc\n\n"
+        "💡 Digite 'ja escolhi' quando estiver pronto(a) pra escolher"
+        " ou 'canva vs ppt' pra ver a diferenca entre os formatos.\n\n"
+        "[0] 🔙 Voltar ao menu"
+    )
+
+
 def _buscar_tema_handler(mensagem, estado):
     """Busca inteligente no catálogo."""
     # Tenta limpar a mensagem pra extrair só o nome do tema
@@ -1116,26 +1211,21 @@ def _repetir_ultima_pergunta(estado: dict) -> str:
     elif tela == "pedido_tema":
         return "📝 Qual o ASSUNTO do slide?\n\n[0] 🔙 Voltar ao menu"
     elif tela == "pedido_tipo":
-        return (
-            "Qual TIPO de slide voce prefere?\n\n"
-            "[1] 📄 PDF — R$ 20,00\n"
-            "[2] 🎬 Canva (Transicoes) — R$ 25,00\n"
-            "[3] 🎬 PowerPoint (Transicoes) — R$ 35,00\n"
-            "[4] 🎨 Canva Temas — R$ 28,00\n"
-            "[5] 🎨 PPTX Temas — R$ 38,00\n"
-            "[6] 🤔 Diferença entre Canva e PowerPoint\n"
-            "[0] 🔙 Voltar ao menu"
-        )
+        # Menu simplificado ou completo?
+        if not estado.get("mostrou_opcoes"):
+            return (
+                "Veja os exemplos no site e me diga qual tipo prefere:\n"
+                "👉 https://slydesign.com.br/personalizados/\n\n"
+                "[1] ✅ Já escolhi o meu tipo de slide\n"
+                "[2] 🤔 Diferença entre Canva e PowerPoint\n"
+                "[3] 🎨 Diferença entre Transições e Temas\n\n"
+                "[0] 🔙 Voltar ao menu"
+            )
+        return _msg_tipos_completo()
     elif tela == "pedido_tipo_diferenca":
-        return (
-            "Qual tipo voce prefere?\n\n"
-            "[1] 🎬 Canva (Transicoes) — R$ 25,00\n"
-            "[2] 🎬 PowerPoint (Transicoes) — R$ 35,00\n"
-            "[3] 🎨 Canva Temas — R$ 28,00\n"
-            "[4] 🎨 PPTX Temas — R$ 38,00\n"
-            "[5] 📄 PDF — R$ 20,00\n"
-            "[0] 🔙 Voltar ao menu"
-        )
+        return _msg_diferenca_canva_ppt()
+    elif tela == "pedido_tipo_temas_diferenca":
+        return _msg_diferenca_transicoes_temas()
     elif tela == "pedido_qual_tema":
         top5 = ", ".join(TEMAS_DISPONIVEIS[:5])
         return (
