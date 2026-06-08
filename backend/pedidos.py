@@ -68,6 +68,9 @@ def faturamento():
 
     for p in db["pedidos"]:
         m = p.get("mes", 1)
+        # Site tem faturamento separado, nao entra em "pedidos"
+        if p.get("origem") == "site":
+            continue
         try:
             val = float(p.get("valor", "0").replace("R$", "").replace(",", ".").strip())
             fat[m]["pedidos"] += val
@@ -87,6 +90,9 @@ def faturamento():
     total_samuel = 0.0
     a_receber = 0.0
     for p in db["pedidos"]:
+        # Site nao entra no total Shay/Samuel (vai separado)
+        if p.get("origem") == "site":
+            continue
         try:
             val = float(p.get("valor", "0").replace("R$", "").replace(",", ".").strip())
             if p.get("responsavel") == "SA":
