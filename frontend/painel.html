@@ -144,8 +144,8 @@ async function carregarClientes(){
   if(!d.clientes.length){el.innerHTML='<div style="text-align:center;color:#555;padding:40px">Nenhum cliente ativo ✨</div>';return}
   el.innerHTML=d.clientes.map(c=>{
     const info=c.quer_atendente
-      ?`<div style="color:#fca5a5;font-size:.8em;margin:6px 0">🆘 Este cliente pediu para falar com um <b>atendente humano</b>.</div>`
-      :`<div style="color:#999;font-size:.77em;margin:6px 0"><b>Tema:</b> ${c.tema}<br><b>Modelo:</b> ${c.modelo} | <b>Prazo:</b> ${c.prazo}<br><b>Valor:</b> ${c.valor}</div>`;
+      ?`<div style="color:#fca5a5;font-size:.8em;margin:6px 0">🆘 Este cliente pediu para falar com um <b>atendente humano</b>.<br><span style="color:#888;font-size:.85em">📞 ${c.telefone}</span></div>`
+      :`<div style="color:#999;font-size:.77em;margin:6px 0"><b>Tema:</b> ${c.tema}<br><b>Modelo:</b> ${c.modelo} | <b>Prazo:</b> ${c.prazo}<br><b>Valor:</b> ${c.valor}<br><span style="color:#666;font-size:.85em">📞 ${c.telefone}</span></div>`;
     const botoes=c.quer_atendente
       ?`<button class="btn danger sm" onclick="bloquear('${c.telefone}')">Assumir Atendimento</button>
         <button class="btn sm" onclick="finalizar('${c.telefone}')" style="color:#888">Finalizar</button>`

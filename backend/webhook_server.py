@@ -246,12 +246,7 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
             return f"👥 Clientes em atendimento humano:\n{lista}"
         # Shay falando algo normal → ignora (não chama IA)
 
-    # ── Cliente sendo atendido por humano? Maya fica quieta ──
-    if cliente_em_atendimento_humano(telefone):
-        print(f"🤫 Maya silenciada para {telefone} (atendimento humano)")
-        return None  # não responde nada
-
-    # Inicializa
+    # Inicializa (precisa vir antes dos checks de estado)
     novo_cliente = telefone not in clientes
     if novo_cliente:
         clientes[telefone] = {"tela": "menu", "dados_pedido": {}, "historico_ia": []}
@@ -266,9 +261,15 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
         # Só destrava com: "2", "maya", "quero ser atendido pela maya"
         if t in ("2",) or "maya" in t or "quero ser atendido" in t or "fazer meu pedido" in t:
             estado["tela"] = "explicacao"
+            atendimento_humano.pop(telefone, None)  # remove bloqueio
             return _msg_explicacao()
         print(f"🔒 Maya travada para {telefone} (aguardando humano)")
         return None
+
+    # ── Cliente sendo atendido por humano? Maya fica quieta ──
+    if cliente_em_atendimento_humano(telefone):
+        print(f"🤫 Maya silenciada para {telefone} (atendimento humano)")
+        return None  # não responde nada
 
     # ── PRIMEIRA MENSAGEM: boas-vindas (escolhe humano ou Maya) ──
     if novo_cliente:
@@ -311,6 +312,8 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
         humano_gatilhos = ["humano", "atendente", "falar com", "pessoa", "gente"]
         if t == "1" or any(p in t for p in humano_gatilhos):
             estado["tela"] = "aguardando_humano"
+            # Bloqueia Maya para este cliente (igual ao botão Bloquear do painel)
+            atendimento_humano[telefone] = True
             notificar_shay(
                 f"👤 {telefone} quer falar com um humano!\n"
                 f"Mensagem: \"{mensagem[:100]}\""
@@ -974,6 +977,9 @@ def _msg_explicacao():
         "• Vou te fazer uma pergunta por vez\n"
         "• Quando aparecer [número] nas opções, é só digitar o número\n"
         "• Responda cada pergunta em uma única mensagem\n\n"
+        "⚠️ Importante: não interrompa o processo! "
+        "Responda apenas o que eu perguntar para o pedido dar "
+        "certinho. Todas as suas dúvidas serão sanadas! 💜\n\n"
         "Pronto(a)?\n\n"
         "[Ok, entendi!]"
     )
