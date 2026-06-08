@@ -190,9 +190,19 @@ def notificar_shay(mensagem: str):
         print(f"⚠️ Erro ao notificar Shay (ponte interna): {e}")
 
 
+def _encontrar_chave_cliente(telefone: str) -> str:
+    """Encontra a chave real do cliente no dicionario (pode ter @lid ou @s.whatsapp.net)."""
+    if telefone in clientes:
+        return telefone
+    for key in clientes:
+        if key.startswith(telefone):
+            return key
+    return telefone  # nao encontrado, retorna o original
+
+
 def cliente_em_atendimento_humano(telefone: str) -> bool:
     """Verifica se o cliente está sendo atendido por um humano."""
-    return atendimento_humano.get(telefone, False)
+    return atendimento_humano.get(telefone, False) or atendimento_humano.get(_encontrar_chave_cliente(telefone), False)
 
 # ── Estado dos clientes ──
 clientes = {}
@@ -1323,7 +1333,7 @@ async def painel_dados():
 async def painel_bloquear(request: Request):
     """Bloqueia Maya para um numero (atendimento humano)."""
     data = await request.json()
-    tel = data.get("telefone", "")
+    tel = _encontrar_chave_cliente(data.get("telefone", ""))
     if tel:
         atendimento_humano[tel] = True
         _salvar_estado_clientes()
@@ -1336,7 +1346,7 @@ async def painel_bloquear(request: Request):
 async def painel_liberar(request: Request):
     """Libera Maya para um numero."""
     data = await request.json()
-    tel = data.get("telefone", "")
+    tel = _encontrar_chave_cliente(data.get("telefone", ""))
     if tel:
         atendimento_humano.pop(tel, None)
         _salvar_estado_clientes()
@@ -1349,7 +1359,7 @@ async def painel_liberar(request: Request):
 async def painel_rejeitar(request: Request):
     """Rejeita pedido (ex: sem vaga hoje) e notifica cliente."""
     data = await request.json()
-    tel = data.get("telefone", "")
+    tel = _encontrar_chave_cliente(data.get("telefone", ""))
     motivo = data.get("motivo", "sem disponibilidade")
     if tel and tel in clientes:
         est = clientes[tel]
@@ -1542,8 +1552,11 @@ async def painel_editar_pedido(request: Request):
 async def painel_cutucar(request: Request):
     """Cutuca cliente que parou de responder."""
     data = await request.json()
-    tel = data.get("telefone", "")
+    tel_data = data.get("telefone", "")
+    tel = _encontrar_chave_cliente(tel_data) if tel_data else ""
     if tel:
+        # Pega so o numero (sem @lid) pra enviar
+        nr_limpo = tel.replace("@lid", "").replace("@s.whatsapp.net", "")
         msg = (
             "Oie! Quer continuar o seu pedido? 💜\n"
             "Se preferir, posso chamar um de nossos atendentes "
@@ -1552,7 +1565,7 @@ async def painel_cutucar(request: Request):
         try:
             import requests as _req
             _req.post("http://127.0.0.1:8080/send",
-                     json={"to": tel, "text": msg}, timeout=5)
+                     json={"to": nr_limpo, "text": msg}, timeout=5)
             print(f" Cutucando {tel}")
         except Exception:
             pass
@@ -1564,7 +1577,7 @@ async def painel_cutucar(request: Request):
 async def painel_finalizar(request: Request):
     """Finaliza atendimento de um cliente manualmente."""
     data = await request.json()
-    tel = data.get("telefone", "")
+    tel = _encontrar_chave_cliente(data.get("telefone", ""))
     if tel and tel in clientes:
         clientes[tel]["tela"] = "menu"
         clientes[tel]["dados_pedido"] = {}
@@ -1593,7 +1606,7 @@ async def painel_confirmar(request: Request):
     """Confirma pedido e adiciona ao banco."""
     from backend.pedidos import adicionar
     data = await request.json()
-    tel = data.get("telefone", "")
+    tel = _encontrar_chave_cliente(data.get("telefone", ""))
     if tel and tel in clientes:
         est = clientes[tel]
         dados = est.get("dados_pedido", {})
