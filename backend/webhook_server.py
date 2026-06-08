@@ -1496,6 +1496,7 @@ async def painel_finalizar(request: Request):
     if tel and tel in clientes:
         clientes[tel]["tela"] = "menu"
         clientes[tel]["dados_pedido"] = {}
+        clientes[tel]["shay_respondeu"] = False
         atendimento_humano.pop(tel, None)
         _salvar_estado_clientes()
         print(f" Atendimento finalizado: {tel}")
