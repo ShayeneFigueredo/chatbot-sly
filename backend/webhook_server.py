@@ -261,12 +261,24 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
 
     print(f"   📍 Tela: {tela} | {'🆕' if novo_cliente else ''} | 💬 {t[:80]}")
 
-    # ── PRIMEIRA MENSAGEM: sempre menu, ignora tudo ──
-    if novo_cliente:
-        return mostrar_menu()
+    # ── Cliente em aguardando_humano? Maya TRAVADA até destravar ──
+    if tela == "aguardando_humano":
+        # Só destrava com: "2", "maya", "quero ser atendido pela maya"
+        if t in ("2",) or "maya" in t or "quero ser atendido" in t or "fazer meu pedido" in t:
+            estado["tela"] = "explicacao"
+            return _msg_explicacao()
+        print(f"🔒 Maya travada para {telefone} (aguardando humano)")
+        return None
 
-    # ── ATENDIMENTO HUMANO (qualquer tela) ──
-    if any(p in t for p in ["humano", "atendente", "pessoa", "falar com", "gente de verdade"]) or t in ("7", "🆘"):
+    # ── PRIMEIRA MENSAGEM: boas-vindas (escolhe humano ou Maya) ──
+    if novo_cliente:
+        estado["tela"] = "boas_vindas"
+        return _msg_boas_vindas()
+
+    # ── ATENDIMENTO HUMANO (qualquer tela, exceto novos estados iniciais) ──
+    if tela not in ("boas_vindas", "aguardando_humano", "explicacao") and (
+        any(p in t for p in ["humano", "atendente", "pessoa", "falar com", "gente de verdade"]) or t in ("7", "🆘")
+    ):
         estado["tela"] = "menu"
         estado["dados_pedido"] = {}
         notificar_shay(
@@ -290,6 +302,39 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
     saudacoes = ["oi", "olá", "ola", "oie", "bom dia", "boa tarde", "boa noite", "tudo bem"]
     if tela == "menu" and any(t == s or t.startswith(s) for s in saudacoes) and len(t.split()) <= 3:
         return mostrar_menu()
+
+    # ═══════════════════════════════════════════
+    # BOAS-VINDAS (novo fluxo inicial)
+    # ═══════════════════════════════════════════
+    if tela == "boas_vindas":
+        # Gatilhos para HUMANO (exato "1" OU contém palavra-chave)
+        humano_gatilhos = ["humano", "atendente", "falar com", "pessoa", "gente"]
+        if t == "1" or any(p in t for p in humano_gatilhos):
+            estado["tela"] = "aguardando_humano"
+            notificar_shay(
+                f"👤 {telefone} quer falar com um humano!\n"
+                f"Mensagem: \"{mensagem[:100]}\""
+            )
+            return _msg_aguardando_humano()
+        # Gatilhos para MAYA (exato "2" OU contém palavra-chave)
+        maya_gatilhos = ["maya", "quero fazer", "pedido", "assistente", "slide"]
+        if t == "2" or any(p in t for p in maya_gatilhos):
+            estado["tela"] = "explicacao"
+            return _msg_explicacao()
+        # Qualquer outra coisa → repete boas-vindas
+        return _msg_boas_vindas()
+
+    # ═══════════════════════════════════════════
+    # EXPLICAÇÃO (como a Maya funciona)
+    # ═══════════════════════════════════════════
+    if tela == "explicacao":
+        # Aceita: "ok", "entendi", "sim", "1", "bora", "vamos", "pronto"
+        ok_triggers = ["ok", "entendi", "sim", "1", "pronto", "pronta", "bora", "vamos", "pode"]
+        if any(t.startswith(p) for p in ok_triggers) or any(p in t for p in ok_triggers):
+            estado["tela"] = "menu"
+            return mostrar_menu()
+        # Qualquer outra coisa → repete explicação
+        return _msg_explicacao()
 
     # ═══════════════════════════════════════════
     # MENU PRINCIPAL
@@ -860,6 +905,44 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
 
 # ── FUNÇÕES AUXILIARES ──
 
+def _msg_boas_vindas():
+    """Primeira mensagem: cliente escolhe entre humano ou Maya."""
+    return (
+        "Oieee! Eu sou a Maya, atendente virtual da Sly Design! 💜\n\n"
+        "A gente cria slides personalizados do zero e também temos "
+        "slides prontos no site com super descontos!\n"
+        "Dá uma olhadinha: 👉 https://slydesign.com.br\n\n"
+        "Como posso te ajudar?\n\n"
+        "[1] 🙋 Quero falar com um atendente\n"
+        "    (assim que possível alguém da equipe te responde)\n\n"
+        "[2] 🤖 Quero fazer meu pedido com a Maya\n"
+        "    (nossa assistente virtual, rapidinho!)"
+    )
+
+
+def _msg_aguardando_humano():
+    """Cliente escolheu esperar um humano — Maya trava."""
+    return (
+        "Ok! Aguarde um tempinho que assim que possível um de "
+        "nossos atendentes vai te responder por aqui mesmo! 💜\n\n"
+        "Mas se quiser, também pode fazer seu pedido comigo agora mesmo:\n\n"
+        "[2] 🤖 Quero fazer meu pedido com a Maya!"
+    )
+
+
+def _msg_explicacao():
+    """Explica como a Maya funciona antes de começar o fluxo."""
+    return (
+        "Combinado! Vou te guiar no seu pedido, é rapidinho! 😊\n\n"
+        "📋 Como funciona:\n"
+        "• Vou te fazer uma pergunta por vez\n"
+        "• Quando aparecer [número] nas opções, é só digitar o número\n"
+        "• Responda cada pergunta em uma única mensagem\n\n"
+        "Pronto(a)?\n\n"
+        "[Ok, entendi!]"
+    )
+
+
 def _msg_precos():
     return (
         "O valor depende do tipo de slide que voce escolher. 💜\n\n"
@@ -1024,7 +1107,13 @@ def _repetir_ultima_pergunta(estado: dict) -> str:
     """Retorna a pergunta adequada para o estado atual do pedido."""
     tela = estado.get("tela", "")
     dados = estado.get("dados_pedido", {})
-    if tela == "pedido_tema":
+    if tela == "boas_vindas":
+        return _msg_boas_vindas()
+    elif tela == "aguardando_humano":
+        return _msg_aguardando_humano()
+    elif tela == "explicacao":
+        return _msg_explicacao()
+    elif tela == "pedido_tema":
         return "📝 Qual o ASSUNTO do slide?\n\n[0] 🔙 Voltar ao menu"
     elif tela == "pedido_tipo":
         return (
