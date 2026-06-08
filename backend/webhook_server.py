@@ -834,6 +834,16 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
     # ═══════════════════════════════════════════
     # FALLBACK: IA
     # ═══════════════════════════════════════════
+
+    # Se o cliente esta no meio de um pedido e mandou algo fora do fluxo
+    if tela.startswith("pedido_"):
+        return (
+            "Para seguir com o seu pedido, siga o fluxo das mensagens "
+            "e ao final tiramos suas duvidas. 💜\n\n"
+            "Vamos continuar de onde paramos?\n\n"
+            f"{_repetir_ultima_pergunta(estado)}"
+        )
+
     estado["tela"] = "menu"
     return _chamar_ia(mensagem, estado)
 
@@ -998,6 +1008,62 @@ def _msg_pagamento(dados):
         "Um humano vai dar uma olhadinha e já confirmamos! ✅\n\n"
         "[0] 🔙 Voltar ao menu"
     )
+
+
+def _repetir_ultima_pergunta(estado: dict) -> str:
+    """Retorna a pergunta adequada para o estado atual do pedido."""
+    tela = estado.get("tela", "")
+    dados = estado.get("dados_pedido", {})
+    if tela == "pedido_tema":
+        return "📝 Qual o ASSUNTO do slide?\n\n[0] 🔙 Voltar ao menu"
+    elif tela == "pedido_tipo":
+        return (
+            "Qual TIPO de slide voce prefere?\n\n"
+            "[1] 📄 PDF — R$ 20,00\n"
+            "[2] 🎬 Canva (Transicoes) — R$ 25,00\n"
+            "[3] 🎬 PowerPoint (Transicoes) — R$ 35,00\n"
+            "[4] 🎨 Canva Temas — R$ 28,00\n"
+            "[5] 🎨 PPTX Temas — R$ 38,00\n"
+            "[6] 🤔 Diferença entre Canva e PowerPoint\n"
+            "[0] 🔙 Voltar ao menu"
+        )
+    elif tela == "pedido_tipo_diferenca":
+        return (
+            "Qual tipo voce prefere?\n\n"
+            "[1] 🎬 Canva (Transicoes) — R$ 25,00\n"
+            "[2] 🎬 PowerPoint (Transicoes) — R$ 35,00\n"
+            "[3] 🎨 Canva Temas — R$ 28,00\n"
+            "[4] 🎨 PPTX Temas — R$ 38,00\n"
+            "[5] 📄 PDF — R$ 20,00\n"
+            "[0] 🔙 Voltar ao menu"
+        )
+    elif tela == "pedido_qual_tema":
+        top5 = ", ".join(TEMAS_DISPONIVEIS[:5])
+        return (
+            f"Os mais pedidos: {top5}...\n"
+            "Me diga qual tema voce quer?\n\n"
+            "[8] 🎨 Quero o design sobre o MEU assunto\n"
+            "[0] 🔙 Voltar ao menu"
+        )
+    elif tela == "pedido_prazo":
+        return "Qual a data que voce precisa? 📅\n\n[0] 🔙 Voltar ao menu"
+    elif tela == "pedido_nomes":
+        return "Mande todos os nomes em uma unica mensagem ou responda 'nao'. 💜\n\n[0] 🔙 Voltar ao menu"
+    elif tela == "pedido_extras":
+        return (
+            "Quer adicionar alguma informacao extra? 💜\n\n"
+            "[1] 📝 Resumir em 10 paginas\n"
+            "[2] ➕ Adicionar tudo\n"
+            "[3] ✅ Finalizar Pedido\n"
+            "[0] 🔙 Voltar ao menu"
+        )
+    elif tela == "resumo":
+        return "Tudo certo? [1] Confirmar [2] Mudar algo [3] Cancelar"
+    elif tela == "mudar":
+        return "O que quer mudar? [1] Tema [2] Tipo [3] Prazo [4] Nomes [5] Extras [0] Voltar"
+    elif tela == "aguardando_pagamento":
+        return "Seu pedido esta aguardando confirmacao de pagamento. 💜\n\n[0] 🔙 Voltar ao menu"
+    return "No que posso te ajudar? 💜"
 
 
 def _truncar_extras(texto: str) -> str:
@@ -1243,6 +1309,12 @@ async def painel_dados():
             "statusCls": status_cls,
             "statusTxt": status_txt,
         })
+
+    # Limpa formato interno do telefone (ex: 5511999999999@lid → 55 11 99999-9999)
+    for c in cli_list:
+        tel = c["telefone"]
+        tel = tel.replace("@lid", "").replace("@s.whatsapp.net", "").replace("@g.us", "")
+        c["telefone"] = tel
 
     return {"clientes": cli_list, "total": len(cli_list), "aguardando": aguardando}
 

@@ -143,7 +143,7 @@ async function carregarClientes(){
   el.innerHTML=d.clientes.map(c=>`
     <div class="card">
       <div class="card-head">
-        <span class="card-tel">${c.telefone}</span>
+        <span class="card-tel">📱 ${c.telefone}</span>
         <span class="card-status ${c.statusCls.replace('status-','s-')}">${c.statusTxt}</span>
       </div>
       <div style="color:#999;font-size:.77em;margin:6px 0"><b>Tema:</b> ${c.tema}<br><b>Modelo:</b> ${c.modelo} | <b>Prazo:</b> ${c.prazo}<br><b>Valor:</b> ${c.valor}</div>
