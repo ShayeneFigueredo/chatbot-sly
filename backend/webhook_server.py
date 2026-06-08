@@ -925,6 +925,39 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
         print(f"🤫 Maya silenciada para {telefone} (aguardando pagamento)")
         return None
 
+    # PASSO 8: Pedido rejeitado (após Shay rejeitar no painel)
+    if tela == "pedido_rejeitado":
+        if t == "1" or any(p in t for p in ["amanha", "amanhã", "entregar amanha", "pode ser"]):
+            # Cliente aceita entregar amanhã sem taxa de urgência
+            dados["prazo"] = "amanhã"
+            dados.pop("taxa_urgencia", None)
+            estado["tela"] = "resumo"
+            return _mostrar_resumo(dados)
+        if t == "2" or any(p in t for p in ["dinheiro", "reembolso", "devolucao", "devolução", "volta", "quero meu"]):
+            # Cliente quer reembolso
+            estado["tela"] = "menu"
+            estado["dados_pedido"] = {}
+            notificar_shay(
+                f"💰 {telefone} quer reembolso!\n"
+                f"Pedido rejeitado, cliente pediu dinheiro de volta."
+            )
+            return (
+                "Entendo! Vou avisar a equipe aqui e eles vao fazer "
+                "a devolucao do Pix pra voce. 💜\n\n"
+                "Em ate 24h o valor volta pra sua conta. "
+                "Qualquer duvida e so chamar! ✨\n\n"
+                "[0] 🔙 Voltar ao menu"
+            )
+        # Qualquer outra coisa → repete as opções
+        return (
+            "Infelizmente nao temos mais vagas para hoje... 😕\n\n"
+            "Mas podemos entregar amanha sem a taxa de urgencia! "
+            "Se preferir, faremos a devolucao do Pix.\n\n"
+            "Como prefere?\n\n"
+            "[1] 📅 Pode ser entregue amanha\n"
+            "[2] 💰 Quero meu dinheiro de volta"
+        )
+
     # ═══════════════════════════════════════════
     # FALLBACK: IA
     # ═══════════════════════════════════════════
@@ -1258,6 +1291,13 @@ def _repetir_ultima_pergunta(estado: dict) -> str:
         return "O que quer mudar? [1] Tema [2] Tipo [3] Prazo [4] Nomes [5] Extras [0] Voltar"
     elif tela == "aguardando_pagamento":
         return "Seu pedido esta aguardando confirmacao de pagamento. 💜\n\n[0] 🔙 Voltar ao menu"
+    elif tela == "pedido_rejeitado":
+        return (
+            "Infelizmente nao temos mais vagas para hoje... 😕\n\n"
+            "Como prefere?\n\n"
+            "[1] 📅 Pode ser entregue amanha\n"
+            "[2] 💰 Quero meu dinheiro de volta"
+        )
     return "No que posso te ajudar? 💜"
 
 
@@ -1550,23 +1590,27 @@ async def painel_liberar(request: Request):
 
 @app.post("/painel/rejeitar")
 async def painel_rejeitar(request: Request):
-    """Rejeita pedido (ex: sem vaga hoje) e notifica cliente."""
+    """Rejeita pedido (ex: sem vaga hoje) e notifica cliente com botoes."""
     data = await request.json()
     tel = _encontrar_chave_cliente(data.get("telefone", ""))
     motivo = data.get("motivo", "sem disponibilidade")
     if tel and tel in clientes:
         est = clientes[tel]
-        est["tela"] = "menu"
-        est["dados_pedido"] = {}
+        # Preserva os dados do pedido (pra poder ajustar prazo depois)
+        dados = est.get("dados_pedido", {})
+        if dados:
+            dados.pop("taxa_urgencia", None)  # remove taxa de urgencia
+        est["tela"] = "pedido_rejeitado"
         _salvar_estado_clientes()
 
-        # Notifica o cliente
+        # Notifica o cliente com botoes
         msg = (
             f"Infelizmente nao temos mais vagas para hoje... 😕\n\n"
             f"Mas podemos entregar amanha sem a taxa de urgencia! "
-            f"Se preferir, faremos a devolucao do Pix agora mesmo.\n\n"
-            f"Me diga como prefere? 💜\n\n"
-            f"[0] 🔙 Voltar ao menu"
+            f"Se preferir, faremos a devolucao do Pix.\n\n"
+            f"Como prefere?\n\n"
+            f"[1] 📅 Pode ser entregue amanha\n"
+            f"[2] 💰 Quero meu dinheiro de volta"
         )
         # Envia via ponte interna
         try:
