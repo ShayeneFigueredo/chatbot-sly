@@ -124,6 +124,7 @@ function ir(){clearInterval(autoRefresh);autoRefresh=setInterval(()=>{if(tabAtiv
 
 // ===== CLIENTES ATIVOS =====
 async function carregarClientes(filtro){
+  try{
   const[d,f,h]=await Promise.all([api('/painel/dados'),api('/painel/faturamento'),api('/painel/hoje')]);
   document.getElementById('fatAno').innerHTML=`<h3>Faturamento 2026</h3><div class="big">R$ ${(f.total_ano||0).toFixed(2)}</div><div class="sub" style="font-size:.82em;line-height:1.8">
     <div>Shayene (SF): <b style="color:#c084fc">R$ ${(f.total_shay||0).toFixed(2)}</b></div>
@@ -180,8 +181,15 @@ async function carregarClientes(filtro){
         <button class="btn sm" onclick="finalizar('${c.telefone}')" style="color:#888">Finalizar</button>`;
     }
     return`<div class="card">
+      <div class="card-head">
+        <span class="card-tel">📱 ${c.telefone}</span>
+        <span class="card-status ${c.statusCls.replace('status-','s-')}">${c.statusTxt}</span>
+      </div>
+      ${info}
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">${botoes}</div>
+    </div>`}).join('');
+  }catch(e){document.getElementById('clientes').innerHTML='<div style="color:#f87171;padding:20px;text-align:center">Erro ao carregar: '+e.message+'</div>';console.error(e);}
 }
-
 async function bloquear(tel){await api('/painel/bloquear',{telefone:tel});t('Maya bloqueada');carregarClientes()}
 async function liberar(tel){await api('/painel/liberar',{telefone:tel});t('Maya liberada');carregarClientes()}
 async function confirmar(tel){await api('/painel/confirmar',{telefone:tel});t('Pedido confirmado!');carregarClientes();if(tabAtiva==='mes')carregarMes(mesAtual)}
