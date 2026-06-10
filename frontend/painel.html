@@ -65,7 +65,10 @@ td .badge{padding:2px 8px;border-radius:10px;font-size:.7em;font-weight:600;disp
 .s-pagamento{background:#3a2a1a;color:#fbbf24}
 .s-humano{background:#3a1a1a;color:#f87171}
 .s-aguardando-humano{background:#3a1a2a;color:#fca5a5}
+.s-confirmado{background:#1a2a1a;color:#67e8f9}
+.s-pix{background:#3a3a1a;color:#fbbf24}
 .s-shay{background:#1a2a3a;color:#93c5fd}
+.s-shay-assumiu{background:#2a1a3a;color:#c084fc}
 .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);z-index:100;align-items:center;justify-content:center}
 .modal.show{display:flex}
 .modal-box{background:#1a1a2e;border-radius:16px;padding:20px;max-width:480px;width:90%;border:1px solid #333;max-height:85vh;overflow-y:auto}
@@ -120,7 +123,7 @@ function esc(s){return(s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;')}
 function ir(){clearInterval(autoRefresh);autoRefresh=setInterval(()=>{if(tabAtiva==='clientes')carregarClientes()},30000)}
 
 // ===== CLIENTES ATIVOS =====
-async function carregarClientes(){
+async function carregarClientes(filtro){
   const[d,f,h]=await Promise.all([api('/painel/dados'),api('/painel/faturamento'),api('/painel/hoje')]);
   document.getElementById('fatAno').innerHTML=`<h3>Faturamento 2026</h3><div class="big">R$ ${(f.total_ano||0).toFixed(2)}</div><div class="sub" style="font-size:.82em;line-height:1.8">
     <div>Shayene (SF): <b style="color:#c084fc">R$ ${(f.total_shay||0).toFixed(2)}</b></div>
@@ -128,6 +131,8 @@ async function carregarClientes(){
     <div class="fat-site">Site (liquido): R$ ${(f.total_site||0).toFixed(2)}</div>
     <div style="color:#888;font-size:.75em">Bruto: R$ ${(f.total_site_bruto||0).toFixed(2)} | Taxas: R$ ${(f.taxas_site||0).toFixed(2)}</div>
     <div style="color:#fbbf24">A receber (50% restante): <b>R$ ${(f.a_receber||0).toFixed(2)}</b></div>
+    <div style="color:#67e8f9;margin-top:2px">Pedidos realizados: ${d.pedido_realizado||0} clientes</div>
+    <div style="color:#fbbf24;margin-top:2px">Aguardando Pix: ${d.aguardando_pix||0} clientes</div>
     <div style="color:#888;margin-top:2px">Aguardando pagamento: ${d.aguardando||0} clientes</div>
     <div style="color:#fca5a5;margin-top:2px">Querem atendente: ${d.aguardando_humano||0} clientes</div>
   </div>`;
@@ -141,26 +146,40 @@ async function carregarClientes(){
     </table>`:'<div style="text-align:center;color:#555;padding:10px;font-size:.8em">Nenhum slide para hoje ✨</div>';
 
   const el=document.getElementById('clientes');
-  if(!d.clientes.length){el.innerHTML='<div style="text-align:center;color:#555;padding:40px">Nenhum cliente ativo ✨</div>';return}
-  el.innerHTML=d.clientes.map(c=>{
-    const info=c.quer_atendente
+  let clientesFiltrados = d.clientes;
+  if(filtro==='confirmados') clientesFiltrados = d.clientes.filter(c=>c.pedido_confirmado);
+  else if(filtro==='pix') clientesFiltrados = d.clientes.filter(c=>c.aguardando_pix);
+  else if(filtro==='ativos') clientesFiltrados = d.clientes.filter(c=>!c.pedido_confirmado && !c.aguardando_pix);
+  if(!clientesFiltrados.length){el.innerHTML='<div style="text-align:center;color:#555;padding:40px">Nenhum cliente ativo ✨</div>';return}
+  el.innerHTML=clientesFiltrados.map(c=>{
+    const extrasInfo = c.extras && c.extras !== '-' && c.extras !== 'Nenhum' ? `<br><b>Extras:</b> ${c.extras.substring(0,60)}${c.extras.length>60?'...':''}` : '';
+    const info=c.quer_atendente && !c.shay_assumiu
       ?`<div style="color:#fca5a5;font-size:.8em;margin:6px 0">🆘 Este cliente pediu para falar com um <b>atendente humano</b>.<br><span style="color:#888;font-size:.85em">📞 ${c.telefone}</span></div>`
-      :`<div style="color:#999;font-size:.77em;margin:6px 0"><b>Tema:</b> ${c.tema}<br><b>Modelo:</b> ${c.modelo} | <b>Prazo:</b> ${c.prazo}<br><b>Valor:</b> ${c.valor}<br><span style="color:#666;font-size:.85em">📞 ${c.telefone}</span></div>`;
-    const botoes=c.quer_atendente
-      ?`<button class="btn danger sm" onclick="bloquear('${c.telefone}')">Assumir Atendimento</button>
-        <button class="btn sm" onclick="finalizar('${c.telefone}')" style="color:#888">Finalizar</button>`
-      :`${c.aguardando?`<button class="btn success sm" onclick="confirmar('${c.telefone}')">Confirmar</button><button class="btn warn sm" onclick="rejeitar('${c.telefone}')">Rejeitar</button>`:''}
+      :`<div style="color:#999;font-size:.77em;margin:6px 0"><b>Tema:</b> ${c.tema}<br><b>Modelo:</b> ${c.modelo} | <b>Prazo:</b> ${c.prazo}<br><b>Valor:</b> ${c.valor}${extrasInfo}<br><span style="color:#666;font-size:.85em">📞 ${c.telefone}</span></div>`;
+    let botoes='';
+    if(c.quer_atendente){
+      if(c.shay_assumiu){
+        botoes=`<button class="btn success sm" onclick="aceitarPedido('${c.telefone}')">✅ Aceitar Pedido</button>
+          <button class="btn sm" onclick="finalizar('${c.telefone}')" style="color:#888">Finalizar</button>`;
+      }else{
+        botoes=`<button class="btn danger sm" onclick="bloquear('${c.telefone}')">Assumir Atendimento</button>
+          <button class="btn sm" onclick="finalizar('${c.telefone}')" style="color:#888">Finalizar</button>`;
+      }
+    }else if(c.pedido_confirmado){
+      botoes=`<button class="btn success sm" onclick="aceitarPedido('${c.telefone}')">✅ Aceitar pedido e pedir Pix</button>
+        <button class="btn danger sm" onclick="rejeitar('${c.telefone}')">❌ Recusar pedido</button>
+        <button class="btn sm" onclick="finalizar('${c.telefone}')" style="color:#888">Finalizar</button>`;
+    }else if(c.aguardando_pix){
+      botoes=`<button class="btn success sm" onclick="confirmar('${c.telefone}')">✅ Confirmar Pedido</button>
+        <button class="btn danger sm" onclick="cancelarPedidoCliente('${c.telefone}')">❌ Pedido Cancelado</button>
+        <button class="btn sm" onclick="finalizar('${c.telefone}')" style="color:#888">Finalizar</button>`;
+    }else{
+      botoes=`${c.aguardando?`<button class="btn success sm" onclick="confirmar('${c.telefone}')">Confirmar</button><button class="btn warn sm" onclick="rejeitar('${c.telefone}')">Rejeitar</button>`:''}
         <button class="btn info sm" onclick="cutucar('${c.telefone}')">Cutucar</button>
         ${c.humano?`<button class="btn sm" onclick="liberar('${c.telefone}')">Liberar Maya</button>`:`<button class="btn danger sm" onclick="bloquear('${c.telefone}')">Bloquear Maya</button>`}
         <button class="btn sm" onclick="finalizar('${c.telefone}')" style="color:#888">Finalizar</button>`;
+    }
     return`<div class="card">
-      <div class="card-head">
-        <span class="card-tel">📱 ${c.telefone}</span>
-        <span class="card-status ${c.statusCls.replace('status-','s-')}">${c.statusTxt}</span>
-      </div>
-      ${info}
-      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">${botoes}</div>
-    </div>`}).join('');
 }
 
 async function bloquear(tel){await api('/painel/bloquear',{telefone:tel});t('Maya bloqueada');carregarClientes()}
@@ -168,6 +187,8 @@ async function liberar(tel){await api('/painel/liberar',{telefone:tel});t('Maya 
 async function confirmar(tel){await api('/painel/confirmar',{telefone:tel});t('Pedido confirmado!');carregarClientes();if(tabAtiva==='mes')carregarMes(mesAtual)}
 async function rejeitar(tel){const m=prompt('Motivo:');if(!m)return;await api('/painel/rejeitar',{telefone:tel,motivo:m});t('Rejeitado');carregarClientes()}
 async function cutucar(tel){await api('/painel/cutucar',{telefone:tel});t('Cutucando...')}
+async function aceitarPedido(tel){if(!confirm('Aceitar pedido e enviar Pix para '+tel+'?'))return;await api('/painel/aceitar-pedido',{telefone:tel});t('Pedido aceito! Mensagem enviada.');carregarClientes()}
+async function cancelarPedidoCliente(tel){if(!confirm('Cancelar pedido de '+tel+'? O cliente sera notificado.'))return;await api('/painel/cancelar-pedido-cliente',{telefone:tel});t('Pedido cancelado');carregarClientes()}
 async function finalizar(tel){if(!confirm('Finalizar atendimento de '+tel+'?'))return;await api('/painel/finalizar',{telefone:tel});t('Finalizado');carregarClientes()}
 
 // ===== MESES =====
@@ -268,6 +289,8 @@ async function addManual(){
 // ===== INIT =====
 function init(){
   let tabs='<button class="tab active" onclick="abrirTab(\'clientes\')">Clientes Ativos</button>';
+  tabs+='<button class="tab" onclick="abrirTab('aceitar')">Aceitar Pedido</button>';
+  tabs+='<button class="tab" onclick="abrirTab('pix')">Confirmar Pagamento</button>';
   for(let m=1;m<=12;m++)tabs+=`<button class="tab" onclick="abrirTab('mes',${m})">${MESES[m].substring(0,3)}</button>`;
   tabs+='<button class="tab extra" onclick="abrirTab(\'faturamento\')">Faturamento 2026</button>';
   document.getElementById('tabs').innerHTML=tabs;carregarTudo();ir();
@@ -276,11 +299,13 @@ function abrirTab(tipo,mes){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
   tabAtiva=tipo;
-  if(tipo==='clientes'){document.getElementById('tab-clientes').classList.add('active');document.querySelector('.tab').classList.add('active');carregarClientes()}
-  else if(tipo==='mes'){document.getElementById('tab-meses').classList.add('active');carregarMes(mes);document.querySelectorAll('.tab').forEach((b,i)=>{if(i===mes)b.classList.add('active')})}
+  if(tipo==='clientes'){document.getElementById('tab-clientes').classList.add('active');document.querySelector('.tab').classList.add('active');carregarClientes('ativos')}
+  else if(tipo==='aceitar'){document.getElementById('tab-clientes').classList.add('active');document.querySelectorAll('.tab')[1].classList.add('active');carregarClientes('confirmados')}
+  else if(tipo==='pix'){document.getElementById('tab-clientes').classList.add('active');document.querySelectorAll('.tab')[2].classList.add('active');carregarClientes('pix')}
+  else if(tipo==='mes'){document.getElementById('tab-meses').classList.add('active');carregarMes(mes);document.querySelectorAll('.tab').forEach((b,i)=>{const tabIdx=3+mes;if(i===tabIdx)b.classList.add('active')})}
   else if(tipo==='faturamento'){document.getElementById('tab-meses').classList.add('active');carregarFaturamento();document.querySelector('.tab.extra').classList.add('active')}
 }
-async function carregarTudo(){carregarClientes();if(tabAtiva==='mes')carregarMes(mesAtual)}
+async function carregarTudo(){carregarClientes(tabAtiva==='aceitar'?'confirmados':tabAtiva==='pix'?'pix':'ativos');if(tabAtiva==='mes')carregarMes(mesAtual)}
 init();
 </script>
 </body>

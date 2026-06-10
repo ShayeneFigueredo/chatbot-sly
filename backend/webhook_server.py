@@ -243,16 +243,36 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
     # Inicializa (precisa vir antes dos checks de estado)
     novo_cliente = telefone not in clientes
     if novo_cliente:
-        clientes[telefone] = {"tela": "menu", "dados_pedido": {}, "historico_ia": []}
+        clientes[telefone] = {"tela": "aguardando_primeira_msg", "dados_pedido": {}, "historico_ia": [],
+                              "mensagens_pendentes": [], "primeira_msg_ts": time.time()}
     estado = clientes[telefone]
     tela = estado["tela"]
     dados = estado["dados_pedido"]
 
     print(f"   📍 Tela: {tela} | {'🆕' if novo_cliente else ''} | 💬 {t[:80]}")
 
+    # ── AGUARDANDO PRIMEIRAS MENSAGENS (delay 10s pra evitar respostas precipitadas) ──
+    if tela == "aguardando_primeira_msg":
+        estado.setdefault("mensagens_pendentes", []).append(mensagem)
+        agora = time.time()
+        # Processa depois de 10s OU se já tem 2+ mensagens (cliente mandou várias de uma vez)
+        if agora - estado.get("primeira_msg_ts", agora) >= 10 or len(estado["mensagens_pendentes"]) >= 2:
+            return _processar_primeiras_mensagens(estado, telefone)
+        # Ainda dentro da janela de espera → não responde
+        print(f"⏳ Aguardando mais mensagens de {telefone}... "
+              f"({len(estado['mensagens_pendentes'])} msgs, "
+              f"{agora - estado.get('primeira_msg_ts', agora):.0f}s)")
+        _salvar_estado_clientes()
+        return None
+
     # ── Cliente em aguardando_humano? Maya TRAVADA até destravar ──
     if tela == "aguardando_humano":
-        # Só destrava com: "2", "maya", "quero ser atendido pela maya"
+        # Se foi bloqueada por pós-confirmação (atendimento_humano = True),
+        # NÃO destrava de jeito nenhum — só Shay libera no painel
+        if cliente_em_atendimento_humano(telefone):
+            print(f"🔒 Maya bloqueada para {telefone} (pós-confirmação, só painel libera)")
+            return None
+        # Cliente escolheu esperar humano ([1] nas boas-vindas) — pode destravar
         if t in ("2",) or "maya" in t or "quero ser atendido" in t or "fazer meu pedido" in t:
             estado["tela"] = "explicacao"
             atendimento_humano.pop(telefone, None)  # remove bloqueio
@@ -264,11 +284,6 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
     if cliente_em_atendimento_humano(telefone):
         print(f"🤫 Maya silenciada para {telefone} (atendimento humano)")
         return None  # não responde nada
-
-    # ── PRIMEIRA MENSAGEM: boas-vindas (escolhe humano ou Maya) ──
-    if novo_cliente:
-        estado["tela"] = "boas_vindas"
-        return _msg_boas_vindas()
 
     # ── ATENDIMENTO HUMANO (qualquer tela, exceto novos estados iniciais) ──
     if tela not in ("boas_vindas", "aguardando_humano", "explicacao") and (
@@ -308,14 +323,34 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
             estado["tela"] = "aguardando_humano"
             # Bloqueia Maya para este cliente (igual ao botão Bloquear do painel)
             atendimento_humano[telefone] = True
+            # Se tinha assunto detectado, inclui na notificação
+            extra = f"\nJá mencionou: {estado.get('assunto_detectado', '')}" if estado.get("assunto_detectado") else ""
             notificar_shay(
-                f"👤 {telefone} quer falar com um humano!\n"
+                f"👤 {telefone} quer falar com um humano!{extra}\n"
                 f"Mensagem: \"{mensagem[:100]}\""
             )
             return _msg_aguardando_humano()
         # Gatilhos para MAYA (exato "2" OU contém palavra-chave)
         maya_gatilhos = ["maya", "quero fazer", "pedido", "assistente", "slide"]
         if t == "2" or any(p in t for p in maya_gatilhos):
+            # Se já detectou assunto na primeira mensagem, pula explicação e vai direto
+            assunto = estado.pop("assunto_detectado", None)
+            if assunto:
+                dados = estado.setdefault("dados_pedido", {})
+                dados["tema"] = assunto
+                estado["tela"] = "pedido_tipo"
+                return (
+                    f"Perfeito! Vou preparar seu slide sobre *{assunto}*! 🎉\n\n"
+                    f"Agora me conta: qual TIPO de slide você prefere?\n\n"
+                    f"Você pode ver exemplos em vídeo de cada tipo aqui "
+                    f"(é só rolar pra baixo no site):\n"
+                    f"👉 https://slydesign.com.br/personalizados/\n\n"
+                    f"[1] ✅ Já escolhi o meu tipo de slide\n"
+                    f"[2] 🤔 Diferença entre Canva e PowerPoint\n"
+                    f"[3] 🎨 Diferença entre Transições e Temas\n\n"
+                    f"[0] 🔙 Voltar ao menu"
+                )
+            # Sem assunto pré-detectado → explicação normal
             estado["tela"] = "explicacao"
             return _msg_explicacao()
         # Qualquer outra coisa → repete boas-vindas
@@ -483,6 +518,12 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
     # FLUXO DE PEDIDO
     # ═══════════════════════════════════════════
 
+    # ── BOTÃO VOLTAR À PERGUNTA ANTERIOR (funciona em qualquer etapa) ──
+    if tela.startswith("pedido_") or tela in ("resumo", "pedido_confirmado"):
+        if t == "9" or any(p in t for p in ["anterior", "errei", "ops", "volta anterior",
+                                              "pergunta anterior", "voltar anterior", "voltei"]):
+            return _voltar_etapa_anterior(estado)
+
     # PASSO 1: Tema
     if tela == "pedido_tema":
         # Cliente mandou foto em vez de digitar o assunto?
@@ -611,6 +652,7 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
                 "Se quiser um tema que nao esta na lista, "
                 "podemos criar do zero. Me diga qual tema voce quer?\n\n"
                 "[8] 🎨 Quero o design sobre o MEU assunto\n"
+                "[9] ↩️ Voltar à pergunta anterior\n"
                 "[0] 🔙 Voltar ao menu"
             )
 
@@ -626,6 +668,7 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
             "💡 Recomendamos pedir com pelo menos 1 dia de antecedencia "
             "da sua apresentacao.\n\n"
             "Me conta: qual data voce precisa? 📅\n\n"
+            "[9] ↩️ Voltar à pergunta anterior\n"
             "[0] 🔙 Voltar ao menu"
         )
 
@@ -675,6 +718,7 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
                 "Se quiser um tema que nao esta na lista, "
                 "podemos criar do zero. Me diga qual tema voce quer?\n\n"
                 "[8] 🎨 Quero o design sobre o MEU assunto\n"
+                "[9] ↩️ Voltar à pergunta anterior\n"
                 "[0] 🔙 Voltar ao menu"
             )
         if modo_edicao:
@@ -688,6 +732,7 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
             "💡 Recomendamos pedir com pelo menos 1 dia de antecedencia "
             "da sua apresentacao.\n\n"
             "Me conta: qual data voce precisa? 📅\n\n"
+            "[9] ↩️ Voltar à pergunta anterior\n"
             "[0] 🔙 Voltar ao menu"
         )
 
@@ -723,6 +768,7 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
                 "Certo! Vamos criar o design com base no SEU assunto. 🎨\n\n"
                 "Agora sobre o PRAZO: ate que dia posso te entregar?\n\n"
                 "Me conta: qual data voce precisa? 📅\n\n"
+                "[9] ↩️ Voltar à pergunta anterior\n"
                 "[0] 🔙 Voltar ao menu"
             )
 
@@ -761,6 +807,7 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
             f"Quer adicionar os NOMES de voces no slide?\n"
             f"Se sim, mande todos os nomes em uma unica mensagem.\n"
             f"Se nao, e so responder 'nao'. 💜\n\n"
+            f"[9] ↩️ Voltar à pergunta anterior\n"
             f"[0] 🔙 Voltar ao menu"
         )
 
@@ -789,6 +836,7 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
             "[1] 📝 Resumir em 10 paginas\n"
             "[2] ➕ Adicionar tudo (te aviso quantas deu)\n\n"
             "[3] ✅ Finalizar Pedido\n"
+            "[9] ↩️ Voltar à pergunta anterior\n"
             "[0] 🔙 Voltar ao menu"
         )
 
@@ -807,6 +855,7 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
                 "Anotado! 📝 Vamos resumir em até 10 páginas. "
                 "Quer adicionar mais alguma coisa? 💜\n\n"
                 "[3] ✅ Finalizar Pedido\n"
+                "[9] ↩️ Voltar à pergunta anterior\n"
                 "[0] 🔙 Voltar ao menu"
             )
         elif t in ("2", "adicionar tudo", "+"):
@@ -818,6 +867,7 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
                 "quantas páginas deu no final. Quer adicionar mais "
                 "alguma coisa? 💜\n\n"
                 "[3] ✅ Finalizar Pedido\n"
+                "[9] ↩️ Voltar à pergunta anterior\n"
                 "[0] 🔙 Voltar ao menu"
             )
         else:
@@ -828,6 +878,7 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
             return (
                 "Recebi! ✅ Pode mandar mais se quiser. 💜\n\n"
                 "[3] ✅ Finalizar Pedido\n"
+                "[9] ↩️ Voltar à pergunta anterior\n"
                 "[0] 🔙 Voltar ao menu"
             )
 
@@ -840,7 +891,8 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
     # PASSO 6: Resumo
     if tela == "resumo":
         if t in ("1", "confirmar", "✅ confirmar", "confirmar pedido"):
-            estado["tela"] = "aguardando_pagamento"
+            estado["tela"] = "pedido_confirmado"
+            estado["dados_pedido"] = dados  # preserva os dados
             notificar_shay(
                 f"🎨 NOVO PEDIDO de {telefone}!\n\n"
                 f"📝 Tema: {dados.get('tema', '?')}\n"
@@ -850,7 +902,7 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
                 f"📎 Extras: {dados.get('extras', 'Nenhum')}\n\n"
                 f"💡 Pra revisar: use 'assumir {telefone}' pra assumir o atendimento"
             )
-            return _msg_pagamento(dados)
+            return _msg_pedido_confirmado(dados)
         if t in ("3", "cancelar", "❌ cancelar"):
             estado["tela"] = "menu"
             estado["dados_pedido"] = {}
@@ -902,12 +954,50 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
         if t == "5":
             estado["tela"] = "pedido_extras"
             estado["modo_edicao"] = True
-            dados["extras"] = ""
-            return "Mande suas observações. Quando terminar, responda 'finalizar'. 💜"
+            # NÃO limpa os extras — só adiciona o que o cliente mandar
+            return (
+                "Os extras atuais são: "
+                f"\"{_truncar_extras(dados.get('extras', 'Nenhum'))}\"\n\n"
+                "Mande mais informações que quiser adicionar. "
+                "Quando terminar, responda 'finalizar'. 💜"
+            )
         estado["tela"] = "resumo"
         return _mostrar_resumo(dados)
 
-    # PASSO 7: Aguardando pagamento (Maya NAO responde)
+    # PASSO 7: Pedido confirmado (mostra resumo + opção de editar)
+    if tela == "pedido_confirmado":
+        if t in ("1",) or any(p in t for p in ["editar", "mudar", "errei", "quero mudar",
+                                                  "mudar algo", "alterar", "arrumar", "corrigir"]):
+            estado["tela"] = "mudar"
+            return "Claro! O que você quer mudar? ✏️\n\n[1] 📝 Mudar tema\n[2] 🎨 Mudar tipo\n[3] 📅 Mudar prazo\n[4] 👤 Mudar nomes\n[5] 📎 Mudar extras\n[0] 🔙 Voltar ao resumo"
+        if t in ("2",) or any(p in t for p in ["ok", "certo", "tudo certo", "ta certo",
+                                                  "tá certo", "isso", "isso mesmo", "perfeito",
+                                                  "confirmado", "obrigado", "obrigada", "vlw",
+                                                  "aguardar", "aguardo", "esperar"]):
+            estado["tela"] = "aguardando_humano"
+            atendimento_humano[telefone] = True
+            _salvar_estado_clientes()
+            return (
+                "Perfeito! Seu pedido está confirmado! 💜\n\n"
+                "Agora é só aguardar: um de nossos atendentes vai entrar "
+                "em contato com você por aqui para confirmar o pagamento, "
+                "combinar a entrega e alinhar os últimos detalhes. ✨\n\n"
+                "Fique de olho nas notificações! 💜"
+            )
+        # Qualquer outra coisa → repete a mensagem de confirmação
+        return _msg_pedido_confirmado(dados)
+
+    # PASSO 7.5: Aguardando Pix (após Shay aceitar pedido)
+    if tela == "aguardando_pix":
+        # Maya fica quieta — quem responde é a Shay
+        if t in ("menu", "voltar", "🔙 voltar ao menu", "0"):
+            estado["tela"] = "menu"
+            estado["dados_pedido"] = {}
+            return mostrar_menu()
+        print(f"🤫 Maya silenciada para {telefone} (aguardando Pix)")
+        return None
+
+    # PASSO 8: Aguardando pagamento (Maya NAO responde)
     if tela == "aguardando_pagamento":
         # Cliente manda comprovante, "ok", "paguei", etc
         # Maya fica quieta — um humano (Shay) assume
@@ -968,6 +1058,108 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
     estado["tela"] = "menu"
     return _chamar_ia(mensagem, estado)
 
+
+# ── PROCESSAMENTO DE PRIMEIRAS MENSAGENS (delay 10s) ──
+
+def _processar_primeiras_mensagens(estado: dict, telefone: str) -> str:
+    """Processa as mensagens acumuladas do novo cliente.
+    SEMPRE envia boas-vindas (escolha humano vs Maya).
+    Se detectou assunto, guarda pra usar depois que o cliente escolher Maya."""
+    mensagens = estado.pop("mensagens_pendentes", [])
+    estado.pop("primeira_msg_ts", None)
+
+    if not mensagens:
+        estado["tela"] = "boas_vindas"
+        return _msg_boas_vindas()
+
+    # Se a última mensagem é curta (escolha de menu tipo "2", "sim", "ok"),
+    # extrai o assunto só das mensagens anteriores pra não poluir
+    if len(mensagens) >= 2 and len(mensagens[-1].split()) <= 2:
+        texto_para_extrair = " ".join(mensagens[:-1])
+    else:
+        texto_para_extrair = " ".join(mensagens)
+
+    texto_completo = " ".join(mensagens).strip()
+    t = texto_completo.lower()
+
+    # Detecta se cliente já falou o que quer (tema, tipo de slide)
+    marcadores_pedido = [
+        "slide sobre", "slide de", "slide do", "slide da",
+        "queria um slide", "queria slide", "quero um slide", "quero slide",
+        "preciso de um slide", "preciso de slide",
+        "gostaria de um slide", "gostaria de slide",
+        "faz um slide", "faz slide", "fazer um slide",
+        "quero fazer", "queria fazer", "preciso fazer",
+        "pedido", "personalizado",
+    ]
+
+    tem_pedido = any(m in t for m in marcadores_pedido)
+
+    if tem_pedido:
+        tema = _extrair_assunto(texto_para_extrair)
+        if tema and len(tema) > 3:
+            # Guarda o assunto detectado pra usar quando cliente escolher Maya [2]
+            estado["assunto_detectado"] = tema
+            estado["tela"] = "boas_vindas"
+            return (
+                f"Oieee! Eu sou a Maya, atendente virtual da Sly Design! 💜\n\n"
+                f"Vi que você quer um slide sobre *{tema}*, né? 🎉\n\n"
+                f"A gente cria slides personalizados do zero e também temos "
+                f"slides prontos no site com super descontos!\n"
+                f"Dá uma olhadinha: 👉 https://slydesign.com.br\n\n"
+                f"Como posso te ajudar?\n\n"
+                f"[1] 🙋 Quero falar com um atendente\n"
+                f"    (assim que possível alguém da equipe te responde)\n\n"
+                f"[2] 🤖 Quero fazer meu pedido com a Maya\n"
+                f"    (nossa assistente virtual, rapidinho!)\n\n"
+                f"💡 Digite o número 1 ou 2 para escolher!"
+            )
+        else:
+            # Detectou intenção de pedido mas não extraiu assunto → boas-vindas normais
+            estado["tela"] = "boas_vindas"
+            return _msg_boas_vindas()
+
+    # Se não detectou pedido → boas-vindas normais
+    estado["tela"] = "boas_vindas"
+    return _msg_boas_vindas()
+
+
+def _extrair_assunto(texto: str) -> str:
+    """Tenta extrair o assunto/tema de uma mensagem do cliente."""
+    import re
+
+    # Padrões comuns: "slide sobre X", "queria um slide de X", etc.
+    padroes = [
+        r'(?:slide|slides)\s+(?:sobre|de|do|da|dos|das)\s+[""]?([^.!?,""]+)[""]?',
+        r'(?:queria|quero|preciso|gostaria)\s+(?:de\s+)?(?:um\s+)?(?:slide|slides)\s+(?:sobre|de|do|da|dos|das)\s+[""]?([^.!?,""]+)[""]?',
+        r'(?:sobre|assunto|tema)\s+(?:é|e|:)?\s*[""]?([^.!?,""]+)[""]?',
+        r'(?:fazer|faz)\s+(?:um\s+)?(?:slide|slides)\s+(?:sobre|de|do|da)\s+[""]?([^.!?,""]+)[""]?',
+    ]
+
+    texto_lower = texto.lower().strip()
+    for padrao in padroes:
+        match = re.search(padrao, texto_lower)
+        if match:
+            assunto = match.group(1).strip()
+            # Remove palavras de conexão se tiver
+            for p in [" e ", " pra ", " para ", " com ", " no ", " na ", " em ", " mas "]:
+                if p in assunto:
+                    assunto = assunto.split(p)[0].strip()
+            if len(assunto) > 3:
+                return assunto
+
+    # Fallback: pega o texto depois de "queria", "quero" ou "preciso"
+    for marcador in ["queria", "quero", "preciso"]:
+        if marcador in texto_lower:
+            idx = texto_lower.find(marcador)
+            resto = texto_lower[idx + len(marcador):].strip()
+            # Remove palavras filler
+            for filler in ["um", "uma", "slide", "slides", "sobre", "de", "do", "da", "o", "a"]:
+                resto = re.sub(r'\b' + filler + r'\b', '', resto, count=1).strip()
+            if len(resto) > 3:
+                return resto
+
+    return ""
 
 # ── FUNÇÕES AUXILIARES ──
 
@@ -1049,6 +1241,7 @@ def _msg_tipos_completo():
         "   Tema visual criativo em arquivo PPTX offline\n\n"
         "[6] 🤔 Diferença entre Canva e PowerPoint\n"
         "[7] 🎨 Diferença entre Transições e Temas\n\n"
+        "[9] ↩️ Voltar à pergunta anterior\n"
         "[0] 🔙 Voltar ao menu"
     )
 
@@ -1069,6 +1262,7 @@ def _msg_diferenca_canva_ppt():
         "[5] 📄 PDF — R$ 20,00\n\n"
         "💡 Digite 'ja escolhi' se ja souber qual quer"
         " ou 'transicoes vs temas' pra entender a diferença.\n\n"
+        "[9] ↩️ Voltar à pergunta anterior\n"
         "[0] 🔙 Voltar ao menu"
     )
 
@@ -1087,6 +1281,7 @@ def _msg_diferenca_transicoes_temas():
         "👉 https://youtu.be/beDVpp41KPc\n\n"
         "💡 Digite 'ja escolhi' quando estiver pronto(a) pra escolher"
         " ou 'canva vs ppt' pra ver a diferenca entre os formatos.\n\n"
+        "[9] ↩️ Voltar à pergunta anterior\n"
         "[0] 🔙 Voltar ao menu"
     )
 
@@ -1197,6 +1392,63 @@ def _mostrar_resumo(dados):
     )
 
 
+def _msg_pedido_confirmado(dados):
+    """Mostra o resumo completo do pedido após confirmar + opção de editar."""
+    modelo = dados.get("modelo", "")
+    modelo_limpo = modelo.split(" ", 1)[1] if " " in modelo else modelo
+    preco_base = PRECOS.get(modelo_limpo, "a combinar")
+    taxa_urgencia = dados.get("taxa_urgencia", False)
+    preco = preco_base
+    if taxa_urgencia:
+        try:
+            valor_str = preco_base.replace("R$ ", "").replace(",", ".")
+            total = float(valor_str) + 5
+            preco = f"R$ {total:.2f}".replace(".", ",")
+        except (ValueError, AttributeError):
+            pass
+
+    try:
+        valor_str = preco.replace("R$ ", "").replace(",", ".")
+        metade = float(valor_str) / 2
+        metade_str = f"R$ {metade:.2f}".replace(".", ",")
+    except (ValueError, AttributeError):
+        metade_str = "a combinar"
+
+    # Monta linha do tema conforme o tipo
+    img_tag = " (imagem anexada)" if dados.get("tem_imagem") else ""
+    if "Temas" in modelo:
+        assunto = dados.get("assunto", dados.get("tema", ""))
+        tema_design = dados.get("tema_design", "")
+        linha_tema = f"📝 Assunto: {assunto}{img_tag}\n🎨 Tema: {modelo} — {tema_design}\n"
+    else:
+        linha_tema = f"📝 Tema: {dados.get('tema', '')}{img_tag}\n🎨 Tipo: {modelo}\n"
+
+    aviso_paginas = ""
+    if dados.get("paginas_extra"):
+        aviso_paginas = (
+            "\n⚠️ Conteúdo completo será adicionado. "
+            "O número final de páginas (e valor) será confirmado "
+            "após a produção.\n"
+        )
+
+    return (
+        "✨ Pedido confirmado! Alguém da equipe vai analisar "
+        "e confirmar seu pedido, aguarde uns minutinhos... 💜\n\n"
+        "📋 Resumo do pedido:\n\n"
+        f"{linha_tema}"
+        f"📅 Prazo: {dados.get('prazo', '')}\n"
+        f"👤 Nomes: {dados.get('nomes', 'Não')}\n"
+        f"📎 Extras: {_truncar_extras(dados.get('extras', 'Nenhum'))}\n\n"
+        f"💰 Valor total: {preco}"
+        f"{' (taxa urgência R$ 5,00)' if taxa_urgencia else ''}\n"
+        f"💳 50% para confirmar: {metade_str} — o restante na entrega! 💜\n"
+        f"{aviso_paginas}\n"
+        f"[1] ✏️ Quero editar algo\n\n"
+        f"Se estiver tudo certo, basta aguardar alguém "
+        f"da equipe vir confirmar seu pedido. 💜"
+    )
+
+
 def _msg_pagamento(dados):
     modelo = dados.get("modelo", "")
     modelo_limpo = modelo.split(" ", 1)[1] if " " in modelo else modelo
@@ -1232,11 +1484,82 @@ def _msg_pagamento(dados):
     )
 
 
+def _voltar_etapa_anterior(estado: dict) -> str:
+    """Volta à etapa anterior no fluxo de pedido, preservando dados já coletados."""
+    tela = estado.get("tela", "")
+    dados = estado.get("dados_pedido", {})
+
+    # Mapeamento: tela atual → tela anterior
+    mapeamento = {
+        "pedido_tema": "menu",
+        "pedido_tipo": "pedido_tema",
+        "pedido_tipo_diferenca": "pedido_tipo",
+        "pedido_tipo_temas_diferenca": "pedido_tipo",
+        "pedido_qual_tema": "pedido_tipo",
+        "pedido_canva_ppt": "pedido_qual_tema",
+        "pedido_prazo": "pedido_tipo",  # fallback — ajustado abaixo
+        "pedido_nomes": "pedido_prazo",
+        "pedido_extras": "pedido_nomes",
+        "resumo": "pedido_extras",
+        "pedido_confirmado": "resumo",
+    }
+
+    # Ajustes conforme o tipo de slide escolhido
+    if tela == "pedido_prazo":
+        if "Temas" in dados.get("modelo", ""):
+            mapeamento["pedido_prazo"] = "pedido_qual_tema"
+        elif dados.get("tema_design"):
+            mapeamento["pedido_prazo"] = "pedido_canva_ppt"
+
+    if tela == "pedido_nomes" and "Temas" in dados.get("modelo", "") and not dados.get("tema_design"):
+        mapeamento["pedido_nomes"] = "pedido_qual_tema"
+
+    # Primeira etapa: voltar = menu
+    if tela == "pedido_tema":
+        estado["tela"] = "menu"
+        estado["dados_pedido"] = {}
+        return "Voltando ao início... 💜\n\n" + mostrar_menu()
+
+    nova_tela = mapeamento.get(tela, "menu")
+    if nova_tela == "menu":
+        estado["tela"] = "menu"
+        estado["dados_pedido"] = {}
+        return "Voltando ao início... 💜\n\n" + mostrar_menu()
+
+    estado["tela"] = nova_tela
+    # Remove o dado da etapa para onde estamos voltando (vai ser perguntado de novo)
+    if nova_tela == "pedido_tema":
+        dados.pop("tema", None)
+    elif nova_tela == "pedido_tipo":
+        dados.pop("modelo", None)
+        estado["mostrou_opcoes"] = True  # já mostra opções completas
+    elif nova_tela == "pedido_qual_tema":
+        dados.pop("tema_design", None)
+    elif nova_tela == "pedido_prazo":
+        dados.pop("prazo", None)
+        dados.pop("taxa_urgencia", None)
+    elif nova_tela == "pedido_nomes":
+        dados.pop("nomes", None)
+    elif nova_tela == "pedido_extras":
+        dados.pop("extras", None)
+
+    msg = _repetir_ultima_pergunta(estado)
+    if nova_tela not in ("menu",):
+        msg += "\n[9] ↩️ Voltar à pergunta anterior"
+    return msg
+
+
 def _repetir_ultima_pergunta(estado: dict) -> str:
     """Retorna a pergunta adequada para o estado atual do pedido."""
     tela = estado.get("tela", "")
     dados = estado.get("dados_pedido", {})
-    if tela == "boas_vindas":
+    if tela == "aguardando_primeira_msg":
+        return (
+            "Oie! Tô aqui esperando você terminar de digitar... 💜\n\n"
+            "Pode mandar tudo de uma vez que eu entendo! Me conta: "
+            "no que posso te ajudar?"
+        )
+    elif tela == "boas_vindas":
         return _msg_boas_vindas()
     elif tela == "aguardando_humano":
         return _msg_aguardando_humano()
@@ -1282,10 +1605,14 @@ def _repetir_ultima_pergunta(estado: dict) -> str:
         )
     elif tela == "resumo":
         return "Tudo certo? [1] Confirmar [2] Mudar algo [3] Cancelar"
+    elif tela == "pedido_confirmado":
+        return _msg_pedido_confirmado(dados)
     elif tela == "mudar":
         return "O que quer mudar? [1] Tema [2] Tipo [3] Prazo [4] Nomes [5] Extras [0] Voltar"
     elif tela == "aguardando_pagamento":
         return "Seu pedido esta aguardando confirmacao de pagamento. 💜\n\n[0] 🔙 Voltar ao menu"
+    elif tela == "aguardando_pix":
+        return "Seu pedido foi aceito! Assim que o pagamento for confirmado, começamos a produção. 💜\n\n[0] 🔙 Voltar ao menu"
     elif tela == "pedido_rejeitado":
         return (
             "Infelizmente nao temos mais vagas para hoje... 😕\n\n"
@@ -1432,8 +1759,12 @@ async def responder(request: Request):
     telefone = data.get("from", "")
     tipo = data.get("tipo", "texto")
 
-    # Normaliza numero: remove sufixos @lid, @s.whatsapp.net, @g.us
-    telefone = telefone.replace("@lid", "").replace("@s.whatsapp.net", "").replace("@g.us", "").split(":")[0]
+    # Normaliza numero: remove sufixos e deixa so os digitos
+    import re as _re
+    telefone = _re.sub(r'[@:].*$', '', telefone)  # remove @lid, @s.whatsapp.net, @g.us, :port etc
+    telefone = _re.sub(r'[^\d]', '', telefone)    # deixa so os numeros
+    if not telefone.startswith('55') and len(telefone) >= 10:
+        telefone = '55' + telefone  # adiciona DDI Brasil se faltar
 
     print(f"\n💬 {telefone}: {texto}")
     resposta = maya_responder(texto, telefone, tipo)
@@ -1465,7 +1796,11 @@ async def salvar_historico(request: Request):
     data = await request.json()
     telefone = data.get("telefone", "")
     # Normaliza numero
-    telefone = telefone.replace("@lid", "").replace("@s.whatsapp.net", "").replace("@g.us", "").split(":")[0]
+    import re as _re2
+    telefone = _re2.sub(r'[@:].*$', '', telefone)
+    telefone = _re2.sub(r'[^\d]', '', telefone)
+    if not telefone.startswith('55') and len(telefone) >= 10:
+        telefone = '55' + telefone
     papel = data.get("papel", "assistant")
     texto = data.get("texto", "")
     if telefone and texto:
@@ -1497,15 +1832,19 @@ async def painel_dados():
     cli_list = []
     aguardando = 0
     aguardando_humano_count = 0
+    aguardando_pix_count = 0
+    pedido_realizado_count = 0
     for tel, est in clientes.items():
         tela = est.get("tela", "?")
         dados = est.get("dados_pedido", {})
         shay_msg = est.get("shay_respondeu", False)
+        shay_assumiu = est.get("shay_assumiu", False)
         is_humano = atendimento_humano.get(tel, False)
 
         # Mostrar se: tem pedido, ou ta bloqueado, ou Shay mandou msg,
-        # ou esta esperando atendente humano
-        tem_atividade = (tela not in ("menu", "boas_vindas", "explicacao") or dados or is_humano or shay_msg)
+        # ou esta esperando atendente humano, ou pedido confirmado/aguardando pix
+        tem_atividade = (tela not in ("menu", "boas_vindas", "explicacao") or dados or is_humano or shay_msg
+                        or tela in ("pedido_confirmado", "aguardando_pix"))
         if not tem_atividade:
             continue
 
@@ -1513,15 +1852,24 @@ async def painel_dados():
             aguardando += 1
         if tela == "aguardando_humano":
             aguardando_humano_count += 1
+        if tela == "aguardando_pix":
+            aguardando_pix_count += 1
+        if tela == "pedido_confirmado":
+            pedido_realizado_count += 1
 
         modelo = dados.get("modelo", "")
         modelo_limpo = modelo.split(" ", 1)[1] if " " in modelo else modelo
         preco_base = PRECOS.get(modelo_limpo, "-")
 
         is_aguardando = tela == "aguardando_pagamento"
+        is_aguardando_pix = tela == "aguardando_pix"
+        is_pedido_confirmado = tela == "pedido_confirmado"
 
         # Determina status visual
-        if is_humano:
+        if is_humano and shay_assumiu:
+            status_cls = "status-shay-assumiu"
+            status_txt = "Sendo atendido por Shay"
+        elif is_humano:
             status_cls = "status-humano"
             status_txt = "Bloqueado"
         elif tela == "aguardando_humano":
@@ -1530,6 +1878,12 @@ async def painel_dados():
         elif is_aguardando:
             status_cls = "status-pagamento"
             status_txt = "Aguardando pagamento"
+        elif is_aguardando_pix:
+            status_cls = "status-pix"
+            status_txt = "Aguardando Pix"
+        elif is_pedido_confirmado:
+            status_cls = "status-confirmado"
+            status_txt = "Pedido Realizado"
         elif shay_msg:
             status_cls = "status-shay"
             status_txt = "Shay respondeu"
@@ -1545,32 +1899,42 @@ async def painel_dados():
             "prazo": dados.get("prazo", "-"),
             "nomes": dados.get("nomes", "-"),
             "valor": preco_base,
+            "extras": dados.get("extras", "-"),
             "humano": is_humano,
             "aguardando": is_aguardando,
+            "aguardando_pix": is_aguardando_pix,
+            "pedido_confirmado": is_pedido_confirmado,
             "quer_atendente": tela == "aguardando_humano",
+            "shay_assumiu": shay_assumiu,
             "shay_msg": shay_msg,
             "statusCls": status_cls,
             "statusTxt": status_txt,
         })
 
-    # Limpa formato interno do telefone (ex: 5511999999999@lid → 55 11 99999-9999)
+    # Limpa formato interno do telefone
+    import re as _re3
     for c in cli_list:
         tel = c["telefone"]
-        tel = tel.replace("@lid", "").replace("@s.whatsapp.net", "").replace("@g.us", "")
+        tel = _re3.sub(r'[@:].*$', '', tel)  # remove sufixos
+        tel = _re3.sub(r'[^\d]', '', tel)    # so digitos
+        if tel and not tel.startswith('55') and len(tel) >= 10:
+            tel = '55' + tel
         c["telefone"] = tel
 
-    return {"clientes": cli_list, "total": len(cli_list), "aguardando": aguardando, "aguardando_humano": aguardando_humano_count}
+    return {"clientes": cli_list, "total": len(cli_list), "aguardando": aguardando, "aguardando_humano": aguardando_humano_count, "aguardando_pix": aguardando_pix_count, "pedido_realizado": pedido_realizado_count}
 
 
 @app.post("/painel/bloquear")
 async def painel_bloquear(request: Request):
-    """Bloqueia Maya para um numero (atendimento humano)."""
+    """Bloqueia Maya para um numero (atendimento humano). Marca que Shay assumiu."""
     data = await request.json()
     tel = _encontrar_chave_cliente(data.get("telefone", ""))
     if tel:
         atendimento_humano[tel] = True
+        if tel in clientes:
+            clientes[tel]["shay_assumiu"] = True
         _salvar_estado_clientes()
-        print(f"🙋 Painel: Maya bloqueada para {tel}")
+        print(f"🙋 Painel: Shay assumiu atendimento de {tel}")
         return {"status": "ok"}
     return {"status": "erro"}
 
@@ -1625,52 +1989,167 @@ async def painel_rejeitar(request: Request):
     return {"status": "erro"}
 
 
+@app.post("/painel/aceitar-pedido")
+async def painel_aceitar_pedido(request: Request):
+    """Aceita pedido e envia mensagem natural da Maya com Pix de 50%."""
+    data = await request.json()
+    tel = _encontrar_chave_cliente(data.get("telefone", ""))
+    if tel and tel in clientes:
+        est = clientes[tel]
+        dados = est.get("dados_pedido", {})
+
+        # Calcula 50%
+        modelo = dados.get("modelo", "")
+        modelo_limpo = modelo.split(" ", 1)[1] if " " in modelo else modelo
+        preco_base = PRECOS.get(modelo_limpo, "a combinar")
+        if dados.get("taxa_urgencia"):
+            try:
+                total = float(preco_base.replace("R$ ", "").replace(",", ".")) + 5
+                preco_base = f"R$ {total:.2f}".replace(".", ",")
+            except (ValueError, AttributeError):
+                pass
+        try:
+            valor_str = preco_base.replace("R$ ", "").replace(",", ".")
+            metade = float(valor_str) / 2
+            metade_str = f"R$ {metade:.2f}".replace(".", ",")
+        except (ValueError, AttributeError):
+            metade_str = "a combinar"
+
+        # Mensagem natural, como se fosse a Shay escrevendo
+        tema = dados.get("tema", dados.get("assunto", "seu slide"))
+        msg = (
+            f"Oiee! Seu pedido do slide sobre *{tema}* foi aceito, viu? 💜\n\n"
+            f"Quer acrescentar mais alguma informação antes "
+            f"da gente começar? Se não, sem problemas!\n\n"
+            f"Pra confirmar o pedido, precisamos de 50% do valor:\n\n"
+            f"💰 {metade_str}\n"
+            f"📱 Pix: 38997507651\n"
+            f"Shayene Lopes Figueredo\n\n"
+            f"Assim que o pagamento for confirmado, "
+            f"já começamos a produção! ✨"
+        )
+
+        # Envia via ponte interna
+        try:
+            import requests as req
+            req.post("http://127.0.0.1:8080/send",
+                     json={"to": tel, "text": msg}, timeout=5)
+        except Exception:
+            pass
+
+        est["tela"] = "aguardando_pix"
+        _salvar_estado_clientes()
+        print(f"✅ Painel: pedido de {tel} aceito — aguardando Pix")
+        return {"status": "ok", "msg": msg}
+    return {"status": "erro"}
+
+
+@app.post("/painel/cancelar-pedido-cliente")
+async def painel_cancelar_pedido_cliente(request: Request):
+    """Cancela pedido do cliente (ex: cliente sumiu após pedido aceito)."""
+    data = await request.json()
+    tel = _encontrar_chave_cliente(data.get("telefone", ""))
+    if tel and tel in clientes:
+        est = clientes[tel]
+        est["tela"] = "menu"
+        est["dados_pedido"] = {}
+        _salvar_estado_clientes()
+
+        msg = (
+            "Seu pedido foi cancelado. 💜\n\n"
+            "Se ainda precisar, é só me chamar que "
+            "a gente prepara tudo de novo pra você! ✨"
+        )
+        try:
+            import requests as req
+            req.post("http://127.0.0.1:8080/send",
+                     json={"to": tel, "text": msg}, timeout=5)
+        except Exception:
+            pass
+
+        print(f"❌ Painel: pedido de {tel} cancelado")
+        return {"status": "ok"}
+    return {"status": "erro"}
+
+
 # ── Webhook do Site (Yampi) ──
 
 @app.post("/webhook/site")
 async def webhook_site(request: Request):
-    """Recebe eventos do site (Yampi) e processa conforme o tipo.
-
-    Eventos suportados:
-    - order.created / order.approved / order.paid: adiciona pedido
-    - order.payment_denied: ignora
-    - cart.abandoned / notification.cart_abandoned: ignora
-    - outros: ignora (nao sabemos o que e)
-    """
+    """Recebe eventos do site (Yampi) e processa pedidos pagos."""
     try:
         data = await request.json()
-        print(f"📨 Webhook Yampi: {json.dumps(data, ensure_ascii=False)[:300]}")
+        print(f"📨 Webhook Yampi RECEBIDO: {json.dumps(data, ensure_ascii=False)[:500]}")
 
-        # Detecta o tipo de evento (Yampi usa 'event' ou 'type')
-        evento = str(data.get("event", data.get("type", ""))).lower()
-        if not evento:
-            # Tenta achar em outros campos comuns
-            evento = str(data.get("hook", {}).get("event", "")).lower()
+        # Detecta o tipo de evento em varios campos possiveis
+        evento = str(
+            data.get("event") or data.get("type") or
+            data.get("hook", {}).get("event") or
+            data.get("action") or ""
+        ).lower()
 
-        # Eventos que devem ser IGNORADOS
+        # Só ignora eventos claramente nao relacionados a pedido pago
         ignorar = ["abandoned", "abandonado", "cart.", "denied", "negado",
-                    "recusado", "created", "updated", "criado", "atualizado",
-                    "nota fiscal", "cashback", "produto", "cliente",
-                    "endereco", "estoque"]
+                    "recusado", "nota fiscal", "cashback", "endereco", "estoque"]
         if any(p in evento for p in ignorar):
-            print(f"🛒 Evento Yampi ignorado: {evento}")
+            print(f"🛒 Yampi ignorado ({evento})")
             return {"status": "ignored", "evento": evento}
 
-        # So processa pedidos PAGOS/APROVADOS
-        if not any(p in evento for p in ["approved", "aprovado", "paid", "pago"]):
-            print(f"🛒 Evento Yampi nao processado: {evento}")
-            return {"status": "skipped", "evento": evento}
+        # Tenta extrair dados do pedido de varios formatos possiveis
+        order = data.get("order") or data.get("data") or data
 
-        # Extrai dados do pedido (Yampi pode mandar em varios formatos)
-        order = data.get("order", data.get("data", data))
-        nome = order.get("customer", {}).get("name", order.get("nome", ""))
-        items = order.get("items", order.get("products", []))
-        produto = items[0].get("name", items[0].get("title", "")) if items else order.get("produto", "")
-        valor = float(order.get("total", order.get("valor", order.get("amount", 0))))
+        # Se tem 'resource' no payload do Yampi, usa ele
+        if "resource" in data:
+            resource = data["resource"]
+            if isinstance(resource, dict):
+                order = resource
+            elif isinstance(resource, str):
+                try:
+                    order = json.loads(resource)
+                except:
+                    order = data
 
-        # So adiciona se tiver valor real
+        nome = (
+            order.get("customer", {}).get("name") or
+            order.get("customer", {}).get("full_name") or
+            order.get("client_name") or order.get("nome") or
+            data.get("customer", {}).get("name") or "Site"
+        )
+        items = order.get("items") or order.get("products") or order.get("line_items") or []
+        produto = ""
+        if items and len(items) > 0:
+            produto = items[0].get("name") or items[0].get("title") or items[0].get("product_name") or ""
+        if not produto:
+            produto = order.get("produto") or order.get("product_name") or "Slide"
+
+        # Valor: tenta varios campos
+        valor_str = order.get("total") or order.get("valor") or order.get("amount") or order.get("total_price") or 0
+        try:
+            valor = float(valor_str)
+        except (ValueError, TypeError):
+            valor = 0.0
+
+        # Status do pagamento
+        status_pg = str(order.get("status") or order.get("payment_status") or order.get("financial_status") or evento).lower()
+        pago = any(p in status_pg for p in ["paid", "pago", "approved", "aprovado", "completed", "complete"])
+
+        if not pago and valor <= 0:
+            print(f"🛒 Yampi: pedido nao pago ou sem valor — evento={evento}, status={status_pg}, valor={valor}")
+            return {"status": "skipped", "evento": evento, "status_pg": status_pg}
+
         if valor <= 0:
-            print(f"⚠️ Pedido site com valor R$0 ignorado: {nome} — {produto}")
+            # Tenta extrair valor do items
+            for item in items:
+                try:
+                    item_val = float(item.get("price") or item.get("total") or 0)
+                    if item_val > 0:
+                        valor = item_val
+                        break
+                except (ValueError, TypeError):
+                    pass
+
+        if valor <= 0:
+            print(f"⚠️ Pedido site com valor R$0: {nome} — {produto} (evento={evento})")
             return {"status": "ignored", "motivo": "valor zerado"}
 
         from backend.pedidos import adicionar
@@ -1695,10 +2174,12 @@ async def webhook_site(request: Request):
         atual = float(db.get("faturamento_site", {}).get(str(mes), 0))
         db.setdefault("faturamento_site", {})[str(mes)] = round(atual + valor, 2)
         _salvar(db)
-        print(f"🛒 Pedido site adicionado: {nome} — {produto} — R$ {valor}")
-        return {"status": "ok"}
+        print(f"✅ Pedido site ADICIONADO: {nome} — {produto} — R$ {valor:.2f} (evento={evento})")
+        return {"status": "ok", "cliente": nome, "produto": produto, "valor": valor}
     except Exception as e:
+        import traceback
         print(f"⚠️ Erro webhook site: {e}")
+        traceback.print_exc()
         return {"status": "erro", "msg": str(e)}
 
 
@@ -1819,6 +2300,7 @@ async def painel_finalizar(request: Request):
         clientes[tel]["tela"] = "menu"
         clientes[tel]["dados_pedido"] = {}
         clientes[tel]["shay_respondeu"] = False
+        clientes[tel].pop("shay_assumiu", None)
         atendimento_humano.pop(tel, None)
         _salvar_estado_clientes()
         print(f" Atendimento finalizado: {tel}")
@@ -1890,10 +2372,40 @@ async def painel_confirmar(request: Request):
     return {"status": "erro"}
 
 
+# ═══════════════════════════════════════════
+# THREAD DE VERIFICAÇÃO — envia boas-vindas atrasadas (10s)
+# ═══════════════════════════════════════════
+import threading
+
+def _thread_verificar_pendentes():
+    """Verifica clientes em aguardando_primeira_msg e envia resposta após 10s."""
+    while True:
+        time.sleep(3)
+        agora = time.time()
+        for tel, est in list(clientes.items()):
+            if est.get("tela") == "aguardando_primeira_msg":
+                if agora - est.get("primeira_msg_ts", 0) >= 10:
+                    # Processa as mensagens acumuladas e envia resposta
+                    resposta = _processar_primeiras_mensagens(est, tel)
+                    if resposta:
+                        try:
+                            nr_limpo = tel.replace("@lid", "").replace("@s.whatsapp.net", "")
+                            requests.post("http://127.0.0.1:8080/send",
+                                         json={"to": nr_limpo, "text": resposta}, timeout=5)
+                            print(f"⏰ Boas-vindas atrasadas enviadas para {tel}")
+                        except Exception as e:
+                            print(f"⚠️ Erro ao enviar boas-vindas atrasadas: {e}")
+                    _salvar_estado_clientes()
+
+
 if __name__ == "__main__":
     import uvicorn
     print("=" * 55)
     print("🤖 Maya — Atendente Sly Design 💜")
     print("   Webhook WhatsApp rodando em http://localhost:8000")
     print("=" * 55)
+    # Inicia thread de verificação de pendentes (boas-vindas atrasadas)
+    _thread_pendentes = threading.Thread(target=_thread_verificar_pendentes, daemon=True)
+    _thread_pendentes.start()
+    print("⏰ Thread de verificação de pendentes iniciada")
     uvicorn.run(app, host="0.0.0.0", port=8000)
