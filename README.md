@@ -1,115 +1,113 @@
-# Maya — Atendente Virtual da Sly Design
+# 🤖 Maya — Chatbot de Atendimento da Sly Design
 
-Chatbot com IA para atendimento automatizado via WhatsApp da **[Sly Design](https://slydesign.com.br)**, loja especializada em slides personalizados.
+Chatbot com IA para atendimento automatizado no WhatsApp Business da [Sly Design](https://slydesign.com.br), loja especializada em slides personalizados.
 
----
-
-## O Problema
-
-A Sly Design recebe dezenas de mensagens diarias no WhatsApp com perguntas repetitivas:
-- "Quanto custa?"
-- "Tem tema X?"
-- "Faz pra hoje?"
-- "Como edito o slide?"
-
-**80% do tempo de atendimento era gasto respondendo as mesmas 5 perguntas.**
+A **Maya** é uma atendente virtual que ajuda clientes a encontrar slides prontos, fazer pedidos personalizados e tirar dúvidas - 24 horas por dia. 💜
 
 ---
 
-## A Solucao
+## ✨ Funcionalidades
 
-A **Maya** — uma atendente virtual com IA que:
-- Entende o que o cliente quer, mesmo sem botoes
-- Faz busca inteligente no catalogo (tolera erros de digitacao)
-- Conduz o fluxo completo de pedido personalizado
-- Detecta quando o cliente envia imagens e orienta o proximo passo
-- Mantem contexto da conversa por 7 dias para respostas coerentes
-- Sabe quando passar para atendimento humano
-- Silencia automaticamente apos confirmacao de pagamento
-
----
-
-## Arquitetura
-
-```
-📱 WhatsApp ──▶ Baileys (WebSocket) ──▶ Backend Python (FastAPI)
-                                              │
-                                         ┌────▼────┐
-                                         │   LLM   │  (Groq + Llama 3.3 70B)
-                                         └────┬────┘
-                                              │
-📤 Notificacoes ──▶ Shay (WhatsApp pessoal) ◀┘
-```
-
-### Modulos
-
-| Modulo | Responsabilidade |
+| Funcionalidade | Descrição |
 |---|---|
-| `backend/webhook_server.py` | Servidor principal: maquina de estados, endpoints, fallback IA |
-| `connect_whatsapp.js` | Conexao WhatsApp via Baileys, delay natural, ponte de envio |
-| `app/nlp.py` | Detector de intencoes — 7 categorias, zero tokens |
-| `app/buscador.py` | Busca inteligente no catalogo com tolerancia a erros (difflib) |
-| `app/config.py` | System prompt, precos, catalogo, conexao com Groq |
+| 🛍️ **Busca de Slides** | Busca inteligente no catálogo de 45 temas, com tolerância a erros de digitação |
+| 🎨 **Pedido Personalizado** | Fluxo completo: tema → tipo → prazo → nomes → extras → resumo → pagamento |
+| 💬 **Atendimento por IA** | Dúvidas livres respondidas com linguagem natural (Groq + Llama 3.3 70B) |
+| 💾 **Memória de Conversa** | Histórico completo, contador de tokens, resumo automático, persistência em JSON |
+| 🧪 **27 Testes Automatizados** | Cobertura de todos os fluxos do chatbot |
 
-### Maquina de Estados — Fluxo de Pedido
+---
+
+## 🏗️ Arquitetura
 
 ```
-MENU → Tema → Tipo → Tema Visual → Prazo → Nomes → Extras → Resumo → Aguardando Pagamento
-        ↓       ↓         ↓          ↓        ↓         ↓         ↓              ↓
-     [editar] [editar]  [editar]   [editar] [editar]  [editar]  [mudar]    [Maya silencia]
+app/
+├── __init__.py          # Pacote principal
+├── config.py            # Configurações: system prompt, preços, conexão IA
+├── bot.py               # Funções de mensagem e fluxos de conversa
+├── buscador.py          # Busca inteligente (difflib, tolerância a erros)
+├── memoria.py           # Histórico, tokens, persistência JSON
+├── main.py              # Loop principal (CLI / terminal)
+├── data/
+│   └── temas-sly.csv    # Catálogo com 45 temas reais
+└── tests/
+    ├── __init__.py
+    └── test_bot.py      # 27 testes automatizados
 ```
 
 ---
 
-## NLP — Entendendo Clientes Sem Gastar Tokens
+## 🚀 Como Rodar
 
-A Maya classifica mensagens em **7 intencoes** usando processamento local, antes de decidir se chama a IA:
+### Pré-requisitos
+- Python 3.11+
+- Chave da API Groq (grátis em [console.groq.com](https://console.groq.com))
 
-| Intencao | Exemplo | Resposta |
-|---|---|---|
-| `preco` | "quanto custa?" | Tabela de precos completa |
-| `buscar_tema` | "tem naruto?" | Busca inteligente no catalogo |
-| `prazo` | "faz pra hj?" | Prazos + taxa de urgencia |
-| `listar_temas` | "quais temas?" | Link da loja |
-| `suporte_tecnico` | "comprei e deu erro" | Fluxo de suporte |
-| `ajuda_montagem` | "me ajuda a fazer?" | Links de tutoriais |
-| `duvida` | "diferenca canva ppt?" | IA responde com contexto |
+### Instalação
+
+```bash
+git clone <seu-repositorio>
+cd chatbot-sly
+
+python -m venv .venv
+source .venv/bin/activate  # Linux/WSL
+# ou .venv\Scripts\activate  (Windows)
+
+pip install -r requirements.txt
+```
+
+### Configuração
+
+Crie um arquivo `.env` na raiz do projeto:
+
+```env
+GROQ_API_KEY=sua_chave_aqui
+```
+
+### Executar
+
+```bash
+# Versão terminal (desenvolvimento)
+python -m app.main
+```
 
 ---
 
-## Stack Tecnologica
+## 🧪 Testes
 
-| Camada | Tecnologia | Motivo |
-|---|---|---|
-| Conexao WhatsApp | Baileys (WebSocket) | Sem navegador, leve, nao requer numero na Meta |
-| Backend | Python 3.13 + FastAPI | Performance, tipagem, async nativo |
-| IA / LLM | Groq API + Llama 3.3 70B | Gratuito para desenvolvimento, 128K contexto |
-| NLP Local | Palavras-chave + regex | Classificacao instantanea, zero custo de tokens |
-| Busca | difflib (nativo Python) | Tolerancia a erro de digitacao, zero dependencias |
-| Container | Docker (Python + Node.js) | Isolamento, reproducibilidade |
-| Deploy | Render (Docker) | CD automatico, HTTPS, 24/7 |
+```bash
+python app/tests/test_bot.py
+```
 
 ---
 
-## Deploy
+## 🛠️ Tecnologias
 
-O servico roda 24/7 em um container Docker no Render.
-
-| Endpoint | Uso |
+| Camada | Tecnologia |
 |---|---|
-| `/health` | Health check — monitoramento e keep-alive |
-| `/qrcode` | QR Code para emparelhar WhatsApp via celular |
-| `/responder` | Processamento interno de mensagens (Baileys → Python) |
-
-### Variaveis de Ambiente
-
-| Variavel | Descricao |
-|---|---|
-| `GROQ_API_KEY` | Chave da API Groq (modelo llama-3.3-70b-versatile) |
-| `PORT` | Porta do servidor (Render define automaticamente) |
+| IA / LLM | [Groq API](https://groq.com) + Llama 3.3 70B |
+| Linguagem | Python 3.11+ |
+| Busca | difflib (nativo Python, zero dependências extras) |
+| Persistência | JSON local |
+| Testes | unittest (nativo Python) |
 
 ---
 
-## Feito por
+## 📦 Próximos Passos
 
-**Shayene Figueredo** — fundadora da [Sly Design](https://slydesign.com.br).
+- [ ] Conexão com WhatsApp Business API (Meta Cloud API)
+- [ ] Dashboard visual com Streamlit
+- [ ] Deploy em produção (Railway / Render)
+- [ ] Integração com WordPress/Elementor
+
+---
+
+## 👩‍💻 Autora
+
+Feito por **Shayene Figueredo** — dona da [Sly Design](https://slydesign.com.br), aprendendo IA do zero e construindo projetos reais.
+
+---
+
+## 📄 Licença
+
+Este projeto é privado. Código fonte proprietário da Sly Design.
