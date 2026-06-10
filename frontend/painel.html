@@ -120,7 +120,7 @@ function rowClass(sit){if(sit==='Feito'||sit==='Pago (Site)')return'feito';if(si
 function esc(s){return(s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;')}
 
 // ===== AUTO REFRESH =====
-function ir(){clearInterval(autoRefresh);autoRefresh=setInterval(()=>{if(tabAtiva==='clientes')carregarClientes()},30000)}
+function ir(){clearInterval(autoRefresh);autoRefresh=setInterval(()=>{if(tabAtiva==='clientes')carregarClientes('ativos');else if(tabAtiva==='aceitar')carregarClientes('confirmados');else if(tabAtiva==='pix')carregarClientes('pix')},30000)}
 
 // ===== CLIENTES ATIVOS =====
 async function carregarClientes(filtro){
@@ -289,8 +289,8 @@ async function addManual(){
 // ===== INIT =====
 function init(){
   let tabs='<button class="tab active" onclick="abrirTab(\'clientes\')">Clientes Ativos</button>';
-  tabs+='<button class="tab" onclick="abrirTab('aceitar')">Aceitar Pedido</button>';
-  tabs+='<button class="tab" onclick="abrirTab('pix')">Confirmar Pagamento</button>';
+  tabs+='<button class="tab" onclick="abrirTab(\'aceitar\')">Aceitar Pedido</button>';
+  tabs+='<button class="tab" onclick="abrirTab(\'pix\')">Confirmar Pagamento</button>';
   for(let m=1;m<=12;m++)tabs+=`<button class="tab" onclick="abrirTab('mes',${m})">${MESES[m].substring(0,3)}</button>`;
   tabs+='<button class="tab extra" onclick="abrirTab(\'faturamento\')">Faturamento 2026</button>';
   document.getElementById('tabs').innerHTML=tabs;carregarTudo();ir();
