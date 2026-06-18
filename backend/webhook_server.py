@@ -1970,16 +1970,10 @@ if os.path.exists(PAINEL_DIST):
 async def painel():
     """Painel de Controle — Sly Design (React + Vite build)."""
     index_path = os.path.join(PAINEL_DIST, "index.html")
-    try:
-        with open(index_path, "r") as f:
-            return f.read()
-    except FileNotFoundError:
-        # Fallback to old painel.html during development
-        old_path = "frontend/painel.html"
-        if os.path.exists(old_path):
-            with open(old_path, "r") as f:
-                return f.read()
-        return "<h1>Painel nao encontrado</h1>"
+    if not os.path.exists(index_path):
+        return HTMLResponse("<h1>Painel nao encontrado</h1><p>Rode: cd frontend/painel && npm run build</p>", status_code=404)
+    with open(index_path, "r") as f:
+        return f.read()
 
 
 # ── API do Painel (endpoints JSON) ──
