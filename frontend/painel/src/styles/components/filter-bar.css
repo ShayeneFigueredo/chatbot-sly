@@ -1,0 +1,82 @@
+/* ============================================================
+   FILTER BAR / TABS
+   ============================================================ */
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 4px;
+}
+
+.filter-pill {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+
+.filter-pill:hover {
+  color: var(--text);
+  background: var(--bg-hover);
+}
+
+.filter-pill.active {
+  background: var(--purple-bg);
+  color: var(--purple-light);
+  font-weight: 600;
+}
+
+.filter-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--border);
+  margin: 0 4px;
+}
+
+.filter-pill.month {
+  min-width: 42px;
+  text-align: center;
+  padding: 8px 10px;
+  font-size: 0.78rem;
+}
+
+.filter-pill.accent {
+  color: var(--warning);
+}
+
+.filter-pill.accent.active {
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+
+@media (max-width: 860px) {
+  .filter-bar {
+    gap: 2px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    padding: 3px;
+  }
+  .filter-pill {
+    font-size: 0.75rem;
+    padding: 7px 12px;
+  }
+  .filter-pill.month {
+    padding: 7px 8px;
+    font-size: 0.72rem;
+    min-width: 36px;
+  }
+  .filter-divider { display: none; }
+}

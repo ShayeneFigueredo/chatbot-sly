@@ -30,6 +30,9 @@ backend/.env
 node_modules/
 tokens/
 
+# Painel React: build gerado no deploy
+frontend/painel/dist/
+
 # Arquivos de sistema
 .DS_Store
 Thumbs.db

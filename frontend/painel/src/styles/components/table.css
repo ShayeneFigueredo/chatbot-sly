@@ -1,0 +1,68 @@
+/* ============================================================
+   TABLE
+   ============================================================ */
+
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 700px;
+  font-size: 0.875rem;
+}
+
+.table-wrap thead th {
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  white-space: nowrap;
+}
+
+.table-wrap tbody td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  font-size: 0.875rem;
+  vertical-align: middle;
+}
+
+.table-wrap tbody tr:hover {
+  background: var(--bg-hover);
+}
+
+.table-wrap tbody tr.row-feito       { background: #061208; }
+.table-wrap tbody tr.row-andamento   { background: #121008; }
+.table-wrap tbody tr.row-novo        { background: #080c12; }
+.table-wrap tbody tr.row-cancelado   { background: #120808; }
+.table-wrap tbody tr.row-pago_site   { background: #081214; }
+.table-wrap tbody tr.row-feito:hover       { background: #0a1e0c; }
+.table-wrap tbody tr.row-andamento:hover   { background: #1e1a0c; }
+.table-wrap tbody tr.row-novo:hover        { background: #0c1420; }
+.table-wrap tbody tr.row-cancelado:hover   { background: #1e0c0c; }
+.table-wrap tbody tr.row-pago_site:hover   { background: #0c1a20; }
+
+.table-wrap .date-cell {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  color: var(--purple-light);
+}
+
+.table-wrap .actions-cell {
+  display: flex;
+  gap: 6px;
+  white-space: nowrap;
+}

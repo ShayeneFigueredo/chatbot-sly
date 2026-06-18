@@ -1,0 +1,42 @@
+/* ============================================================
+   BADGES
+   ============================================================ */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.badge .badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.badge-success { background: var(--success-bg); color: var(--success); }
+.badge-success .badge-dot { background: var(--success); }
+
+.badge-warning { background: var(--warning-bg); color: var(--warning); }
+.badge-warning .badge-dot { background: var(--warning); }
+
+.badge-info { background: var(--info-bg); color: var(--info); }
+.badge-info .badge-dot { background: var(--info); }
+
+.badge-danger { background: var(--danger-bg); color: var(--danger); }
+.badge-danger .badge-dot { background: var(--danger); }
+
+.badge-purple { background: var(--purple-bg); color: var(--purple-light); }
+.badge-purple .badge-dot { background: var(--purple-light); }
+
+.badge-cyan { background: #0a1a1a; color: var(--cyan); }
+.badge-cyan .badge-dot { background: var(--cyan); }
+
+.badge-pink { background: #1a0a14; color: var(--pink); }
+.badge-pink .badge-dot { background: var(--pink); }

@@ -1,0 +1,116 @@
+/* ============================================================
+   FATURAMENTO SIDEBAR
+   ============================================================ */
+
+.fat-sidebar {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  position: sticky;
+  top: 90px;
+}
+
+.fat-sidebar h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--purple-light);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fat-sidebar .fat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+}
+
+.fat-sidebar .fat-row:last-of-type {
+  border-bottom: none;
+}
+
+.fat-sidebar .fat-row .fat-val {
+  font-weight: 600;
+  color: var(--text);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.9rem;
+}
+
+.fat-sidebar .fat-total {
+  margin-top: 12px;
+  padding-top: 14px;
+  border-top: 2px solid var(--border-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.fat-sidebar .fat-total .fat-label {
+  font-weight: 700;
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.fat-sidebar .fat-total .fat-number {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+  font-size: 1.35rem;
+  color: var(--purple-light);
+}
+
+.fat-sidebar .fat-site {
+  color: var(--warning);
+}
+.fat-sidebar .fat-site .fat-val {
+  color: var(--warning);
+}
+
+.fat-sidebar .fat-detail {
+  margin-top: 16px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 2;
+}
+
+.fat-sidebar .fat-detail strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.fat-year-card {
+  background: var(--purple-bg);
+  border: 1px solid #2a1a4a;
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-bottom: 12px;
+}
+
+.fat-year-card .fat-year-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--purple-light);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+
+.fat-year-card .fat-year-value {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+@media (max-width: 1200px) {
+  .fat-sidebar {
+    position: static;
+  }
+}
