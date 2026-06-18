@@ -1,0 +1,79 @@
+/* ============================================================
+   STATS / KPI CARDS
+   ============================================================ */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  transition: all var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card:hover {
+  border-color: var(--border-light);
+  box-shadow: var(--shadow);
+}
+
+.stat-card .stat-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  margin-bottom: 12px;
+}
+
+.stat-card .stat-icon.purple { background: var(--purple-bg); color: var(--purple-light); }
+.stat-card .stat-icon.green  { background: var(--success-bg); color: var(--success); }
+.stat-card .stat-icon.yellow { background: var(--warning-bg); color: var(--warning); }
+.stat-card .stat-icon.blue   { background: var(--info-bg); color: var(--info); }
+.stat-card .stat-icon.red    { background: var(--danger-bg); color: var(--danger); }
+
+.stat-card .stat-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.stat-card .stat-value {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.stat-card .stat-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+.stat-card .stat-sub.green  { color: var(--success); }
+.stat-card .stat-sub.yellow { color: var(--warning); }
+.stat-card .stat-sub.red    { color: var(--danger); }
+
+@media (max-width: 1200px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .stat-card { padding: 14px 16px; }
+  .stat-card .stat-value { font-size: 1.35rem; }
+}

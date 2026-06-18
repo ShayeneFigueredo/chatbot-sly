@@ -1,0 +1,118 @@
+/* ============================================================
+   CLIENT CARDS
+   ============================================================ */
+
+.client-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.client-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  transition: all var(--transition);
+}
+
+.client-card:hover {
+  border-color: var(--border-light);
+  box-shadow: var(--shadow-sm);
+}
+
+.client-card.feito       { border-left: 3px solid var(--success); }
+.client-card.andamento   { border-left: 3px solid var(--warning); }
+.client-card.novo        { border-left: 3px solid var(--info); }
+.client-card.cancelado   { border-left: 3px solid var(--danger); }
+.client-card.pago_site   { border-left: 3px solid var(--cyan); }
+
+.client-card .card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.client-card .card-phone {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.client-card .card-phone .phone-icon {
+  color: var(--purple-light);
+  font-size: 1rem;
+}
+
+.client-card .card-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 8px 20px;
+  margin-bottom: 16px;
+  padding: 14px 18px;
+  background: var(--bg);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+
+.client-card .info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.client-card .info-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.client-card .info-value {
+  font-size: 0.875rem;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.client-card .info-value.price {
+  color: var(--success);
+  font-weight: 700;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.client-card .help-banner {
+  background: var(--danger-bg);
+  border: 1px solid var(--danger-border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  font-size: 0.85rem;
+  color: var(--danger);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.client-card .action-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+@media (max-width: 860px) {
+  .client-card {
+    padding: 16px;
+  }
+  .client-card .card-info {
+    grid-template-columns: 1fr;
+  }
+}

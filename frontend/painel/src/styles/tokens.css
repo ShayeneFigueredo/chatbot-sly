@@ -1,0 +1,55 @@
+/* ============================================================
+   PAINEL DE CONTROLE — SLY DESIGN
+   Design Tokens
+   ============================================================ */
+
+:root {
+  /* Brand */
+  --purple:        #a78bfa;
+  --purple-light:  #c4b5fd;
+  --purple-dark:   #7c3aed;
+  --purple-bg:     #1e1530;
+
+  /* Surfaces */
+  --bg:            #09090d;
+  --bg-elevated:   #111118;
+  --bg-card:       #16161f;
+  --bg-hover:      #1c1c28;
+  --border:        #222230;
+  --border-light:  #2a2a3a;
+
+  /* Text */
+  --text:          #e4e4ec;
+  --text-secondary:#a0a0b0;
+  --text-muted:    #636378;
+
+  /* Semantic */
+  --success:       #34d399;
+  --success-bg:    #0a1a14;
+  --success-border:#064e3b;
+  --warning:       #fbbf24;
+  --warning-bg:    #1a180a;
+  --warning-border:#4a3a0a;
+  --danger:        #f87171;
+  --danger-bg:     #1a0a0a;
+  --danger-border: #7f1d1d;
+  --info:          #60a5fa;
+  --info-bg:       #0a1520;
+  --info-border:   #1e3a5f;
+  --cyan:          #67e8f9;
+  --pink:          #f472b6;
+
+  /* Spacing */
+  --radius-sm:     8px;
+  --radius:        12px;
+  --radius-lg:     16px;
+  --radius-xl:     20px;
+
+  /* Shadows */
+  --shadow-sm:     0 1px 2px rgba(0,0,0,.3);
+  --shadow:        0 4px 12px rgba(0,0,0,.4);
+  --shadow-lg:     0 8px 30px rgba(0,0,0,.5);
+
+  /* Transitions */
+  --transition:    150ms ease;
+}

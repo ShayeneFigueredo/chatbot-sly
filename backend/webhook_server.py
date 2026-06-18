@@ -10,7 +10,8 @@ import json
 import time
 import requests
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -129,6 +130,9 @@ def _pagina_portal():
 @app.middleware("http")
 async def proteger_rotas(request: Request, call_next):
     path = request.url.path
+    # Static assets do React — nao precisa de login (sao apenas CSS/JS/fontes)
+    if path.startswith("/painel/assets/"):
+        return await call_next(request)
     rotas_protegidas = ("/painel", "/qrcode")
     if any(path == r or path.startswith(r + "/") or path.startswith(r + "?") for r in rotas_protegidas):
         if not verificar_login(request):
@@ -1956,13 +1960,25 @@ async def salvar_historico(request: Request):
     return {"status": "ignored"}
 
 
+# Serve the React build's static assets
+PAINEL_DIST = os.path.join(os.path.dirname(__file__), "..", "frontend", "painel", "dist")
+
+if os.path.exists(PAINEL_DIST):
+    app.mount("/painel/assets", StaticFiles(directory=os.path.join(PAINEL_DIST, "assets")), name="painel_assets")
+
 @app.get("/painel", response_class=HTMLResponse)
 async def painel():
-    """Painel de gestao profissional (HTML do frontend/)."""
+    """Painel de Controle — Sly Design (React + Vite build)."""
+    index_path = os.path.join(PAINEL_DIST, "index.html")
     try:
-        with open("frontend/painel.html", "r") as f:
+        with open(index_path, "r") as f:
             return f.read()
     except FileNotFoundError:
+        # Fallback to old painel.html during development
+        old_path = "frontend/painel.html"
+        if os.path.exists(old_path):
+            with open(old_path, "r") as f:
+                return f.read()
         return "<h1>Painel nao encontrado</h1>"
 
 
