@@ -267,10 +267,9 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
 
     # ── Cliente em aguardando_humano? Maya TRAVADA até destravar ──
     if tela == "aguardando_humano":
-        # Se foi bloqueada por pós-confirmação (atendimento_humano = True),
-        # NÃO destrava de jeito nenhum — só Shay libera no painel
-        if cliente_em_atendimento_humano(telefone):
-            print(f"🔒 Maya bloqueada para {telefone} (pós-confirmação, só painel libera)")
+        # Bloqueio permanente (pós-confirmação) → nunca destrava
+        if estado.get("bloqueio_permanente"):
+            print(f"🔒 Maya permanentemente bloqueada para {telefone}")
             return None
         # Cliente escolheu esperar humano ([1] nas boas-vindas) — pode destravar
         if t in ("2",) or "maya" in t or "quero ser atendido" in t or "fazer meu pedido" in t:
@@ -285,22 +284,49 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
         print(f"🤫 Maya silenciada para {telefone} (atendimento humano)")
         return None  # não responde nada
 
-    # ── ATENDIMENTO HUMANO (qualquer tela, exceto novos estados iniciais) ──
-    if tela not in ("boas_vindas", "aguardando_humano", "explicacao") and (
-        any(p in t for p in ["humano", "atendente", "pessoa", "falar com", "gente de verdade"]) or t in ("7", "🆘")
-    ):
-        estado["tela"] = "menu"
-        estado["dados_pedido"] = {}
-        notificar_shay(
-            f"🆘 {telefone} pediu atendimento humano!\n"
-            f"Última mensagem: \"{mensagem[:100]}\""
-        )
-        return (
-            "Claro! Aguarde uns minutinhos que já já um de nossos "
-            "atendentes entrará em contato com você por aqui mesmo! 💜\n\n"
-            "Fique de olho nas notificações! ✨\n\n"
-            "[0] 🔙 Voltar ao menu"
-        )
+    # ── ATENDIMENTO HUMANO (qualquer tela, exceto estados iniciais e fluxo de pedido) ──
+    # ⚠️ Durante o fluxo de pedido (pedido_*), NÃO interrompe por palavras soltas como "pessoa".
+    # Só aciona se for o botão explícito [7] ou "🆘" ou frases claras de socorro.
+    if tela not in ("boas_vindas", "aguardando_humano", "explicacao"):
+        em_pedido = tela.startswith("pedido_") or tela in ("resumo", "mudar", "pedido_confirmado")
+        if em_pedido:
+            # Durante o pedido: só aciona atendente se for EXPLÍCITO (botão 7, 🆘, ou frases curtas de socorro)
+            gatilho_explicito = t in ("7", "🆘") or any(
+                t == p or t.startswith(p + " ") or t.endswith(" " + p)
+                for p in ["quero falar com um atendente", "quero falar com atendente",
+                          "chamar um atendente", "chama um atendente", "falar com um humano",
+                          "falar com atendente", "preciso de um humano", "preciso de atendente"]
+            )
+            if not gatilho_explicito:
+                pass  # não interrompe o fluxo de pedido por palavras soltas
+            else:
+                estado["tela"] = "menu"
+                estado["dados_pedido"] = {}
+                notificar_shay(
+                    f"🆘 {telefone} pediu atendimento humano durante pedido!\n"
+                    f"Última mensagem: \"{mensagem[:100]}\""
+                )
+                return (
+                    "Claro! Aguarde uns minutinhos que já já um de nossos "
+                    "atendentes entrará em contato com você por aqui mesmo! 💜\n\n"
+                    "Fique de olho nas notificações! ✨\n\n"
+                    "[0] 🔙 Voltar ao menu"
+                )
+        else:
+            # Fora do pedido: mantém o comportamento original
+            if any(p in t for p in ["humano", "atendente", "pessoa", "falar com", "gente de verdade"]) or t in ("7", "🆘"):
+                estado["tela"] = "menu"
+                estado["dados_pedido"] = {}
+                notificar_shay(
+                    f"🆘 {telefone} pediu atendimento humano!\n"
+                    f"Última mensagem: \"{mensagem[:100]}\""
+                )
+                return (
+                    "Claro! Aguarde uns minutinhos que já já um de nossos "
+                    "atendentes entrará em contato com você por aqui mesmo! 💜\n\n"
+                    "Fique de olho nas notificações! ✨\n\n"
+                    "[0] 🔙 Voltar ao menu"
+                )
 
     # ── VOLTAR AO MENU ──
     if t in ("menu", "voltar", "🔙 voltar ao menu", "0"):
@@ -519,10 +545,14 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
     # ═══════════════════════════════════════════
 
     # ── BOTÃO VOLTAR À PERGUNTA ANTERIOR (funciona em qualquer etapa) ──
+    # ⚠️ Em pedido_extras com texto longo: NÃO ativa por palavras soltas no conteúdo
     if tela.startswith("pedido_") or tela in ("resumo", "pedido_confirmado"):
-        if t == "9" or any(p in t for p in ["anterior", "errei", "ops", "volta anterior",
-                                              "pergunta anterior", "voltar anterior", "voltei"]):
-            return _voltar_etapa_anterior(estado)
+        em_extras = (tela == "pedido_extras")
+        msg_longa = len(t) > 30  # texto longo = conteúdo, não comando
+        if not (em_extras and msg_longa):
+            if t == "9" or any(p in t for p in ["anterior", "errei", "ops", "volta anterior",
+                                                  "pergunta anterior", "voltar anterior", "voltei"]):
+                return _voltar_etapa_anterior(estado)
 
     # PASSO 1: Tema
     if tela == "pedido_tema":
@@ -578,10 +608,44 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
             if t in ("1", "ja escolhi", "já escolhi", "escolhi", "escolher", "quero escolher"):
                 estado["mostrou_opcoes"] = True
                 return _msg_tipos_completo()
+            # Cliente já especificou Transições + formato? → direto ao ponto
+            if ("transic" in t) and ("canva" in t or "powerpoint" in t or "ppt" in t):
+                # Já sabe que quer Transições, só precisa escolher Canva ou PPT
+                if "powerpoint" in t or "ppt" in t:
+                    dados["modelo"] = "🎬 PowerPoint (Transições)"
+                else:
+                    dados["modelo"] = "🎬 Canva (Transições)"
+                estado.pop("mostrou_opcoes", None)
+                estado["tela"] = "pedido_prazo"
+                return (
+                    f"Anotado! ✅\n\n"
+                    f"Agora sobre o PRAZO: ate que dia posso te entregar?\n\n"
+                    f"💡 Recomendamos pedir com pelo menos 1 dia de antecedencia "
+                    f"da sua apresentacao.\n\n"
+                    f"Me conta: qual data voce precisa? 📅\n\n"
+                    f"[9] ↩️ Voltar à pergunta anterior\n"
+                    f"[0] 🔙 Voltar ao menu"
+                )
+            # Cliente mencionou só "transições" → pergunta qual formato (Canva ou PPT)?
+            if "transic" in t:
+                estado["tela"] = "pedido_tipo_transicoes_formato"
+                return (
+                    "Certo, Transições! 🎬\n\n"
+                    "Agora me diz: você prefere Canva ou PowerPoint?\n\n"
+                    "📱 Canva — link online. Precisa de internet pra apresentar, "
+                    "mas não ocupa espaço no celular/PC.\n"
+                    "💻 PowerPoint — arquivo PPTX que você baixa. "
+                    "Não precisa de internet pra apresentar.\n\n"
+                    "Visualmente são iguais! 💜\n\n"
+                    "[1] 📱 Canva (Transições) — R$ 25,00\n"
+                    "[2] 💻 PowerPoint (Transições) — R$ 35,00\n\n"
+                    "[9] ↩️ Voltar à pergunta anterior\n"
+                    "[0] 🔙 Voltar ao menu"
+                )
             if t in ("2",) or "canva" in t or "powerpoint" in t or "diferenca" in t or "diferença" in t:
                 estado["tela"] = "pedido_tipo_diferenca"
                 return _msg_diferenca_canva_ppt()
-            if t in ("3",) or "transic" in t or "temas" in t:
+            if t in ("3",) or "temas" in t:
                 estado["tela"] = "pedido_tipo_temas_diferenca"
                 return _msg_diferenca_transicoes_temas()
             # Qualquer outra coisa → repete menu simplificado
@@ -749,6 +813,45 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
             return _msg_diferenca_canva_ppt()
         # Qualquer outra coisa → repete explicação
         return _msg_diferenca_transicoes_temas()
+
+    # PASSO 2d: Cliente já escolheu Transições, só falta Canva ou PPT
+    if tela == "pedido_tipo_transicoes_formato":
+        if t in ("1", "canva", "📱 canva", "📱"):
+            dados["modelo"] = "🎬 Canva (Transições)"
+            estado["tela"] = "pedido_prazo"
+            return (
+                "Anotado! ✅\n\n"
+                "Agora sobre o PRAZO: ate que dia posso te entregar?\n\n"
+                "💡 Recomendamos pedir com pelo menos 1 dia de antecedencia "
+                "da sua apresentacao.\n\n"
+                "Me conta: qual data voce precisa? 📅\n\n"
+                "[9] ↩️ Voltar à pergunta anterior\n"
+                "[0] 🔙 Voltar ao menu"
+            )
+        if t in ("2", "powerpoint", "ppt", "💻 powerpoint", "💻"):
+            dados["modelo"] = "🎬 PowerPoint (Transições)"
+            estado["tela"] = "pedido_prazo"
+            return (
+                "Anotado! ✅\n\n"
+                "Agora sobre o PRAZO: ate que dia posso te entregar?\n\n"
+                "💡 Recomendamos pedir com pelo menos 1 dia de antecedencia "
+                "da sua apresentacao.\n\n"
+                "Me conta: qual data voce precisa? 📅\n\n"
+                "[9] ↩️ Voltar à pergunta anterior\n"
+                "[0] 🔙 Voltar ao menu"
+            )
+        # Não entendeu → repete as opções
+        return (
+            "Certo, Transições! 🎬\n\n"
+            "Você prefere Canva ou PowerPoint?\n\n"
+            "📱 Canva — link online. Precisa de internet pra apresentar.\n"
+            "💻 PowerPoint — arquivo PPTX que você baixa. Não precisa de internet.\n\n"
+            "Visualmente são iguais! 💜\n\n"
+            "[1] 📱 Canva (Transições) — R$ 25,00\n"
+            "[2] 💻 PowerPoint (Transições) — R$ 35,00\n\n"
+            "[9] ↩️ Voltar à pergunta anterior\n"
+            "[0] 🔙 Voltar ao menu"
+        )
 
     # PASSO 2.5: Qual tema? (slides temas)
     if tela == "pedido_qual_tema":
@@ -975,6 +1078,7 @@ def maya_responder(mensagem: str, telefone: str, tipo_msg: str = "texto") -> str
                                                   "confirmado", "obrigado", "obrigada", "vlw",
                                                   "aguardar", "aguardo", "esperar"]):
             estado["tela"] = "aguardando_humano"
+            estado["bloqueio_permanente"] = True  # Maya NUNCA mais responde — só Shay no painel
             atendimento_humano[telefone] = True
             _salvar_estado_clientes()
             return (
@@ -1100,7 +1204,35 @@ def _processar_primeiras_mensagens(estado: dict, telefone: str) -> str:
         if tema and len(tema) > 3:
             # Guarda o assunto detectado pra usar quando cliente escolher Maya [2]
             estado["assunto_detectado"] = tema
+
+            # Verifica se é um TEMA CONHECIDO (ex: ChatGPT, Spotify, Netflix...)
+            tema_link = None
+            from app.buscador import buscar_tema as buscar_tema_catalogo
+            try:
+                melhor, _ = buscar_tema_catalogo(tema)
+                if melhor:
+                    tema_link = melhor.get("link", "")
+            except Exception:
+                pass
+
             estado["tela"] = "boas_vindas"
+            if tema_link:
+                return (
+                    f"Oieee! Eu sou a Maya, atendente virtual da Sly Design! 💜\n\n"
+                    f"Vi que você quer um slide sobre *{tema}*, né? 🎉\n\n"
+                    f"Inclusive, temos esse tema prontinho no site! "
+                    f"Dá uma olhadinha:\n"
+                    f"👉 {tema_link}\n\n"
+                    f"A gente também cria slides personalizados do zero e temos "
+                    f"slides prontos com super descontos!\n"
+                    f"Dá uma olhadinha: 👉 https://slydesign.com.br\n\n"
+                    f"Como posso te ajudar?\n\n"
+                    f"[1] 🙋 Quero falar com um atendente\n"
+                    f"    (assim que possível alguém da equipe te responde)\n\n"
+                    f"[2] 🤖 Quero fazer meu pedido com a Maya\n"
+                    f"    (nossa assistente virtual, rapidinho!)\n\n"
+                    f"💡 Digite o número 1 ou 2 para escolher!"
+                )
             return (
                 f"Oieee! Eu sou a Maya, atendente virtual da Sly Design! 💜\n\n"
                 f"Vi que você quer um slide sobre *{tema}*, né? 🎉\n\n"
@@ -1495,6 +1627,7 @@ def _voltar_etapa_anterior(estado: dict) -> str:
         "pedido_tipo": "pedido_tema",
         "pedido_tipo_diferenca": "pedido_tipo",
         "pedido_tipo_temas_diferenca": "pedido_tipo",
+        "pedido_tipo_transicoes_formato": "pedido_tipo",
         "pedido_qual_tema": "pedido_tipo",
         "pedido_canva_ppt": "pedido_qual_tema",
         "pedido_prazo": "pedido_tipo",  # fallback — ajustado abaixo
@@ -1583,6 +1716,15 @@ def _repetir_ultima_pergunta(estado: dict) -> str:
         return _msg_diferenca_canva_ppt()
     elif tela == "pedido_tipo_temas_diferenca":
         return _msg_diferenca_transicoes_temas()
+    elif tela == "pedido_tipo_transicoes_formato":
+        return (
+            "Certo, Transições! 🎬\n\n"
+            "Você prefere Canva ou PowerPoint?\n\n"
+            "[1] 📱 Canva (Transições) — R$ 25,00\n"
+            "[2] 💻 PowerPoint (Transições) — R$ 35,00\n\n"
+            "[9] ↩️ Voltar à pergunta anterior\n"
+            "[0] 🔙 Voltar ao menu"
+        )
     elif tela == "pedido_qual_tema":
         top5 = ", ".join(TEMAS_DISPONIVEIS[:5])
         return (
@@ -2074,12 +2216,21 @@ async def painel_cancelar_pedido_cliente(request: Request):
 
 # ── Webhook do Site (Yampi) ──
 
+@app.get("/webhook/site")
+async def webhook_site_get():
+    """Endpoint GET pra verificar se o webhook esta acessivel."""
+    return {
+        "status": "ok",
+        "msg": "Webhook Yampi ativo! Use POST para enviar pedidos.",
+        "url": "https://maya-sly.onrender.com/webhook/site",
+    }
+
 @app.post("/webhook/site")
 async def webhook_site(request: Request):
     """Recebe eventos do site (Yampi) e processa pedidos pagos."""
     try:
         data = await request.json()
-        print(f"📨 Webhook Yampi RECEBIDO: {json.dumps(data, ensure_ascii=False)[:500]}")
+        print(f"📨 Webhook Yampi RECEBIDO: {json.dumps(data, ensure_ascii=False)[:800]}")
 
         # Detecta o tipo de evento em varios campos possiveis
         evento = str(
@@ -2109,64 +2260,121 @@ async def webhook_site(request: Request):
                 except:
                     order = data
 
+        # Nome do cliente
+        customer = order.get("customer") or data.get("customer") or {}
         nome = (
-            order.get("customer", {}).get("name") or
-            order.get("customer", {}).get("full_name") or
+            customer.get("name") or customer.get("full_name") or
             order.get("client_name") or order.get("nome") or
-            data.get("customer", {}).get("name") or "Site"
+            order.get("billing", {}).get("name") or
+            order.get("billing_address", {}).get("name") or
+            "Site"
         )
+
+        # Produto comprado
         items = order.get("items") or order.get("products") or order.get("line_items") or []
         produto = ""
         if items and len(items) > 0:
-            produto = items[0].get("name") or items[0].get("title") or items[0].get("product_name") or ""
+            item = items[0]
+            produto = (
+                item.get("name") or item.get("title") or
+                item.get("product_name") or item.get("description") or ""
+            )
         if not produto:
-            produto = order.get("produto") or order.get("product_name") or "Slide"
+            produto = (
+                order.get("produto") or order.get("product_name") or
+                order.get("product") or order.get("title") or ""
+            )
+        if not produto:
+            produto = "Slide"
 
-        # Valor: tenta varios campos
-        valor_str = order.get("total") or order.get("valor") or order.get("amount") or order.get("total_price") or 0
-        try:
-            valor = float(valor_str)
-        except (ValueError, TypeError):
-            valor = 0.0
+        # Valor: tenta varios campos e formatos
+        valor = 0.0
+        valor_campos = [
+            order.get("total"), order.get("amount"), order.get("total_price"),
+            order.get("valor"), order.get("grand_total"), order.get("order_total"),
+        ]
+        for v in valor_campos:
+            if v is not None and v != 0:
+                try:
+                    if isinstance(v, str):
+                        v = v.replace("R$", "").replace(".", "").replace(",", ".").strip()
+                    valor = float(v)
+                    if valor > 0:
+                        break
+                except (ValueError, TypeError):
+                    continue
 
-        # Status do pagamento
-        status_pg = str(order.get("status") or order.get("payment_status") or order.get("financial_status") or evento).lower()
-        pago = any(p in status_pg for p in ["paid", "pago", "approved", "aprovado", "completed", "complete"])
+        # Se nao achou, tenta dos items
+        if valor <= 0:
+            for item in items:
+                for f in ["price", "total", "unit_price", "subtotal"]:
+                    try:
+                        v = item.get(f)
+                        if v:
+                            if isinstance(v, str):
+                                v = v.replace("R$", "").replace(".", "").replace(",", ".").strip()
+                            valor = float(v)
+                            if valor > 0:
+                                break
+                    except (ValueError, TypeError):
+                        continue
+                if valor > 0:
+                    break
 
+        # Status do pagamento — mais flexivel
+        status_pg = str(
+            order.get("status") or order.get("payment_status") or
+            order.get("financial_status") or order.get("state") or
+            evento or ""
+        ).lower()
+        pago = any(p in status_pg for p in [
+            "paid", "pago", "approved", "aprovado", "completed", "complete",
+            "authorized", "autorizado", "processing", "processando",
+            "waiting_payment", "aguardando_pagamento", "pending",
+        ])
+
+        # Só ignora se NAO parece pago E valor zerado
         if not pago and valor <= 0:
-            print(f"🛒 Yampi: pedido nao pago ou sem valor — evento={evento}, status={status_pg}, valor={valor}")
+            print(f"🛒 Yampi ignorado: evento={evento}, status={status_pg}, valor={valor}, produto={produto}")
             return {"status": "skipped", "evento": evento, "status_pg": status_pg}
 
         if valor <= 0:
-            # Tenta extrair valor do items
-            for item in items:
-                try:
-                    item_val = float(item.get("price") or item.get("total") or 0)
-                    if item_val > 0:
-                        valor = item_val
-                        break
-                except (ValueError, TypeError):
-                    pass
-
-        if valor <= 0:
-            print(f"⚠️ Pedido site com valor R$0: {nome} — {produto} (evento={evento})")
+            print(f"⚠️ Pedido site com valor R$0: {nome} — {produto} (evento={evento}, status={status_pg})")
             return {"status": "ignored", "motivo": "valor zerado"}
 
-        from backend.pedidos import adicionar
-        from datetime import datetime
+        from backend.pedidos import adicionar, hoje_str, mes_atual
 
-        mes = datetime.now().month
+        # Ignora pedidos de teste (Shayene e Samuel Amorim)
+        nome_lower = (nome or "").lower()
+        if any(t in nome_lower for t in ["shayene", "samuel amorim", "shay figueredo"]):
+            print(f"🛒 Yampi ignorado (teste): {nome}")
+            return {"status": "ignored", "motivo": "pedido de teste"}
+
+        # Remove "Modelo – " e "Slide – " do prefixo pra nome mais limpo
+        produto_limpo = produto.strip()
+        for prefix in ["modelo – ", "modelo - ", "slide – ", "slide - ",
+                        "modelo ", "slide "]:
+            if produto_limpo.lower().startswith(prefix):
+                produto_limpo = produto_limpo[len(prefix):].strip()
+                break
+
+        # Detecta se é modelo ou slide
+        is_modelo = any(p in produto.lower() for p in ["modelo", "tema", "template"])
+
+        mes = mes_atual()
+        data_hoje = hoje_str()
         adicionar({
             "cliente": nome or "Site",
-            "arquivo": produto or "Slide",
-            "tema": f"Site — {produto or 'Slide'}",
+            "arquivo": f"Modelo Site — {produto_limpo}" if is_modelo else f"Slide Site — {produto_limpo}",
+            "tema": produto_limpo,
             "valor": f"R$ {valor:.2f}".replace(".", ","),
             "situacao": "Pago (Site)",
             "pg": "Pago",
             "responsavel": "SF",
             "origem": "site",
             "mes": mes,
-            "data": datetime.now().strftime("%d/%m"),
+            "data": data_hoje,
+            "entrega": data_hoje,
         })
         # Atualiza faturamento do site no mes atual
         from backend.pedidos import _carregar, _salvar
@@ -2174,8 +2382,8 @@ async def webhook_site(request: Request):
         atual = float(db.get("faturamento_site", {}).get(str(mes), 0))
         db.setdefault("faturamento_site", {})[str(mes)] = round(atual + valor, 2)
         _salvar(db)
-        print(f"✅ Pedido site ADICIONADO: {nome} — {produto} — R$ {valor:.2f} (evento={evento})")
-        return {"status": "ok", "cliente": nome, "produto": produto, "valor": valor}
+        print(f"✅ Pedido site ADICIONADO: {nome} — {produto_limpo} — R$ {valor:.2f} (evento={evento})")
+        return {"status": "ok", "cliente": nome, "produto": produto_limpo, "valor": valor}
     except Exception as e:
         import traceback
         print(f"⚠️ Erro webhook site: {e}")
@@ -2224,10 +2432,9 @@ async def painel_mes(mes: int):
 
 @app.get("/painel/hoje")
 async def painel_hoje():
-    """Retorna pedidos com entrega para hoje."""
-    from backend.pedidos import _carregar
-    from datetime import datetime
-    hoje = datetime.now().strftime("%d/%m")
+    """Retorna pedidos com entrega para hoje (usa API de tempo real)."""
+    from backend.pedidos import _carregar, hoje_str
+    hoje = hoje_str()
     db = _carregar()
     pedidos_hoje = [p for p in db["pedidos"] if p.get("entrega", p.get("data", "")) == hoje]
     return {"pedidos": pedidos_hoje, "data": hoje}
@@ -2301,6 +2508,7 @@ async def painel_finalizar(request: Request):
         clientes[tel]["dados_pedido"] = {}
         clientes[tel]["shay_respondeu"] = False
         clientes[tel].pop("shay_assumiu", None)
+        clientes[tel].pop("bloqueio_permanente", None)
         atendimento_humano.pop(tel, None)
         _salvar_estado_clientes()
         print(f" Atendimento finalizado: {tel}")
@@ -2338,7 +2546,8 @@ async def painel_confirmar(request: Request):
                 preco_base = f"R$ {total:.2f}".replace(".", ",")
             except (ValueError, AttributeError):
                 pass
-        adicionar({
+        prazo = dados.get("prazo", "")
+        pedido_data = {
             "cliente": tel,
             "arquivo": dados.get("modelo", ""),
             "tema": dados.get("tema", dados.get("assunto", "")),
@@ -2347,7 +2556,11 @@ async def painel_confirmar(request: Request):
             "pg": "50% pago",
             "responsavel": "SF",
             "origem": "whatsapp",
-        })
+        }
+        if prazo:
+            pedido_data["data"] = prazo
+            pedido_data["entrega"] = prazo
+        adicionar(pedido_data)
         est["tela"] = "menu"
         est["dados_pedido"] = {}
         _salvar_estado_clientes()
@@ -2370,6 +2583,126 @@ async def painel_confirmar(request: Request):
         print(f"✅ Pedido de {tel} confirmado e salvo")
         return {"status": "ok"}
     return {"status": "erro"}
+
+
+# ── EXTRATOR DE PEDIDOS POR IA ──
+
+@app.post("/painel/extrair-pedido")
+async def painel_extrair_pedido(request: Request):
+    """Extrai dados do pedido de uma conversa via IA.
+    Recebe um numero de telefone e retorna os dados estruturados do pedido.
+    Primeiro tenta usar dados_pedido ativos, depois analisa o historico com IA."""
+    data = await request.json()
+    telefone_raw = data.get("telefone", "").strip()
+    if not telefone_raw:
+        return {"status": "erro", "msg": "Informe o numero do telefone"}
+
+    # Normaliza o numero
+    import re as _re4
+    tel = _re4.sub(r'[@:].*$', '', telefone_raw)
+    tel = _re4.sub(r'[^\d]', '', tel)
+    if not tel.startswith('55') and len(tel) >= 10:
+        tel = '55' + tel
+
+    # Encontra a chave real no dicionario
+    chave = _encontrar_chave_cliente(tel)
+    if chave not in clientes:
+        return {"status": "erro", "msg": f"Cliente {tel} nao encontrado nas conversas ativas. O historico pode ter expirado."}
+
+    est = clientes[chave]
+    dados = est.get("dados_pedido", {})
+    historico = est.get("historico_ia", [])
+
+    # Se tem dados_pedido completos, usa eles direto
+    if dados.get("tema") and dados.get("modelo"):
+        modelo = dados.get("modelo", "")
+        modelo_limpo = modelo.split(" ", 1)[1] if " " in modelo else modelo
+        preco = PRECOS.get(modelo_limpo, "")
+        return {
+            "status": "ok",
+            "fonte": "dados_ativos",
+            "pedido": {
+                "cliente": chave,
+                "tema": dados.get("tema", dados.get("assunto", "")),
+                "arquivo": modelo,
+                "prazo": dados.get("prazo", ""),
+                "nomes": dados.get("nomes", ""),
+                "extras": dados.get("extras", ""),
+                "valor": preco,
+            }
+        }
+
+    # Tenta extrair do historico com IA
+    if not historico:
+        return {"status": "erro", "msg": "Sem historico de conversa disponivel para este cliente."}
+
+    try:
+        from app.config import cliente, MODELO
+
+        # Monta o prompt de extracao
+        conversa = ""
+        for h in historico[-30:]:  # ultimas 30 mensagens
+            papel = "Cliente" if h["role"] == "user" else "Maya"
+            conversa += f"{papel}: {h['content'][:500]}\n"
+
+        prompt = f"""Analise a conversa abaixo entre um cliente e a Maya (atendente virtual da Sly Design).
+Extraia as informações do pedido de slide no formato JSON.
+
+Conversa:
+{conversa}
+
+Retorne APENAS um JSON com estes campos (use string vazia se nao encontrado):
+{{
+  "tema": "assunto do slide",
+  "arquivo": "tipo de slide (ex: 🎬 Canva (Transições), 🎬 PowerPoint (Transições), 🎨 Canva Temas, 🎨 PPTX Temas, 📄 PDF)",
+  "prazo": "data ou prazo de entrega",
+  "nomes": "nomes que vao no slide ou 'Não'",
+  "extras": "informacoes extras, resumo, conteudo adicional",
+  "valor": "preco (ex: R$ 25,00)"
+}}
+
+IMPORTANTE:
+- O tipo de slide (arquivo) deve ser EXATAMENTE um destes: "🎬 Canva (Transições)", "🎬 PowerPoint (Transições)", "🎨 Canva Temas", "🎨 PPTX Temas", "📄 PDF"
+- Se o cliente mencionou "transições" ou "transicoes", o tipo é Canva ou PowerPoint (Transições)
+- Se mencionou "temas" ou um tema visual (Netflix, Spotify, etc), é Temas
+- Precos padrao: PDF R$ 20,00 | Canva Transições R$ 25,00 | PPT Transições R$ 35,00 | Canva Temas R$ 28,00 | PPTX Temas R$ 38,00"""
+
+        resposta = cliente.chat.completions.create(
+            model=MODELO,
+            messages=[
+                {"role": "system", "content": "Voce e um extrator de dados. Retorne APENAS JSON valido, sem texto adicional."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.1,
+        )
+
+        texto = resposta.choices[0].message.content.strip()
+        # Limpa markdown code blocks se houver
+        if texto.startswith("```"):
+            texto = texto.split("```")[1]
+            if texto.startswith("json"):
+                texto = texto[4:]
+        texto = texto.strip()
+
+        import json as _json
+        dados_extraidos = _json.loads(texto)
+
+        return {
+            "status": "ok",
+            "fonte": "ia_historico",
+            "pedido": {
+                "cliente": chave,
+                "tema": dados_extraidos.get("tema", ""),
+                "arquivo": dados_extraidos.get("arquivo", ""),
+                "prazo": dados_extraidos.get("prazo", ""),
+                "nomes": dados_extraidos.get("nomes", ""),
+                "extras": dados_extraidos.get("extras", ""),
+                "valor": dados_extraidos.get("valor", ""),
+            }
+        }
+    except Exception as e:
+        print(f"⚠️ Erro ao extrair pedido com IA: {e}")
+        return {"status": "erro", "msg": f"Erro ao analisar conversa: {str(e)}"}
 
 
 # ═══════════════════════════════════════════

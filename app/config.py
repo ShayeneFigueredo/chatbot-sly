@@ -198,14 +198,25 @@ PRECOS = {
 
 # ── Temas disponíveis ──
 TEMAS_DISPONIVEIS = [
-    "Jovens Titãs", "Interestelar", "Spotify", "ChatGPT",
-    "Minecraft", "Bob Esponja", "Demon Slayer", "Digital Circus",
-    "Disney", "Dora Aventureira", "Fifa", "Fuga das Galinhas",
-    "Grey's Anatomy", "Gumball", "Harry Potter", "Homem-Aranha",
-    "Kung Fu Panda", "Meninas Superpoderosas", "Monster High",
-    "Naruto", "Netflix", "O Poderoso Chefinho", "Outer Banks",
-    "Peixonauta", "Peppa Pig", "Pica-Pau", "Playstation",
-    "Rick and Morty", "Roblox – 99 Noites na Floresta",
-    "Steven Universe", "Subway Surfers", "Scooby Doo",
-    "The Last of Us II", "Tigrinho", "Turma da Mônica",
+    # Modelos
+    "Jovens Titãs", "Interestellar", "Spotify", "Minecraft",
+    "Duolingo", "Digital Circus", "Ursos Sem Curso", "Haikyuu",
+    "Scooby-Doo", "Outer Banks", "Monster High", "DivertidaMente",
+    "Avatar", "TinkerBell", "Barbie", "Steven Universe",
+    "Dora Aventureira", "George O Curioso", "Meninas SuperPoderosas",
+    "The Last of Us II", "La Casa de Papel", "Subway Surfers",
+    "Homem Aranha", "Bob Esponja", "Tigrinho", "Peppa Pig",
+    "O Incrível Mundo de Gumball", "ROBLOX 99 Noites na Floresta",
+    "Fórmula 1", "Princesinha Sofia",
+    # Slides
+    "ChatGPT", "Neymar", "Romantismo", "Revolução Russa",
+    "Primeira Guerra Mundial", "Netflix Arboviroses", "Portugal",
+    "Modernismo", "Velozes e Furiosos", "Sistema Solar",
+    "Filosofia da Ciência", "Revolução Chinesa", "Ascensão do Nazismo",
+    "Reino da Espanha", "Vietnã", "Canadá", "União Europeia",
+    "Basquete", "Guerra do Paraguai",
+    "Vírus e Bactérias", "África Ocidental", "Antigo Egito",
+    "Alimentos Sustentáveis",
+    # Packs
+    "Pack Famosinhos", "Pack História", "Pack Desenhos Animados",
 ]
