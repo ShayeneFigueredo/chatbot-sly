@@ -15,8 +15,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev || npm install --omit=dev
 
-# Node.js (painel React + Vite)
-COPY frontend/painel/package.json frontend/painel/package-lock.json ./frontend/painel/
+# Node.js (painel React + Vite) — copia fontes, instala e builda
+COPY frontend/painel/ ./frontend/painel/
 RUN cd frontend/painel && npm install && npm run build
 
 # Codigo
