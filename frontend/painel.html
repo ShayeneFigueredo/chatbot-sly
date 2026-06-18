@@ -91,6 +91,7 @@ td .badge{padding:2px 8px;border-radius:10px;font-size:.7em;font-weight:600;disp
   <div class="cta-bar">
     <button class="btn" onclick="carregarTudo()">Atualizar</button>
     <button class="btn success" onclick="abrirModal('add')">+ Pedido Manual</button>
+    <button class="btn info sm" onclick="testarWebhook()" style="font-size:.7em">🔌 Testar Webhook Site</button>
   </div>
   <div id="clientes">Carregando...</div>
 </div>
@@ -277,21 +278,111 @@ function abrirModal(tipo){
   let h='';
   if(tipo==='add'){
     h=`<h3>+ Pedido Manual</h3>
-    <div class="form-row"><input placeholder="Cliente (telefone)" id="mCliente"><input placeholder="Data (dd/mm)" id="mData"></div>
+    <div class="form-row"><input placeholder="Cliente (telefone)" id="mCliente"><input placeholder="Data entrega (dd/mm)" id="mData"></div>
     <div class="form-row"><select id="mArquivo">${TIPOS.map(t=>`<option>${t}</option>`).join('')}</select><input placeholder="Tema" id="mTema"></div>
-    <div class="form-row"><input placeholder="Valor (ex: 25,00)" id="mValor">${sel('mMes',MESES.slice(1),MESES[mesAtual])}</div>
-    <div class="form-row">${sel('mSit',SITUACOES,'Novo')}${sel('mPg',PAGAMENTOS,'Aguardando')}${sel('mResp',RESP,'SF')}</div>
-    <button class="btn success" onclick="addManual()">Adicionar</button>`;
+    <div class="form-row"><input placeholder="Valor (ex: 25,00)" id="mValor"><input placeholder="Prazo (ex: 20/06)" id="mPrazo"></div>
+    <div class="form-row"><input placeholder="Nomes (ex: Joao, Maria)" id="mNomes"></div>
+    <div class="form-row"><input placeholder="Extras / Observacoes" id="mExtras"></div>
+    <div class="form-row">${sel('mSit',SITUACOES,'Novo')}${sel('mPg',PAGAMENTOS,'Aguardando')}${sel('mResp',RESP,'SF')}${sel('mMes',MESES.slice(1),MESES[mesAtual])}</div>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="btn success" onclick="addManual()">Adicionar</button>
+      <button class="btn info sm" onclick="abrirModalExtrair()" style="font-size:.7em">🤖 Extrair da Conversa</button>
+    </div>`;
+  }else if(tipo==='extrair'){
+    h=`<h3>🤖 Extrair Pedido da Conversa</h3>
+    <p style="color:#888;font-size:.8em;margin-bottom:10px">Cole o numero do WhatsApp do cliente.<br>A IA vai ler a conversa e preencher o formulario.</p>
+    <div class="form-row"><input placeholder="Telefone (ex: 5538997507651)" id="mExtrairTel" style="font-size:1em;padding:12px"></div>
+    <div id="extrairStatus" style="color:#888;font-size:.75em;margin:6px 0"></div>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="btn success" onclick="extrairPedido()">🔍 Extrair</button>
+      <button class="btn" onclick="document.getElementById('modal').remove();abrirModal('add')">Voltar ao Form</button>
+    </div>`;
   }
   const m=document.createElement('div');m.className='modal show';m.id='modal';
-  m.innerHTML=`<div class="modal-box">${h}<div style="margin-top:10px"><button class="btn" onclick="this.closest('.modal').remove()">Fechar</button></div></div>`;
+  m.innerHTML=`<div class="modal-box">${h}</div>`;
   document.body.appendChild(m);
 }
+function abrirModalExtrair(){
+  document.getElementById('modal').remove();
+  abrirModal('extrair');
+}
+async function extrairPedido(){
+  const tel=document.getElementById('mExtrairTel').value.trim();
+  if(!tel)return t('Cole o numero do telefone');
+  const st=document.getElementById('extrairStatus');
+  st.innerHTML='⏳ Analisando conversa com IA...';
+  try{
+    const r=await api('/painel/extrair-pedido',{telefone:tel});
+    if(r.status!=='ok'){st.innerHTML=`<span style="color:#f87171">❌ ${r.msg}</span>`;return}
+    const p=r.pedido;
+    st.innerHTML=`<span style="color:#4ade80">✅ Extraido! (fonte: ${r.fonte})</span>`;
+    // Fecha modal de extracao e abre o formulario preenchido
+    document.getElementById('modal').remove();
+    abrirModal('add');
+    // Preenche os campos
+    setTimeout(()=>{
+      const set=(id,val)=>{const el=document.getElementById(id);if(el&&val)el.value=val};
+      set('mCliente',p.cliente||tel);
+      set('mTema',p.tema);
+      set('mPrazo',p.prazo);
+      set('mNomes',p.nomes);
+      set('mExtras',p.extras);
+      if(p.arquivo){
+        const sel=document.getElementById('mArquivo');
+        if(sel){
+          // Tenta achar o match mais proximo no select
+          for(let i=0;i<sel.options.length;i++){
+            const opt=sel.options[i].text;
+            let arq=p.arquivo.replace(/[🎬🎨📄]/g,'').trim().toLowerCase();
+            let optClean=opt.replace(/[🎬🎨📄]/g,'').trim().toLowerCase();
+            if(optClean.includes(arq)||arq.includes(optClean)){
+              sel.selectedIndex=i;break;
+            }
+          }
+        }
+      }
+      if(p.valor){
+        const val=p.valor.replace(/[R$\s]/g,'').replace(',','.');
+        set('mValor',val);
+      }
+      t('Formulario preenchido! Revise e clique Adicionar ✅');
+    },300);
+  }catch(e){
+    st.innerHTML=`<span style="color:#f87171">❌ Erro: ${e.message}</span>`;
+  }
+}
 async function addManual(){
-  const d={cliente:document.getElementById('mCliente').value,data:document.getElementById('mData').value,arquivo:document.getElementById('mArquivo').value,tema:document.getElementById('mTema').value,valor:'R$ '+document.getElementById('mValor').value,mes:MESES.indexOf(document.getElementById('mMes').value),situacao:document.getElementById('mSit').value,pg:document.getElementById('mPg').value,responsavel:document.getElementById('mResp').value,origem:'manual'};
+  const d={
+    cliente:document.getElementById('mCliente').value,
+    data:document.getElementById('mData').value,
+    arquivo:document.getElementById('mArquivo').value,
+    tema:document.getElementById('mTema').value,
+    valor:'R$ '+document.getElementById('mValor').value,
+    prazo:document.getElementById('mPrazo').value,
+    nomes:document.getElementById('mNomes').value,
+    extras:document.getElementById('mExtras').value,
+    mes:MESES.indexOf(document.getElementById('mMes').value),
+    situacao:document.getElementById('mSit').value,
+    pg:document.getElementById('mPg').value,
+    responsavel:document.getElementById('mResp').value,
+    origem:'manual'
+  };
   if(!d.cliente||!d.tema)return t('Preencha cliente e tema');
+  // Passa prazo como entrega se preenchido
+  if(d.prazo){d.entrega=d.prazo;if(!d.data)d.data=d.prazo}
   await api('/painel/adicionar-manual',d);
   t('Adicionado!');document.getElementById('modal').remove();carregarTudo();
+}
+
+async function testarWebhook(){
+  t('🔌 Testando conexao com webhook do site...');
+  try{
+    const r=await fetch('/webhook/site');
+    const d=await r.json();
+    t('✅ Webhook ativo! URL: '+d.url);
+  }catch(e){
+    t('❌ Erro: '+e.message);
+  }
 }
 
 // ===== INIT =====
@@ -310,7 +401,7 @@ function abrirTab(tipo,mes){
   if(tipo==='clientes'){document.getElementById('tab-clientes').classList.add('active');document.querySelector('.tab').classList.add('active');carregarClientes('ativos')}
   else if(tipo==='aceitar'){document.getElementById('tab-clientes').classList.add('active');document.querySelectorAll('.tab')[1].classList.add('active');carregarClientes('confirmados')}
   else if(tipo==='pix'){document.getElementById('tab-clientes').classList.add('active');document.querySelectorAll('.tab')[2].classList.add('active');carregarClientes('pix')}
-  else if(tipo==='mes'){document.getElementById('tab-meses').classList.add('active');carregarMes(mes);document.querySelectorAll('.tab').forEach((b,i)=>{const tabIdx=3+mes;if(i===tabIdx)b.classList.add('active')})}
+  else if(tipo==='mes'){document.getElementById('tab-meses').classList.add('active');carregarMes(mes);document.querySelectorAll('.tab').forEach((b,i)=>{const tabIdx=2+mes;if(i===tabIdx)b.classList.add('active')})}
   else if(tipo==='faturamento'){document.getElementById('tab-meses').classList.add('active');carregarFaturamento();document.querySelector('.tab.extra').classList.add('active')}
 }
 async function carregarTudo(){carregarClientes(tabAtiva==='aceitar'?'confirmados':tabAtiva==='pix'?'pix':'ativos');if(tabAtiva==='mes')carregarMes(mesAtual)}

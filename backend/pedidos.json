@@ -394,20 +394,6 @@
     },
     {
       "id": 29,
-      "data": "15/03",
-      "entrega": "15/03",
-      "cliente": "99 8473-4102",
-      "arquivo": "slide transicoes pptx",
-      "tema": "squash",
-      "valor": "R$ 17,50",
-      "situacao": "Feito",
-      "pg": "Pago",
-      "responsavel": "SF",
-      "origem": "whatsapp",
-      "mes": 3
-    },
-    {
-      "id": 30,
       "data": "16/03",
       "entrega": "16/03",
       "cliente": "16 98124-5769",
@@ -421,7 +407,7 @@
       "mes": 3
     },
     {
-      "id": 31,
+      "id": 30,
       "data": "16/03",
       "entrega": "16/03",
       "cliente": "49 8894-8845",
@@ -435,7 +421,7 @@
       "mes": 3
     },
     {
-      "id": 32,
+      "id": 31,
       "data": "18/03",
       "entrega": "18/03",
       "cliente": "98 8599-7971",
@@ -449,7 +435,7 @@
       "mes": 3
     },
     {
-      "id": 33,
+      "id": 32,
       "data": "18/03",
       "entrega": "18/03",
       "cliente": "68 9907-1009",
@@ -463,7 +449,7 @@
       "mes": 3
     },
     {
-      "id": 34,
+      "id": 33,
       "data": "18/03",
       "entrega": "18/03",
       "cliente": "94 9178-5027",
@@ -477,7 +463,7 @@
       "mes": 3
     },
     {
-      "id": 35,
+      "id": 34,
       "data": "18/03",
       "entrega": "18/03",
       "cliente": "92 9352-4857",
@@ -491,7 +477,7 @@
       "mes": 3
     },
     {
-      "id": 36,
+      "id": 35,
       "data": "18/03",
       "entrega": "18/03",
       "cliente": "62 9386-9863",
@@ -505,7 +491,7 @@
       "mes": 3
     },
     {
-      "id": 37,
+      "id": 36,
       "data": "18/03",
       "entrega": "18/03",
       "cliente": "63 9131-0426",
@@ -519,7 +505,7 @@
       "mes": 3
     },
     {
-      "id": 38,
+      "id": 37,
       "data": "19/03",
       "entrega": "19/03",
       "cliente": "11 93737-2634",
@@ -533,7 +519,7 @@
       "mes": 3
     },
     {
-      "id": 39,
+      "id": 38,
       "data": "21/03",
       "entrega": "21/03",
       "cliente": "68 9907-1009",
@@ -547,7 +533,7 @@
       "mes": 3
     },
     {
-      "id": 40,
+      "id": 39,
       "data": "21/03",
       "entrega": "21/03",
       "cliente": "31 7245-8773",
@@ -561,7 +547,7 @@
       "mes": 3
     },
     {
-      "id": 41,
+      "id": 40,
       "data": "23/03",
       "entrega": "23/03",
       "cliente": "61 8142-8644",
@@ -575,7 +561,7 @@
       "mes": 3
     },
     {
-      "id": 42,
+      "id": 41,
       "data": "05/04",
       "entrega": "05/04",
       "cliente": "96 9160-0200",
@@ -589,7 +575,7 @@
       "mes": 4
     },
     {
-      "id": 43,
+      "id": 42,
       "data": "05/04",
       "entrega": "05/04",
       "cliente": "34 8892-4835",
@@ -603,7 +589,7 @@
       "mes": 4
     },
     {
-      "id": 44,
+      "id": 43,
       "data": "06/04",
       "entrega": "06/04",
       "cliente": "84 8798-8945",
@@ -617,7 +603,7 @@
       "mes": 4
     },
     {
-      "id": 45,
+      "id": 44,
       "data": "07/04",
       "entrega": "07/04",
       "cliente": "62 9387-9992",
@@ -631,7 +617,7 @@
       "mes": 4
     },
     {
-      "id": 46,
+      "id": 45,
       "data": "08/04",
       "entrega": "08/04",
       "cliente": "68 9235-9983",
@@ -645,7 +631,7 @@
       "mes": 4
     },
     {
-      "id": 47,
+      "id": 46,
       "data": "08/04",
       "entrega": "08/04",
       "cliente": "65 9987-8045",
@@ -659,7 +645,7 @@
       "mes": 4
     },
     {
-      "id": 48,
+      "id": 47,
       "data": "08/04",
       "entrega": "08/04",
       "cliente": "98 9179-3248",
@@ -673,7 +659,7 @@
       "mes": 4
     },
     {
-      "id": 49,
+      "id": 48,
       "data": "10/04",
       "entrega": "10/04",
       "cliente": "87 8158-2186",
@@ -687,7 +673,7 @@
       "mes": 4
     },
     {
-      "id": 50,
+      "id": 49,
       "data": "10/04",
       "entrega": "10/04",
       "cliente": "11 96486-4435",
@@ -701,7 +687,7 @@
       "mes": 4
     },
     {
-      "id": 51,
+      "id": 50,
       "data": "12/04",
       "entrega": "12/04",
       "cliente": "77 9875-1013",
@@ -715,7 +701,7 @@
       "mes": 4
     },
     {
-      "id": 52,
+      "id": 51,
       "data": "12/04",
       "entrega": "12/04",
       "cliente": "62 9452-0599",
@@ -729,7 +715,7 @@
       "mes": 4
     },
     {
-      "id": 53,
+      "id": 52,
       "data": "12/04",
       "entrega": "12/04",
       "cliente": "68 9907-1009",
@@ -743,7 +729,7 @@
       "mes": 4
     },
     {
-      "id": 54,
+      "id": 53,
       "data": "12/04",
       "entrega": "12/04",
       "cliente": "65 9928-5240",
@@ -757,7 +743,7 @@
       "mes": 4
     },
     {
-      "id": 55,
+      "id": 54,
       "data": "13/04",
       "entrega": "13/04",
       "cliente": "61 9502-5765",
@@ -771,7 +757,7 @@
       "mes": 4
     },
     {
-      "id": 56,
+      "id": 55,
       "data": "14/04",
       "entrega": "14/04",
       "cliente": "91 8596-7162",
@@ -785,7 +771,7 @@
       "mes": 4
     },
     {
-      "id": 57,
+      "id": 56,
       "data": "14/04",
       "entrega": "14/04",
       "cliente": "98 8816-3569",
@@ -799,7 +785,7 @@
       "mes": 4
     },
     {
-      "id": 58,
+      "id": 57,
       "data": "14/04",
       "entrega": "14/04",
       "cliente": "41 8430-7931",
@@ -813,7 +799,7 @@
       "mes": 4
     },
     {
-      "id": 59,
+      "id": 58,
       "data": "14/04",
       "entrega": "14/04",
       "cliente": "65 9321-3553",
@@ -827,7 +813,7 @@
       "mes": 4
     },
     {
-      "id": 60,
+      "id": 59,
       "data": "14/04",
       "entrega": "14/04",
       "cliente": "93 9155-0861",
@@ -841,7 +827,7 @@
       "mes": 4
     },
     {
-      "id": 61,
+      "id": 60,
       "data": "14/04",
       "entrega": "14/04",
       "cliente": "75 9881-8534",
@@ -855,7 +841,7 @@
       "mes": 4
     },
     {
-      "id": 62,
+      "id": 61,
       "data": "15/04",
       "entrega": "15/04",
       "cliente": "61 8142-8644",
@@ -869,7 +855,7 @@
       "mes": 4
     },
     {
-      "id": 63,
+      "id": 62,
       "data": "19/04",
       "entrega": "19/04",
       "cliente": "31 9606-2984",
@@ -883,7 +869,7 @@
       "mes": 4
     },
     {
-      "id": 64,
+      "id": 63,
       "data": "21/04",
       "entrega": "21/04",
       "cliente": "71 8163-0255",
@@ -897,7 +883,7 @@
       "mes": 4
     },
     {
-      "id": 65,
+      "id": 64,
       "data": "24/04",
       "entrega": "24/04",
       "cliente": "81 8467-4222",
@@ -911,9 +897,23 @@
       "mes": 4
     },
     {
-      "id": 66,
+      "id": 65,
       "data": "25/04",
       "entrega": "25/04",
+      "cliente": "22 99101-6567",
+      "arquivo": "slide pdf",
+      "tema": "estrutura celular",
+      "valor": "R$ 20,00",
+      "situacao": "Feito",
+      "pg": "Pago",
+      "responsavel": "SF",
+      "origem": "whatsapp",
+      "mes": 4
+    },
+    {
+      "id": 66,
+      "data": "26/04",
+      "entrega": "26/04",
       "cliente": "22 99101-6567",
       "arquivo": "slide pdf",
       "tema": "estrutura celular",
@@ -928,20 +928,6 @@
       "id": 67,
       "data": "26/04",
       "entrega": "26/04",
-      "cliente": "22 99101-6567",
-      "arquivo": "slide pdf",
-      "tema": "estrutura celular",
-      "valor": "R$ 20,00",
-      "situacao": "Feito",
-      "pg": "Pago",
-      "responsavel": "SF",
-      "origem": "whatsapp",
-      "mes": 4
-    },
-    {
-      "id": 68,
-      "data": "26/04",
-      "entrega": "26/04",
       "cliente": "22 99757-0421",
       "arquivo": "slide transicoes",
       "tema": "estrutura celular",
@@ -953,7 +939,7 @@
       "mes": 4
     },
     {
-      "id": 69,
+      "id": 68,
       "data": "26/04",
       "entrega": "26/04",
       "cliente": "34 9958-4924",
@@ -967,7 +953,7 @@
       "mes": 4
     },
     {
-      "id": 70,
+      "id": 69,
       "data": "27/04",
       "entrega": "27/04",
       "cliente": "11 95972-3965",
@@ -981,7 +967,7 @@
       "mes": 4
     },
     {
-      "id": 71,
+      "id": 70,
       "data": "27/04",
       "entrega": "27/04",
       "cliente": "38 9734-6732",
@@ -995,7 +981,7 @@
       "mes": 4
     },
     {
-      "id": 72,
+      "id": 71,
       "data": "27/04",
       "entrega": "27/04",
       "cliente": "65 9321-3553",
@@ -1009,7 +995,7 @@
       "mes": 4
     },
     {
-      "id": 73,
+      "id": 72,
       "data": "27/04",
       "entrega": "27/04",
       "cliente": "96 8138-8894",
@@ -1023,7 +1009,7 @@
       "mes": 4
     },
     {
-      "id": 74,
+      "id": 73,
       "data": "28/04",
       "entrega": "28/04",
       "cliente": "79 9998-8470",
@@ -1037,7 +1023,7 @@
       "mes": 4
     },
     {
-      "id": 75,
+      "id": 74,
       "data": "29/04",
       "entrega": "29/04",
       "cliente": "11 93737-2634",
@@ -1051,7 +1037,7 @@
       "mes": 4
     },
     {
-      "id": 76,
+      "id": 75,
       "data": "01/05",
       "entrega": "01/05",
       "cliente": "64 9625-2883",
@@ -1065,7 +1051,7 @@
       "mes": 5
     },
     {
-      "id": 77,
+      "id": 76,
       "data": "02/05",
       "entrega": "02/05",
       "cliente": "11 91464-7175",
@@ -1079,7 +1065,7 @@
       "mes": 5
     },
     {
-      "id": 78,
+      "id": 77,
       "data": "03/05",
       "entrega": "03/05",
       "cliente": "31 9896-0219",
@@ -1093,7 +1079,7 @@
       "mes": 5
     },
     {
-      "id": 79,
+      "id": 78,
       "data": "04/05",
       "entrega": "04/05",
       "cliente": "87 8154-5617",
@@ -1107,7 +1093,7 @@
       "mes": 5
     },
     {
-      "id": 80,
+      "id": 79,
       "data": "04/05",
       "entrega": "04/05",
       "cliente": "66 8477-5094",
@@ -1121,7 +1107,7 @@
       "mes": 5
     },
     {
-      "id": 81,
+      "id": 80,
       "data": "05/05",
       "entrega": "05/05",
       "cliente": "81 9908-9247",
@@ -1135,7 +1121,7 @@
       "mes": 5
     },
     {
-      "id": 82,
+      "id": 81,
       "data": "05/05",
       "entrega": "05/05",
       "cliente": "54 9670-9040",
@@ -1149,7 +1135,7 @@
       "mes": 5
     },
     {
-      "id": 83,
+      "id": 82,
       "data": "05/05",
       "entrega": "05/05",
       "cliente": "91 8229-4431",
@@ -1163,7 +1149,7 @@
       "mes": 5
     },
     {
-      "id": 84,
+      "id": 83,
       "data": "06/05",
       "entrega": "06/05",
       "cliente": "83 9409-8599",
@@ -1177,7 +1163,7 @@
       "mes": 5
     },
     {
-      "id": 85,
+      "id": 84,
       "data": "06/05",
       "entrega": "06/05",
       "cliente": "49 1516 6728605",
@@ -1191,7 +1177,7 @@
       "mes": 5
     },
     {
-      "id": 86,
+      "id": 85,
       "data": "08/05",
       "entrega": "08/05",
       "cliente": "81 9908-9247",
@@ -1205,7 +1191,7 @@
       "mes": 5
     },
     {
-      "id": 87,
+      "id": 86,
       "data": "11/05",
       "entrega": "11/05",
       "cliente": "11 94124-3387",
@@ -1219,7 +1205,7 @@
       "mes": 5
     },
     {
-      "id": 88,
+      "id": 87,
       "data": "12/05",
       "entrega": "12/05",
       "cliente": "11 96221-6379",
@@ -1233,7 +1219,7 @@
       "mes": 5
     },
     {
-      "id": 89,
+      "id": 88,
       "data": "14/05",
       "entrega": "14/05",
       "cliente": "91 9327-5179",
@@ -1247,7 +1233,7 @@
       "mes": 5
     },
     {
-      "id": 90,
+      "id": 89,
       "data": "14/05",
       "entrega": "14/05",
       "cliente": "68 9907-1009",
@@ -1261,7 +1247,7 @@
       "mes": 5
     },
     {
-      "id": 91,
+      "id": 90,
       "data": "17/05",
       "entrega": "17/05",
       "cliente": "33 9850-1202",
@@ -1275,7 +1261,7 @@
       "mes": 5
     },
     {
-      "id": 92,
+      "id": 91,
       "data": "18/05",
       "entrega": "18/05",
       "cliente": "65 9640-4229",
@@ -1289,7 +1275,7 @@
       "mes": 5
     },
     {
-      "id": 93,
+      "id": 92,
       "data": "18/05",
       "entrega": "18/05",
       "cliente": "11 96949-5099",
@@ -1303,7 +1289,7 @@
       "mes": 5
     },
     {
-      "id": 94,
+      "id": 93,
       "data": "25/05",
       "entrega": "25/05",
       "cliente": "99 8447-3662",
@@ -1317,7 +1303,7 @@
       "mes": 5
     },
     {
-      "id": 95,
+      "id": 94,
       "data": "26/05",
       "entrega": "26/05",
       "cliente": "92 8152-6245",
@@ -1331,12 +1317,12 @@
       "mes": 5
     },
     {
-      "id": 96,
+      "id": 95,
       "data": "07/06",
       "entrega": "07/06",
       "cliente": "Ana Lara Moura do Nascimento",
       "arquivo": "Slide Site",
-      "tema": "Site — Slide",
+      "tema": "Slide Site",
       "valor": "R$ 18,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
@@ -1345,12 +1331,26 @@
       "mes": 6
     },
     {
-      "id": 97,
+      "id": 96,
       "data": "06/06",
       "entrega": "06/06",
       "cliente": "TAIZE MARIA GOMES",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
+      "valor": "R$ 14,99",
+      "situacao": "Pago (Site)",
+      "pg": "Pago",
+      "responsavel": "SF",
+      "origem": "site",
+      "mes": 6
+    },
+    {
+      "id": 97,
+      "data": "05/06",
+      "entrega": "05/06",
+      "cliente": "Jhenifer Emanuelle Cunha De Jesus",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
       "valor": "R$ 14,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
@@ -1360,11 +1360,11 @@
     },
     {
       "id": 98,
-      "data": "05/06",
-      "entrega": "05/06",
-      "cliente": "Jhenifer Emanuelle Cunha De Jesus",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
+      "data": "04/06",
+      "entrega": "04/06",
+      "cliente": "THAUANE DOS SANTOS SENA",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
       "valor": "R$ 14,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
@@ -1376,9 +1376,9 @@
       "id": 99,
       "data": "04/06",
       "entrega": "04/06",
-      "cliente": "THAUANE DOS SANTOS SENA",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
+      "cliente": "Ellen Nayara",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
       "valor": "R$ 14,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
@@ -1388,11 +1388,11 @@
     },
     {
       "id": 100,
-      "data": "04/06",
-      "entrega": "04/06",
-      "cliente": "Ellen Nayara",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
+      "data": "02/06",
+      "entrega": "02/06",
+      "cliente": "Tatiane Soares",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
       "valor": "R$ 14,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
@@ -1404,9 +1404,9 @@
       "id": 101,
       "data": "02/06",
       "entrega": "02/06",
-      "cliente": "Tatiane Soares",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
+      "cliente": "Bela Alves",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
       "valor": "R$ 14,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
@@ -1416,25 +1416,25 @@
     },
     {
       "id": 102,
-      "data": "02/06",
-      "entrega": "02/06",
-      "cliente": "Bela Alves",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
+      "data": "31/05",
+      "entrega": "31/05",
+      "cliente": "Vitor Gabriel da Silva",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
       "valor": "R$ 14,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
       "responsavel": "SF",
       "origem": "site",
-      "mes": 6
+      "mes": 5
     },
     {
       "id": 103,
-      "data": "31/05",
-      "entrega": "31/05",
-      "cliente": "Vitor Gabriel da Silva",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
+      "data": "30/05",
+      "entrega": "30/05",
+      "cliente": "Adila Bianca Carvalho de Assis",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
       "valor": "R$ 14,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
@@ -1444,11 +1444,11 @@
     },
     {
       "id": 104,
-      "data": "30/05",
-      "entrega": "30/05",
-      "cliente": "Adila Bianca Carvalho de Assis",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
+      "data": "27/05",
+      "entrega": "27/05",
+      "cliente": "Francisco Tomaz Martins de Brito Neto",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
       "valor": "R$ 14,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
@@ -1460,10 +1460,10 @@
       "id": 105,
       "data": "27/05",
       "entrega": "27/05",
-      "cliente": "Francisco Tomaz Martins de Brito Neto",
+      "cliente": "Heloisa Santiago",
       "arquivo": "Slide Site",
-      "tema": "Site — Slide",
-      "valor": "R$ 14,99",
+      "tema": "Slide Site",
+      "valor": "R$ 17,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
       "responsavel": "SF",
@@ -1474,10 +1474,10 @@
       "id": 106,
       "data": "27/05",
       "entrega": "27/05",
-      "cliente": "Heloisa Santiago",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
-      "valor": "R$ 17,99",
+      "cliente": "Paula Cristinny Freitas Silva",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
+      "valor": "R$ 14,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
       "responsavel": "SF",
@@ -1486,11 +1486,11 @@
     },
     {
       "id": 107,
-      "data": "27/05",
-      "entrega": "27/05",
-      "cliente": "Paula Cristinny Freitas Silva",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
+      "data": "26/05",
+      "entrega": "26/05",
+      "cliente": "VITORIA MENDES MOTA CAMARA",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
       "valor": "R$ 14,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
@@ -1500,11 +1500,11 @@
     },
     {
       "id": 108,
-      "data": "26/05",
-      "entrega": "26/05",
-      "cliente": "VITORIA MENDES MOTA CAMARA",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
+      "data": "25/05",
+      "entrega": "25/05",
+      "cliente": "Victor Hugo Vieira Santos",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
       "valor": "R$ 14,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
@@ -1514,12 +1514,12 @@
     },
     {
       "id": 109,
-      "data": "25/05",
-      "entrega": "25/05",
-      "cliente": "Victor Hugo Vieira Santos",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
-      "valor": "R$ 14,99",
+      "data": "22/05",
+      "entrega": "22/05",
+      "cliente": "Sofia Silva Almeida",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
+      "valor": "R$ 12,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
       "responsavel": "SF",
@@ -1528,11 +1528,11 @@
     },
     {
       "id": 110,
-      "data": "25/05",
-      "entrega": "25/05",
-      "cliente": "Victor Hugo Vieira Santos",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
+      "data": "22/05",
+      "entrega": "22/05",
+      "cliente": "Carlos Augusto Abreu dos Santos",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
       "valor": "R$ 14,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
@@ -1542,12 +1542,12 @@
     },
     {
       "id": 111,
-      "data": "22/05",
-      "entrega": "22/05",
-      "cliente": "Sofia Silva Almeida",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
-      "valor": "R$ 12,99",
+      "data": "21/05",
+      "entrega": "21/05",
+      "cliente": "Luan Muller",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
+      "valor": "R$ 14,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
       "responsavel": "SF",
@@ -1556,11 +1556,11 @@
     },
     {
       "id": 112,
-      "data": "22/05",
-      "entrega": "22/05",
-      "cliente": "Carlos Augusto Abreu dos Santos",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
+      "data": "21/05",
+      "entrega": "21/05",
+      "cliente": "Davi Andrade Pinheiro",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
       "valor": "R$ 14,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
@@ -1570,11 +1570,11 @@
     },
     {
       "id": 113,
-      "data": "21/05",
-      "entrega": "21/05",
-      "cliente": "Luan Muller",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
+      "data": "19/05",
+      "entrega": "19/05",
+      "cliente": "Julia Rigotton",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
       "valor": "R$ 14,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
@@ -1584,11 +1584,11 @@
     },
     {
       "id": 114,
-      "data": "21/05",
-      "entrega": "21/05",
-      "cliente": "Davi Andrade Pinheiro",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
+      "data": "19/05",
+      "entrega": "19/05",
+      "cliente": "Adrian Gabriel",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
       "valor": "R$ 14,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
@@ -1600,9 +1600,9 @@
       "id": 115,
       "data": "19/05",
       "entrega": "19/05",
-      "cliente": "Julia Rigotton",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
+      "cliente": "Bianca Canessa Pino",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
       "valor": "R$ 14,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
@@ -1612,11 +1612,11 @@
     },
     {
       "id": 116,
-      "data": "19/05",
-      "entrega": "19/05",
-      "cliente": "Adrian Gabriel",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
+      "data": "18/05",
+      "entrega": "18/05",
+      "cliente": "Caroline Garcia",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
       "valor": "R$ 14,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
@@ -1626,11 +1626,11 @@
     },
     {
       "id": 117,
-      "data": "19/05",
-      "entrega": "19/05",
-      "cliente": "Bianca Canessa Pino",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
+      "data": "15/05",
+      "entrega": "15/05",
+      "cliente": "Maria do Socorro Torres",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
       "valor": "R$ 14,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
@@ -1640,11 +1640,11 @@
     },
     {
       "id": 118,
-      "data": "18/05",
-      "entrega": "18/05",
-      "cliente": "Caroline Garcia",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
+      "data": "11/05",
+      "entrega": "11/05",
+      "cliente": "Maria clara",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
       "valor": "R$ 14,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
@@ -1654,12 +1654,12 @@
     },
     {
       "id": 119,
-      "data": "15/05",
-      "entrega": "15/05",
-      "cliente": "Maria do Socorro Torres",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
-      "valor": "R$ 14,99",
+      "data": "10/05",
+      "entrega": "10/05",
+      "cliente": "Laura Corso",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
+      "valor": "R$ 12,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
       "responsavel": "SF",
@@ -1668,11 +1668,11 @@
     },
     {
       "id": 120,
-      "data": "11/05",
-      "entrega": "11/05",
-      "cliente": "Maria clara",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
+      "data": "08/05",
+      "entrega": "08/05",
+      "cliente": "Isabella Fernandes Dos Santos",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
       "valor": "R$ 14,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
@@ -1682,12 +1682,12 @@
     },
     {
       "id": 121,
-      "data": "10/05",
-      "entrega": "10/05",
-      "cliente": "Laura Corso",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
-      "valor": "R$ 12,99",
+      "data": "07/05",
+      "entrega": "07/05",
+      "cliente": "Kauane Lorena Morais De Lima Cassio",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
+      "valor": "R$ 14,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
       "responsavel": "SF",
@@ -1696,39 +1696,11 @@
     },
     {
       "id": 122,
-      "data": "08/05",
-      "entrega": "08/05",
-      "cliente": "Isabella Fernandes Dos Santos",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
-      "valor": "R$ 14,99",
-      "situacao": "Pago (Site)",
-      "pg": "Pago",
-      "responsavel": "SF",
-      "origem": "site",
-      "mes": 5
-    },
-    {
-      "id": 123,
-      "data": "07/05",
-      "entrega": "07/05",
-      "cliente": "Kauane Lorena Morais De Lima Cassio",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
-      "valor": "R$ 14,99",
-      "situacao": "Pago (Site)",
-      "pg": "Pago",
-      "responsavel": "SF",
-      "origem": "site",
-      "mes": 5
-    },
-    {
-      "id": 124,
       "data": "06/05",
       "entrega": "06/05",
       "cliente": "Jose Magalhaes Melo",
       "arquivo": "Slide Site",
-      "tema": "Site — Slide",
+      "tema": "Slide Site",
       "valor": "R$ 18,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
@@ -1737,12 +1709,12 @@
       "mes": 5
     },
     {
-      "id": 125,
+      "id": 123,
       "data": "06/05",
       "entrega": "06/05",
       "cliente": "Luna Maria Santos Costa",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
       "valor": "R$ 14,00",
       "situacao": "Pago (Site)",
       "pg": "Pago",
@@ -1751,12 +1723,12 @@
       "mes": 5
     },
     {
-      "id": 126,
+      "id": 124,
       "data": "03/05",
       "entrega": "03/05",
       "cliente": "Maria do Socorro Torres da Silva Costa",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
       "valor": "R$ 14,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
@@ -1765,12 +1737,40 @@
       "mes": 5
     },
     {
-      "id": 127,
+      "id": 125,
       "data": "23/04",
       "entrega": "23/04",
       "cliente": "Joao Guilherme Sousa Alves",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
+      "valor": "R$ 14,99",
+      "situacao": "Pago (Site)",
+      "pg": "Pago",
+      "responsavel": "SF",
+      "origem": "site",
+      "mes": 4
+    },
+    {
+      "id": 126,
+      "data": "23/04",
+      "entrega": "23/04",
+      "cliente": "Marcelo Lucio de Oliveira",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
+      "valor": "R$ 14,99",
+      "situacao": "Pago (Site)",
+      "pg": "Pago",
+      "responsavel": "SF",
+      "origem": "site",
+      "mes": 4
+    },
+    {
+      "id": 127,
+      "data": "22/04",
+      "entrega": "22/04",
+      "cliente": "Arthur Rodrigues Curvelo Pereira",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
       "valor": "R$ 14,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
@@ -1780,12 +1780,12 @@
     },
     {
       "id": 128,
-      "data": "23/04",
-      "entrega": "23/04",
-      "cliente": "Marcelo Lucio de Oliveira",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
-      "valor": "R$ 14,99",
+      "data": "18/04",
+      "entrega": "18/04",
+      "cliente": "Alvaro Mendes de Maraes",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
+      "valor": "R$ 14,00",
       "situacao": "Pago (Site)",
       "pg": "Pago",
       "responsavel": "SF",
@@ -1794,11 +1794,11 @@
     },
     {
       "id": 129,
-      "data": "22/04",
-      "entrega": "22/04",
-      "cliente": "Arthur Rodrigues Curvelo Pereira",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
+      "data": "16/04",
+      "entrega": "16/04",
+      "cliente": "alex alves",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
       "valor": "R$ 14,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
@@ -1808,12 +1808,12 @@
     },
     {
       "id": 130,
-      "data": "18/04",
-      "entrega": "18/04",
-      "cliente": "Alvaro Mendes de Maraes",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
-      "valor": "R$ 14,00",
+      "data": "16/04",
+      "entrega": "16/04",
+      "cliente": "Livia Gomes",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
+      "valor": "R$ 14,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
       "responsavel": "SF",
@@ -1822,11 +1822,11 @@
     },
     {
       "id": 131,
-      "data": "16/04",
-      "entrega": "16/04",
-      "cliente": "alex alves",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
+      "data": "14/04",
+      "entrega": "14/04",
+      "cliente": "Kaua Ferreira",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
       "valor": "R$ 14,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
@@ -1836,11 +1836,11 @@
     },
     {
       "id": 132,
-      "data": "16/04",
-      "entrega": "16/04",
-      "cliente": "Livia Gomes",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
+      "data": "13/04",
+      "entrega": "13/04",
+      "cliente": "Lucia Lourenci",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
       "valor": "R$ 14,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
@@ -1850,11 +1850,11 @@
     },
     {
       "id": 133,
-      "data": "14/04",
-      "entrega": "14/04",
-      "cliente": "Kaua Ferreira",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
+      "data": "10/04",
+      "entrega": "10/04",
+      "cliente": "Marcelo Castro",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
       "valor": "R$ 14,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
@@ -1864,39 +1864,11 @@
     },
     {
       "id": 134,
-      "data": "13/04",
-      "entrega": "13/04",
-      "cliente": "Lucia Lourenci",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
-      "valor": "R$ 14,99",
-      "situacao": "Pago (Site)",
-      "pg": "Pago",
-      "responsavel": "SF",
-      "origem": "site",
-      "mes": 4
-    },
-    {
-      "id": 135,
-      "data": "10/04",
-      "entrega": "10/04",
-      "cliente": "Marcelo Castro",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
-      "valor": "R$ 14,99",
-      "situacao": "Pago (Site)",
-      "pg": "Pago",
-      "responsavel": "SF",
-      "origem": "site",
-      "mes": 4
-    },
-    {
-      "id": 136,
       "data": "25/02",
       "entrega": "25/02",
       "cliente": "Heitor Barreto Lins",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
       "valor": "R$ 14,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
@@ -1905,12 +1877,12 @@
       "mes": 2
     },
     {
-      "id": 137,
-      "data": "08/06/2026",
-      "entrega": "08/06/2026",
+      "id": 135,
+      "data": "08/06",
+      "entrega": "08/06",
       "cliente": "Ana Caroline Dias Da Silva",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
       "valor": "R$ 14,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
@@ -1919,12 +1891,12 @@
       "mes": 6
     },
     {
-      "id": 138,
-      "data": "08/06/2026",
-      "entrega": "08/06/2026",
+      "id": 136,
+      "data": "08/06",
+      "entrega": "08/06",
       "cliente": "Lukas Dornelles",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
       "valor": "R$ 14,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
@@ -1933,12 +1905,12 @@
       "mes": 6
     },
     {
-      "id": 139,
-      "data": "08/06/2026",
-      "entrega": "08/06/2026",
+      "id": 137,
+      "data": "08/06",
+      "entrega": "08/06",
       "cliente": "Pietro Lemes",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
       "valor": "R$ 14,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
@@ -1947,93 +1919,261 @@
       "mes": 6
     },
     {
-      "id": 140,
-      "data": "07/06/2026",
-      "entrega": "07/06/2026",
-      "cliente": "Ana Lara Moura do Nascimento",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
-      "valor": "R$ 18,99",
-      "situacao": "Pago (Site)",
-      "pg": "Pago",
-      "responsavel": "SF",
-      "origem": "site",
-      "mes": 6
-    },
-    {
-      "id": 141,
-      "data": "06/06/2026",
-      "entrega": "06/06/2026",
-      "cliente": "TAIZE MARIA GOMES",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
+      "cliente": "Hellen Moura",
+      "data": "14/06",
+      "entrega": "14/06",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
       "valor": "R$ 14,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
       "responsavel": "SF",
       "origem": "site",
-      "mes": 6
+      "mes": 6,
+      "id": 138
     },
     {
-      "id": 142,
-      "data": "05/06/2026",
-      "entrega": "05/06/2026",
-      "cliente": "Jhenifer Emanuelle Cunha De Jesus",
+      "cliente": "Isaac Jhonata de arruda Pinto",
+      "data": "13/06",
+      "entrega": "13/06",
       "arquivo": "Slide Site",
-      "tema": "Site — Slide",
+      "tema": "Slide Site",
+      "valor": "R$ 17,99",
+      "situacao": "Pago (Site)",
+      "pg": "Pago",
+      "responsavel": "SF",
+      "origem": "site",
+      "mes": 6,
+      "id": 139
+    },
+    {
+      "cliente": "Tainá Gomes",
+      "data": "12/06",
+      "entrega": "12/06",
+      "arquivo": "Modelo Site",
+      "tema": "Modelo Site",
       "valor": "R$ 14,99",
       "situacao": "Pago (Site)",
       "pg": "Pago",
       "responsavel": "SF",
       "origem": "site",
-      "mes": 6
+      "mes": 6,
+      "id": 140
     },
     {
-      "id": 143,
-      "data": "05/06/2026",
-      "entrega": "05/06/2026",
-      "cliente": "Shayene Lopes Figueredo",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
-      "valor": "R$ 1,00",
-      "situacao": "Pago (Site)",
+      "cliente": "92 8152-6245",
+      "tema": "Galileu Galilei",
+      "arquivo": "📄 PDF",
+      "valor": "R$ 20,00",
+      "data": "27/05",
+      "entrega": "27/05",
+      "situacao": "Feito",
       "pg": "Pago",
       "responsavel": "SF",
-      "origem": "site",
-      "mes": 6
+      "origem": "whatsapp",
+      "mes": 5,
+      "id": 141
     },
     {
-      "id": 144,
-      "data": "04/06/2026",
-      "entrega": "04/06/2026",
-      "cliente": "THAUANE DOS SANTOS SENA",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
-      "valor": "R$ 14,99",
-      "situacao": "Pago (Site)",
+      "cliente": "63 9207-6733",
+      "tema": "Girassol",
+      "arquivo": "🎬 Canva (Transições)",
+      "valor": "R$ 25,00",
+      "data": "28/05",
+      "entrega": "28/05",
+      "situacao": "Feito",
       "pg": "Pago",
       "responsavel": "SF",
-      "origem": "site",
-      "mes": 6
+      "origem": "whatsapp",
+      "mes": 5,
+      "id": 142
     },
     {
-      "id": 145,
-      "data": "04/06/2026",
-      "entrega": "04/06/2026",
-      "cliente": "Ellen Nayara",
-      "arquivo": "Slide Site",
-      "tema": "Site — Slide",
-      "valor": "R$ 14,99",
-      "situacao": "Pago (Site)",
+      "cliente": "27 99934-5204",
+      "tema": "Biotecnologia na agropecuária",
+      "arquivo": "🎨 Canva Temas (Netflix)",
+      "valor": "R$ 28,00",
+      "data": "28/05",
+      "entrega": "28/05",
+      "situacao": "Feito",
       "pg": "Pago",
       "responsavel": "SF",
-      "origem": "site",
-      "mes": 6
+      "origem": "whatsapp",
+      "mes": 5,
+      "id": 143
+    },
+    {
+      "cliente": "85 92163-6907",
+      "tema": "Modelo Minecraft",
+      "arquivo": "Modelo",
+      "valor": "R$ 15,00",
+      "data": "31/05",
+      "entrega": "31/05",
+      "situacao": "Feito",
+      "pg": "Pago",
+      "responsavel": "SF",
+      "origem": "whatsapp",
+      "mes": 5,
+      "id": 144
+    },
+    {
+      "cliente": "81 9259-6478",
+      "tema": "Poriferos e Canidários",
+      "arquivo": "🎬 Canva (Transições)",
+      "valor": "R$ 25,00",
+      "data": "04/06",
+      "entrega": "04/06",
+      "situacao": "Feito",
+      "pg": "Pago",
+      "responsavel": "SF",
+      "origem": "whatsapp",
+      "mes": 6,
+      "id": 145
+    },
+    {
+      "cliente": "98 8590-0682",
+      "tema": "Belleza Joias (5 págs extras)",
+      "arquivo": "🎬 PowerPoint (Transições)",
+      "valor": "R$ 42,50",
+      "data": "08/06",
+      "entrega": "08/06",
+      "situacao": "Feito",
+      "pg": "Pago",
+      "responsavel": "SF",
+      "origem": "whatsapp",
+      "mes": 6,
+      "id": 146
+    },
+    {
+      "cliente": "85 9724-1556",
+      "tema": "Cuidar de quem cuida",
+      "arquivo": "🎬 Canva (Transições)",
+      "valor": "R$ 27,50",
+      "data": "11/05",
+      "entrega": "11/05",
+      "situacao": "Feito",
+      "pg": "Pago",
+      "responsavel": "SF",
+      "origem": "whatsapp",
+      "mes": 5,
+      "id": 147
+    },
+    {
+      "cliente": "94 9172-4716",
+      "tema": "Egito Antigo (págs extras)",
+      "arquivo": "🎬 PowerPoint (Transições)",
+      "valor": "R$ 39,00",
+      "data": "22/03",
+      "entrega": "22/03",
+      "situacao": "Feito",
+      "pg": "Pago",
+      "responsavel": "SF",
+      "origem": "whatsapp",
+      "mes": 3,
+      "id": 148
+    },
+    {
+      "cliente": "61 8152-3612",
+      "tema": "Juscelino Kubitchek",
+      "arquivo": "🎬 PowerPoint (Transições)",
+      "valor": "R$ 35,00",
+      "data": "15/06",
+      "entrega": "15/06",
+      "situacao": "Feito",
+      "pg": "Pago",
+      "responsavel": "SF",
+      "origem": "whatsapp",
+      "mes": 6,
+      "id": 149
+    },
+    {
+      "cliente": "22 99101-6567",
+      "tema": "Racismo Ambiental",
+      "arquivo": "📄 PDF",
+      "valor": "R$ 20,00",
+      "data": "11/06",
+      "entrega": "11/06",
+      "situacao": "Feito",
+      "pg": "Pago",
+      "responsavel": "SF",
+      "origem": "whatsapp",
+      "mes": 6,
+      "id": 150
+    },
+    {
+      "cliente": "65 9321-3553",
+      "tema": "Sistema de classificação - Cambisolo",
+      "arquivo": "📄 PDF",
+      "valor": "R$ 20,00",
+      "data": "18/06",
+      "entrega": "18/06",
+      "situacao": "Em andamento",
+      "pg": "50% pago",
+      "responsavel": "SF",
+      "origem": "whatsapp",
+      "mes": 6,
+      "id": 151
+    },
+    {
+      "cliente": "22 99101-6567",
+      "tema": "Ideias evolucionistas",
+      "arquivo": "📄 PDF",
+      "valor": "R$ 20,00",
+      "data": "19/06",
+      "entrega": "19/06",
+      "situacao": "Em andamento",
+      "pg": "50% pago",
+      "responsavel": "SF",
+      "origem": "whatsapp",
+      "mes": 6,
+      "id": 152
+    },
+    {
+      "cliente": "77 9875-1013",
+      "tema": "Primeira geração romântica – nacionalista ou indianista",
+      "arquivo": "🎬 Canva (Transições)",
+      "valor": "R$ 25,00",
+      "data": "19/06",
+      "entrega": "19/06",
+      "situacao": "Em andamento",
+      "pg": "50% pago",
+      "responsavel": "SF",
+      "origem": "whatsapp",
+      "mes": 6,
+      "id": 153
+    },
+    {
+      "cliente": "92 8485-0820",
+      "tema": "Revolução Russa",
+      "arquivo": "🎬 PowerPoint (Transições)",
+      "valor": "R$ 35,00",
+      "data": "20/06",
+      "entrega": "20/06",
+      "situacao": "Em andamento",
+      "pg": "50% pago",
+      "responsavel": "SF",
+      "origem": "whatsapp",
+      "mes": 6,
+      "id": 154
+    },
+    {
+      "cliente": "35 8818-1159",
+      "tema": "Tecnologia propaganda e o cotidiano",
+      "arquivo": "🎬 Canva (Transições)",
+      "valor": "R$ 25,00",
+      "data": "19/06",
+      "entrega": "19/06",
+      "situacao": "Em andamento",
+      "pg": "50% pago",
+      "responsavel": "SF",
+      "origem": "whatsapp",
+      "mes": 6,
+      "id": 155
     }
   ],
   "faturamento_site": {
-    "6": 233.85,
-    "5": 361.77,
+    "6": 201.87,
+    "5": 346.78,
     "4": 133.92,
     "2": 14.99
   }

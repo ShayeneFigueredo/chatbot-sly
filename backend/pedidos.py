@@ -5,6 +5,8 @@ Armazena em JSON e calcula faturamento mensal.
 import json
 import os
 from datetime import datetime
+import requests
+import time as _time
 
 ARQUIVO = os.path.join(os.path.dirname(__file__), "pedidos.json")
 
@@ -12,6 +14,47 @@ MESES = [
     "", "Janeiro", "Fevereiro", "Marco", "Abril", "Maio", "Junho",
     "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
 ]
+
+# Cache da data real (evita chamadas repetidas a API)
+_real_date_cache = {"date": None, "ts": 0}
+
+def _obter_data_real() -> datetime:
+    """Obtem a data/hora real de uma API externa (worldtimeapi.org).
+    Com fallback para datetime.now() se a API falhar.
+    O resultado fica em cache por 5 minutos."""
+    agora = _time.time()
+    if _real_date_cache["date"] and (agora - _real_date_cache["ts"]) < 300:
+        return _real_date_cache["date"]
+    try:
+        resp = requests.get(
+            "https://worldtimeapi.org/api/timezone/America/Sao_Paulo",
+            timeout=5
+        )
+        if resp.status_code == 200:
+            data = resp.json()
+            dt = datetime.fromisoformat(data["datetime"])
+            _real_date_cache["date"] = dt
+            _real_date_cache["ts"] = agora
+            return dt
+    except Exception:
+        pass
+    # Fallback: usa datetime.now() do servidor
+    dt = datetime.now()
+    _real_date_cache["date"] = dt
+    _real_date_cache["ts"] = agora
+    return dt
+
+def hoje_str() -> str:
+    """Retorna a data de hoje no formato dd/mm, usando API externa."""
+    return _obter_data_real().strftime("%d/%m")
+
+def mes_atual() -> int:
+    """Retorna o mes atual (1-12), usando API externa."""
+    return _obter_data_real().month
+
+def ano_atual() -> int:
+    """Retorna o ano atual, usando API externa."""
+    return _obter_data_real().year
 
 
 def _carregar():
@@ -29,7 +72,7 @@ def _salvar(dados):
 def adicionar(dados: dict) -> dict:
     """Adiciona um pedido. Retorna o pedido com ID."""
     db = _carregar()
-    agora = datetime.now()
+    agora = _obter_data_real()
     mes = dados.get("mes", agora.month)
 
     pedido = {
@@ -85,11 +128,18 @@ def faturamento():
     for m in range(1, 13):
         fat[m]["total"] = fat[m]["pedidos"] + fat[m]["site"]
 
+    # Filtra pedidos de teste (Shayene / Samuel Amorim)
+    def _eh_teste(p):
+        nome = (p.get("cliente", "") or "").lower()
+        return any(t in nome for t in ["shayene", "samuel amorim"])
+
     total_ano = sum(fat[m]["total"] for m in range(1, 13))
     total_shay = 0.0
     total_samuel = 0.0
     a_receber = 0.0
     for p in db["pedidos"]:
+        if _eh_teste(p):
+            continue
         # Site nao entra no total Shay/Samuel (vai separado)
         if p.get("origem") == "site":
             continue
@@ -105,10 +155,10 @@ def faturamento():
         except (ValueError, AttributeError):
             pass
 
-    # Calcula bruto do site (sem taxas)
+    # Calcula bruto do site (sem taxas, ignora testes)
     site_bruto = 0.0
     for p in db["pedidos"]:
-        if p.get("origem") == "site":
+        if p.get("origem") == "site" and not _eh_teste(p):
             try:
                 site_bruto += float(p.get("valor", "0").replace("R$", "").replace(",", ".").strip())
             except (ValueError, AttributeError):
