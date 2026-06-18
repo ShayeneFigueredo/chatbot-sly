@@ -1,0 +1,19 @@
+name: 🚀 Deploy no Render
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🚀 Disparar Deploy Hook
+        run: |
+          echo "🚀 Enviando deploy para o Render..."
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}")
+          if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "201" ]; then
+            echo "✅ Deploy disparado! (HTTP $HTTP_CODE)"
+          else
+            echo "⚠️ Render respondeu HTTP $HTTP_CODE"
+          fi
