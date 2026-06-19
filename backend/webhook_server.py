@@ -2179,30 +2179,15 @@ async def painel_dados():
             "statusTxt": status_txt,
         })
 
-    # Limpa e formata telefone (ex: +55 38 99750-7651 → (38) 99750-7651)
+    # Limpa telefone (remove sufixos, normaliza) — mantem RAW pra chamadas API
     import re as _re3
     for c in cli_list:
         tel = c["telefone"]
-        tel = _re3.sub(r'[@:].*$', '', tel)  # remove @s.whatsapp.net, @lid, @g.us, :port
+        tel = _re3.sub(r'[@:].*$', '', tel)  # remove sufixos
         tel = _re3.sub(r'[^\d]', '', tel)    # so digitos
         if tel and not tel.startswith('55') and len(tel) >= 10:
             tel = '55' + tel
-
-        # Formata como (DDD) NNNNN-NNNN
-        if len(tel) >= 12:  # 55 + DDD + numero (min 12 digitos)
-            ddd = tel[-11:-9] if len(tel) >= 13 else tel[-10:-8]
-            p1 = tel[-9:-4] if len(tel) >= 13 else tel[-8:-4]
-            p2 = tel[-4:]
-            tel_formatado = f"({ddd}) {p1}-{p2}"
-        elif len(tel) >= 10:
-            ddd = tel[-10:-8] if len(tel) >= 12 else tel[-9:-7]
-            p1 = tel[-8:-4] if len(tel) >= 12 else tel[-7:-4]
-            p2 = tel[-4:]
-            tel_formatado = f"({ddd}) {p1}-{p2}"
-        else:
-            tel_formatado = tel  # LID ou formato desconhecido
-
-        c["telefone"] = tel_formatado
+        c["telefone"] = tel
 
     return {"clientes": cli_list, "total": len(cli_list), "aguardando": aguardando, "aguardando_humano": aguardando_humano_count, "aguardando_pix": aguardando_pix_count, "pedido_realizado": pedido_realizado_count}
 

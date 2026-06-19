@@ -1,5 +1,5 @@
 import Badge from './Badge'
-import { statusBadgeClass, cardBorderClass } from '../utils/helpers'
+import { statusBadgeClass, cardBorderClass, formatPhone } from '../utils/helpers'
 import { IconPhone, IconAlert, IconCheck, IconX, IconLock, IconUnlock, IconEye, IconCreditCard } from './Icons'
 import '../styles/components/client-card.css'
 
@@ -90,7 +90,7 @@ export default function ClientCard({ client, onAction }) {
       <div className="card-top">
         <span className="card-phone">
           <span className="phone-icon"><IconPhone size={18} /></span>
-          {c.telefone}
+          {formatPhone(c.telefone)}
         </span>
         <Badge variant={badgeVariant}>{c.statusTxt || 'Ativo'}</Badge>
       </div>
@@ -116,7 +116,7 @@ export default function ClientCard({ client, onAction }) {
         </div>
         <div className="info-item">
           <span className="info-label">Telefone</span>
-          <span className="info-value"><IconPhone size={13} /> {c.telefone || '-'}</span>
+          <span className="info-value"><IconPhone size={13} /> {formatPhone(c.telefone) || '-'}</span>
         </div>
         {extrasInfo}
       </div>
