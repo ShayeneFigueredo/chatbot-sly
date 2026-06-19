@@ -143,7 +143,10 @@ def _obter_data_real() -> datetime:
             return dt
     except Exception:
         pass
-    dt = datetime.now()
+    # Fallback: UTC-3 manual (Brasilia) — evita mostrar dia errado no Render
+    from datetime import timezone, timedelta
+    dt = datetime.now(timezone.utc) - timedelta(hours=3)
+    dt = dt.replace(tzinfo=None)
     _real_date_cache["date"] = dt
     _real_date_cache["ts"] = agora
     return dt
