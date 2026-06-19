@@ -148,7 +148,7 @@ export default function Modal({ mode, onClose, onAdd, onExtract, apiCall, toast 
           <div className="form-row">
             <div className="form-group">
               <label className="form-label">Situacao</label>
-              <div dangerouslySetInnerHTML={{ __html: sel('mSit', SITUACOES, 'Em andamento') }} />
+              <div dangerouslySetInnerHTML={{ __html: sel('mSit', SITUACOES, 'Novo') }} />
             </div>
             <div className="form-group">
               <label className="form-label">Pagamento</label>
