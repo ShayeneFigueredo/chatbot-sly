@@ -162,9 +162,12 @@ p{color:#888;margin-top:20px}
       // "digitando..."
       await sock.sendPresenceUpdate("composing", jid);
 
+      // Nome do perfil do WhatsApp (pra identificar o cliente no painel)
+      const pushName = msg.pushName || "";
+
       const resp = await axios.post(
         `http://localhost:${PORT}/responder`,
-        { from: telefone, body: texto, tipo: tipo },
+        { from: telefone, body: texto, tipo: tipo, pushName: pushName },
         { timeout: 30000 }
       );
 

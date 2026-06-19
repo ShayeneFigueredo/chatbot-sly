@@ -1,22 +1,8 @@
+import { useState, useEffect } from 'react'
 import PieChart from './PieChart'
 import { IconChart } from './Icons'
+import { useApi } from '../hooks/useApi'
 import '../styles/components/fat-sidebar.css'
-
-// Mapeamento DDD → Regiao do Brasil
-function dddToRegion(ddd) {
-  const d = parseInt(ddd, 10)
-  // Norte
-  if ([68,69,91,92,93,94,95,96,97].includes(d)) return 'Norte'
-  // Nordeste
-  if ([71,73,74,75,77,79,81,82,83,84,85,86,87,88,89,98,99].includes(d)) return 'Nordeste'
-  // Centro-Oeste
-  if ([61,62,63,64,65,66,67].includes(d)) return 'Centro-Oeste'
-  // Sudeste
-  if ([11,12,13,14,15,16,17,18,19,21,22,24,27,28,31,32,33,34,35,37,38].includes(d)) return 'Sudeste'
-  // Sul
-  if ([41,42,43,44,45,46,47,48,49,51,53,54,55].includes(d)) return 'Sul'
-  return null
-}
 
 const REGION_COLORS = {
   'Sudeste':      '#a78bfa',
@@ -31,49 +17,26 @@ const ORIGEM_COLORS = {
   'Site':     '#34d399',
 }
 
-function calcularGraficos(dados, faturamento) {
-  const f = faturamento || {}
-  const clientes = dados?.clientes || []
-
-  // 1. Origem: Site vs WhatsApp (financeiro)
-  const origemData = [
-    { label: 'WhatsApp', value: (f.total_shay || 0) + (f.total_samuel || 0), color: ORIGEM_COLORS['WhatsApp'] },
-    { label: 'Site', value: f.total_site_bruto || 0, color: ORIGEM_COLORS['Site'] },
-  ].filter(d => d.value > 0)
-
-  // 2. Regioes por DDD
-  const regiaoCount = {}
-  let comDdd = 0
-  clientes.forEach(c => {
-    const tel = (c.telefone || '').replace(/\D/g, '')
-    // Extrai DDD: para numeros brasileiros: 55XX... ou 0XX... ou XX...
-    let ddd = null
-    if (tel.startsWith('55') && tel.length >= 13) {
-      ddd = tel.substring(2, 4)
-    } else if (tel.startsWith('0') && tel.length >= 11) {
-      ddd = tel.substring(1, 3)
-    } else if (tel.length >= 10 && !tel.startsWith('55') && !tel.startsWith('0')) {
-      ddd = tel.substring(0, 2)
-    }
-    if (ddd) {
-      const regiao = dddToRegion(ddd)
-      if (regiao) {
-        regiaoCount[regiao] = (regiaoCount[regiao] || 0) + 1
-        comDdd++
-      }
-    }
-  })
-
-  const regioesData = Object.entries(regiaoCount)
-    .map(([label, value]) => ({ label, value, color: REGION_COLORS[label] || '#636378' }))
-    .sort((a, b) => b.value - a.value)
-
-  return { origemData, regioesData }
-}
-
 export default function FatSidebar({ faturamento, dados, mesNome, mesFat }) {
+  const api = useApi()
   const f = faturamento || {}
   const d = dados || {}
+  const [regioesData, setRegioesData] = useState(null)
+
+  // Carrega dados de regioes do endpoint dedicado (ano inteiro)
+  useEffect(() => {
+    if (!mesNome) {
+      api('/painel/regioes').then(r => {
+        if (r && r.regioes) {
+          const data = Object.entries(r.regioes)
+            .filter(([, v]) => v > 0)
+            .map(([label, value]) => ({ label, value, color: REGION_COLORS[label] || '#636378' }))
+            .sort((a, b) => b.value - a.value)
+          setRegioesData(data)
+        }
+      }).catch(() => {})
+    }
+  }, [mesNome])
 
   // Se for view de mes especifico
   if (mesNome && mesFat) {
@@ -100,7 +63,11 @@ export default function FatSidebar({ faturamento, dados, mesNome, mesFat }) {
     )
   }
 
-  const { origemData, regioesData } = calcularGraficos(dados, faturamento)
+  // Origem: Site vs WhatsApp (financeiro)
+  const origemData = [
+    { label: 'WhatsApp', value: (f.total_shay || 0) + (f.total_samuel || 0), color: ORIGEM_COLORS['WhatsApp'] },
+    { label: 'Site', value: f.total_site_bruto || 0, color: ORIGEM_COLORS['Site'] },
+  ].filter(d => d.value > 0)
 
   return (
     <div className="fat-sidebar">
@@ -144,7 +111,7 @@ export default function FatSidebar({ faturamento, dados, mesNome, mesFat }) {
         <div><strong>{d.aguardando_humano || 0}</strong> querem atendente</div>
       </div>
 
-      {/* Graficos */}
+      {/* Grafico Origem Faturamento */}
       {origemData.length > 0 && (
         <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid var(--border)' }}>
           <PieChart
@@ -156,13 +123,14 @@ export default function FatSidebar({ faturamento, dados, mesNome, mesFat }) {
         </div>
       )}
 
-      {regioesData.length > 0 && (
+      {/* Grafico Regioes — dados completos do ano (pedidos.json + clientes ativos) */}
+      {regioesData && regioesData.length > 0 && (
         <div style={{ marginTop: 20, paddingTop: 20, borderTop: '1px solid var(--border)' }}>
           <PieChart
             data={regioesData}
             size={180}
             innerRadius={0.55}
-            label="Clientes por Regiao"
+            label="Clientes por Regiao (Janeiro a Dezembro)"
           />
         </div>
       )}

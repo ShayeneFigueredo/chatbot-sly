@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import Sidebar from './components/Sidebar'
 import TopBar from './components/TopBar'
+import MobileNav from './components/MobileNav'
 import StatsCards from './components/StatsCards'
 import FilterBar from './components/FilterBar'
 import TodaySection from './components/TodaySection'
@@ -29,6 +30,7 @@ export default function App() {
   // Tab state
   const [activeTab, setActiveTab] = useState('clientes')
   const [currentMes, setCurrentMes] = useState(new Date().getMonth() + 1)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   // Data state
   const [dados, setDados] = useState(null)
@@ -376,10 +378,17 @@ export default function App() {
   // ========== RENDER ==========
   return (
     <div className="app">
+      {/* Mobile sidebar overlay */}
+      <div
+        className={`sidebar-overlay${sidebarOpen ? ' open' : ''}`}
+        onClick={() => setSidebarOpen(false)}
+      />
+
       <Sidebar
         activeTab={activeTab}
-        onSelect={handleSidebarSelect}
+        onSelect={(key) => { handleSidebarSelect(key); setSidebarOpen(false) }}
         onFinalizarTodos={handleFinalizarTodos}
+        mobileOpen={sidebarOpen}
       />
 
       <main className="main">
@@ -387,6 +396,7 @@ export default function App() {
           onRefresh={loadMainData}
           onNewOrder={() => setModalMode('add')}
           onTestWebhook={handleTestWebhook}
+          onMenuToggle={() => setSidebarOpen(!sidebarOpen)}
         />
 
         <div className="content">
@@ -411,6 +421,7 @@ export default function App() {
         />
       )}
 
+      <MobileNav activeTab={activeTab} onSelect={handleTabSelect} />
       <Toast message={message} visible={visible} />
     </div>
   )
