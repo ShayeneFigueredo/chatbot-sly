@@ -7,6 +7,7 @@ import sqlite3
 import json
 import os
 import shutil
+import hashlib
 from datetime import datetime
 import requests
 import time as _time
@@ -70,23 +71,24 @@ def _init_db():
 
     ja_migrou = conn.execute("SELECT COUNT(*) as c FROM pedidos").fetchone()["c"] > 0
 
-    # Sempre sincroniza DB do build → disco se o build tiver mais dados
+    # Sincroniza DB do build → disco se forem diferentes
     if os.path.exists(_RENDER_DISK) and os.path.exists(_ARQUIVO_LOCAL) and DB_PATH != _ARQUIVO_LOCAL:
         try:
-            # Conta pedidos no build
-            build_conn = sqlite3.connect(_ARQUIVO_LOCAL)
-            build_count = build_conn.execute("SELECT COUNT(*) as c FROM pedidos").fetchone()[0]
-            build_conn.close()
+            build_hash = hashlib.md5(open(_ARQUIVO_LOCAL, 'rb').read()).hexdigest()
+            disk_hash = hashlib.md5(open(DB_PATH, 'rb').read()).hexdigest() if os.path.exists(DB_PATH) else ""
         except:
-            build_count = 0
-        if build_count > (conn.execute("SELECT COUNT(*) as c FROM pedidos").fetchone()["c"] or 0):
+            build_hash = disk_hash = ""
+        if build_hash != disk_hash:
             conn.close()
             for suffix in ["-wal", "-shm"]:
                 try: os.remove(DB_PATH + suffix)
                 except: pass
             try:
                 shutil.copy2(_ARQUIVO_LOCAL, DB_PATH)
-                print(f"📦 DB sincronizado do build ({build_count} pedidos) → disco")
+                build_conn = sqlite3.connect(DB_PATH)
+                n = build_conn.execute("SELECT COUNT(*) as c FROM pedidos").fetchone()[0]
+                build_conn.close()
+                print(f"📦 DB sincronizado build→disco ({n} pedidos)")
             except Exception as e:
                 print(f"⚠️ Erro ao copiar DB do build: {e}")
             conn = _get_db()
