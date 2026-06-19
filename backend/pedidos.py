@@ -40,7 +40,7 @@ def _get_db() -> sqlite3.Connection:
 
 
 def _init_db():
-    """Cria tabelas se nao existirem e migra dados do JSON antigo."""
+    """Cria tabelas se nao existirem e migra dados do JSON antigo ou DB do build."""
     conn = _get_db()
     conn.executescript("""
         CREATE TABLE IF NOT EXISTS pedidos (
@@ -67,8 +67,21 @@ def _init_db():
     """)
     conn.commit()
 
-    # Migracao do JSON antigo → SQLite (roda uma unica vez)
     ja_migrou = conn.execute("SELECT COUNT(*) as c FROM pedidos").fetchone()["c"] > 0
+
+    if not ja_migrou:
+        # Tenta copiar DB do build Docker para o disco Render
+        if os.path.exists(_RENDER_DISK) and os.path.exists(_ARQUIVO_LOCAL) and DB_PATH != _ARQUIVO_LOCAL:
+            try:
+                shutil.copy2(_ARQUIVO_LOCAL, DB_PATH)
+                conn.close()
+                conn = _get_db()
+                ja_migrou = conn.execute("SELECT COUNT(*) as c FROM pedidos").fetchone()["c"] > 0
+                if ja_migrou:
+                    print(f"📦 SQLite copiado do build para o disco: {DB_PATH}")
+            except Exception as e:
+                print(f"⚠️ Erro ao copiar DB: {e}")
+
     if not ja_migrou and os.path.exists(_ARQUIVO_JSON_ANTIGO):
         try:
             with open(_ARQUIVO_JSON_ANTIGO, "r", encoding="utf-8") as f:
@@ -90,10 +103,10 @@ def _init_db():
                              (int(mes_str), float(val)))
             conn.commit()
             print(f"📦 SQLite: {len(old.get('pedidos',[]))} pedidos migrados do JSON")
-            # Renomeia JSON antigo pra backup
             os.rename(_ARQUIVO_JSON_ANTIGO, _ARQUIVO_JSON_ANTIGO + ".backup")
         except Exception as e:
             print(f"⚠️ Erro na migracao JSON→SQLite: {e}")
+
     conn.close()
 
 
