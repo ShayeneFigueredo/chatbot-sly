@@ -8,7 +8,23 @@ from datetime import datetime
 import requests
 import time as _time
 
-ARQUIVO = os.path.join(os.path.dirname(__file__), "pedidos.json")
+# No Render, salva no disco persistente; localmente usa a pasta backend
+_RENDER_DISK = "/app/auth_info_baileys"
+_ARQUIVO_LOCAL = os.path.join(os.path.dirname(__file__), "pedidos.json")
+if os.path.exists(_RENDER_DISK):
+    ARQUIVO = os.path.join(_RENDER_DISK, "pedidos.json")
+    # Migracao: se o disk estiver vazio mas existir local, copia
+    if not os.path.exists(ARQUIVO) and os.path.exists(_ARQUIVO_LOCAL):
+        import shutil
+        shutil.copy2(_ARQUIVO_LOCAL, ARQUIVO)
+        print(f"📦 pedidos.json migrado para disco persistente: {ARQUIVO}")
+    # Se nao existir em nenhum lugar, cria vazio
+    if not os.path.exists(ARQUIVO):
+        with open(ARQUIVO, "w") as f:
+            json.dump({"pedidos": [], "faturamento_site": {}}, f)
+        print(f"📄 pedidos.json criado no disco persistente: {ARQUIVO}")
+else:
+    ARQUIVO = _ARQUIVO_LOCAL
 
 MESES = [
     "", "Janeiro", "Fevereiro", "Marco", "Abril", "Maio", "Junho",
