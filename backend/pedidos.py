@@ -206,7 +206,7 @@ def adicionar(dados: dict) -> dict:
         "arquivo": dados.get("arquivo", dados.get("modelo", "")),
         "tema": dados.get("tema", ""),
         "valor": dados.get("valor", ""),
-        "situacao": dados.get("situacao", "Em andamento"),
+        "situacao": dados.get("situacao", "Novo"),
         "pg": dados.get("pg", "50% pago"),
         "responsavel": dados.get("responsavel", "SF"),
         "origem": dados.get("origem", "whatsapp"),

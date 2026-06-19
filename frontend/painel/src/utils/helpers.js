@@ -56,13 +56,27 @@ export function formatCurrency(val) {
 }
 
 export function formatPhone(tel) {
-  // Format: 5538997507651 -> (38) 99750-7651
+  // Formata numero brasileiro: 5538997507651 -> (38) 99750-7651
   const cleaned = (tel || '').replace(/\D/g, '')
-  if (cleaned.length >= 11) {
-    const ddd = cleaned.slice(-11, -9)
-    const p1 = cleaned.slice(-9, -4)
-    const p2 = cleaned.slice(-4)
+  // Detecta padrao BR: 55XXXXXXXXXXX (13 digitos) ou 55XXXXXXXXXX (12 digitos)
+  if (cleaned.startsWith('55') && cleaned.length >= 12 && cleaned.length <= 13) {
+    const ddd = cleaned.substring(2, 4)
+    const p1 = cleaned.substring(4, cleaned.length - 4)
+    const p2 = cleaned.substring(cleaned.length - 4)
+    return `(${ddd}) ${p1}-${p2}`
+  }
+  // Pode ser 0XX... (11 digitos)
+  if (cleaned.startsWith('0') && cleaned.length >= 11) {
+    const ddd = cleaned.substring(1, 3)
+    const p1 = cleaned.substring(3, cleaned.length - 4)
+    const p2 = cleaned.substring(cleaned.length - 4)
     return `(${ddd}) ${p1}-${p2}`
   }
   return tel
+}
+
+export function isLID(tel) {
+  const cleaned = (tel || '').replace(/\D/g, '')
+  // Se nao parece telefone brasileiro, provavelmente é LID
+  return !(cleaned.startsWith('55') && cleaned.length >= 12 && cleaned.length <= 13)
 }
