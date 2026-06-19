@@ -41,6 +41,7 @@ def _get_db() -> sqlite3.Connection:
 
 def _init_db():
     """Cria tabelas se nao existirem e migra dados do JSON antigo ou DB do build."""
+    print(f"🗄️  DB_PATH={DB_PATH} | RENDER_DISK={'SIM' if os.path.exists(_RENDER_DISK) else 'NAO'} | LOCAL={_ARQUIVO_LOCAL}")
     conn = _get_db()
     conn.executescript("""
         CREATE TABLE IF NOT EXISTS pedidos (
@@ -72,15 +73,20 @@ def _init_db():
     if not ja_migrou:
         # Tenta copiar DB do build Docker para o disco Render
         if os.path.exists(_RENDER_DISK) and os.path.exists(_ARQUIVO_LOCAL) and DB_PATH != _ARQUIVO_LOCAL:
+            conn.close()  # FECHA antes de copiar (evita lock)
+            # Remove WAL/SHM residuais
+            for suffix in ["-wal", "-shm"]:
+                try: os.remove(DB_PATH + suffix)
+                except: pass
             try:
                 shutil.copy2(_ARQUIVO_LOCAL, DB_PATH)
-                conn.close()
-                conn = _get_db()
-                ja_migrou = conn.execute("SELECT COUNT(*) as c FROM pedidos").fetchone()["c"] > 0
-                if ja_migrou:
-                    print(f"📦 SQLite copiado do build para o disco: {DB_PATH}")
+                print(f"📦 SQLite copiado do build ({os.path.getsize(_ARQUIVO_LOCAL)} bytes) para o disco: {DB_PATH}")
             except Exception as e:
-                print(f"⚠️ Erro ao copiar DB: {e}")
+                print(f"⚠️ Erro ao copiar DB do build: {e}")
+            conn = _get_db()
+            ja_migrou = conn.execute("SELECT COUNT(*) as c FROM pedidos").fetchone()["c"] > 0
+            if ja_migrou:
+                print(f"📦 Disco agora tem {conn.execute('SELECT COUNT(*) as c FROM pedidos').fetchone()['c']} pedidos")
 
     if not ja_migrou and os.path.exists(_ARQUIVO_JSON_ANTIGO):
         try:
