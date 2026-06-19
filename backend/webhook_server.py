@@ -96,34 +96,143 @@ async def login_action(request: Request):
 
 def _pagina_portal():
     """Portal interno apos login — botoes para Painel e WhatsApp."""
-    return """
-    <html><head>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Maya — Portal</title>
-    <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{background:#0a0a14;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:'Segoe UI',sans-serif}
-    .box{background:#1a1a2e;padding:30px;border-radius:16px;border:1px solid #333;width:90%;max-width:340px;text-align:center}
-    h1{color:#c084fc;margin-bottom:25px}
-    a{display:block;background:#2a2a4e;color:#c084fc;padding:14px;border-radius:10px;margin-bottom:10px;text-decoration:none;font-weight:bold;font-size:.95em}
-    a:hover{background:#3a3a5e}
-    a.wpp{background:#1a3a2a;color:#4ade80}
-    a.wpp:hover{background:#2a4a3a}
-    </style></head><body>
-    <div class="box">
-    <h1>Maya — Portal</h1>
-    <a href="/painel">Painel de Gestao</a>
-    <a href="/qrcode" class="wpp">WhatsApp QR Code</a>
-    <a href="#" onclick="resetarWhatsApp()" style="background:#3a1a1a;color:#fca5a5">Resetar WhatsApp</a>
-    <script>
-    async function resetarWhatsApp(){
-      if(!confirm('Isso vai desconectar o WhatsApp. Depois voce precisara escanear o QR Code de novo. Continuar?'))return;
-      const r=await fetch('/qrcode/reset',{method:'POST'});
-      const d=await r.json();
-      alert(d.msg);if(d.status==='ok')location.href='/qrcode';
-    }
-    </script>
-    </div></body></html>"""
+    return f"""<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Portal — Sly Design</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{{box-sizing:border-box;margin:0;padding:0}}
+body{{
+  background:#09090d;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:100vh;
+  font-family:'Montserrat',system-ui,sans-serif;
+  padding:20px;
+}}
+.portal{{
+  width:100%;
+  max-width:400px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}}
+.portal-header{{
+  text-align:center;
+  margin-bottom:16px;
+}}
+.portal-header h1{{
+  font-size:1.5rem;
+  font-weight:800;
+  color:#c4b5fd;
+  letter-spacing:-0.02em;
+}}
+.portal-header p{{
+  font-size:.82rem;
+  color:#636378;
+  margin-top:4px;
+}}
+.card{{
+  background:#16161f;
+  border:1px solid #222230;
+  border-radius:14px;
+  padding:20px 24px;
+  text-decoration:none;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  transition:all .15s;
+  cursor:pointer;
+  color:#e4e4ec;
+}}
+.card:hover{{
+  border-color:#2a2a3a;
+  box-shadow:0 4px 12px rgba(0,0,0,.4);
+  transform:translateY(-1px);
+}}
+.card .card-icon{{
+  width:44px;
+  height:44px;
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:1.3rem;
+  flex-shrink:0;
+}}
+.card .card-icon.purple{{background:#1e1530;color:#a78bfa}}
+.card .card-icon.green{{background:#0a1a14;color:#34d399}}
+.card .card-icon.red{{background:#1a0a0a;color:#f87171}}
+.card .card-body{{display:flex;flex-direction:column;gap:2px}}
+.card .card-title{{font-weight:700;font-size:.92rem;color:#e4e4ec}}
+.card .card-sub{{font-size:.72rem;color:#636378}}
+.logout-btn{{
+  display:block;
+  text-align:center;
+  color:#636378;
+  font-size:.75rem;
+  margin-top:20px;
+  text-decoration:none;
+  font-weight:500;
+  transition:color .15s;
+}}
+.logout-btn:hover{{color:#a0a0b0}}
+</style>
+</head>
+<body>
+<div class="portal">
+  <div class="portal-header">
+    <h1>Painel de Controle</h1>
+    <p>Sly Design</p>
+  </div>
+
+  <a href="/painel" class="card">
+    <span class="card-icon purple">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+    </span>
+    <span class="card-body">
+      <span class="card-title">Painel de Gestao</span>
+      <span class="card-sub">Clientes, pedidos, faturamento</span>
+    </span>
+  </a>
+
+  <a href="/qrcode" class="card">
+    <span class="card-icon green">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2A19.79 19.79 0 013 6.18 2 2 0 015.11 4h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.73 12.73 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+    </span>
+    <span class="card-body">
+      <span class="card-title">WhatsApp QR Code</span>
+      <span class="card-sub">Conectar aparelho</span>
+    </span>
+  </a>
+
+  <a href="#" onclick="resetarWhatsApp();return false" class="card">
+    <span class="card-icon red">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+    </span>
+    <span class="card-body">
+      <span class="card-title">Resetar WhatsApp</span>
+      <span class="card-sub">Desconectar e gerar novo QR Code</span>
+    </span>
+  </a>
+
+  <a href="/logout" class="logout-btn">Sair</a>
+</div>
+<script>
+async function resetarWhatsApp(){{
+  if(!confirm('Isso vai desconectar o WhatsApp. Depois voce precisara escanear o QR Code de novo. Continuar?'))return;
+  const r=await fetch('/qrcode/reset',{{method:'POST'}});
+  const d=await r.json();
+  alert(d.msg);if(d.status==='ok')location.href='/qrcode';
+}}
+</script>
+</body>
+</html>"""
 
 
 # Middleware de protecao para /painel*, /qrcode e APIs internas
@@ -1904,6 +2013,7 @@ async def responder(request: Request):
     texto = data.get("body", "")
     telefone = data.get("from", "")
     tipo = data.get("tipo", "texto")
+    push_name = data.get("pushName", "").strip()
 
     # Normaliza numero: remove sufixos e deixa so os digitos
     import re as _re
@@ -1912,8 +2022,13 @@ async def responder(request: Request):
     if not telefone.startswith('55') and len(telefone) >= 10:
         telefone = '55' + telefone  # adiciona DDI Brasil se faltar
 
-    print(f"\n💬 {telefone}: {texto}")
+    nome_exibicao = f"{push_name} ({telefone})" if push_name else telefone
+    print(f"\n💬 {nome_exibicao}: {texto}")
     resposta = maya_responder(texto, telefone, tipo)
+
+    # Salva o nome do perfil do WhatsApp pra identificar no painel
+    if push_name and telefone in clientes:
+        clientes[telefone]["push_name"] = push_name
 
     # Salva no historico da IA (pra ter contexto em conversas futuras)
     if telefone in clientes and resposta:
@@ -2045,6 +2160,7 @@ async def painel_dados():
 
         cli_list.append({
             "telefone": tel,
+            "nome": est.get("push_name", ""),
             "tela": tela,
             "tema": dados.get("tema", dados.get("assunto", "-")),
             "modelo": modelo,
@@ -2063,15 +2179,30 @@ async def painel_dados():
             "statusTxt": status_txt,
         })
 
-    # Limpa formato interno do telefone
+    # Limpa e formata telefone (ex: +55 38 99750-7651 → (38) 99750-7651)
     import re as _re3
     for c in cli_list:
         tel = c["telefone"]
-        tel = _re3.sub(r'[@:].*$', '', tel)  # remove sufixos
+        tel = _re3.sub(r'[@:].*$', '', tel)  # remove @s.whatsapp.net, @lid, @g.us, :port
         tel = _re3.sub(r'[^\d]', '', tel)    # so digitos
         if tel and not tel.startswith('55') and len(tel) >= 10:
             tel = '55' + tel
-        c["telefone"] = tel
+
+        # Formata como (DDD) NNNNN-NNNN
+        if len(tel) >= 12:  # 55 + DDD + numero (min 12 digitos)
+            ddd = tel[-11:-9] if len(tel) >= 13 else tel[-10:-8]
+            p1 = tel[-9:-4] if len(tel) >= 13 else tel[-8:-4]
+            p2 = tel[-4:]
+            tel_formatado = f"({ddd}) {p1}-{p2}"
+        elif len(tel) >= 10:
+            ddd = tel[-10:-8] if len(tel) >= 12 else tel[-9:-7]
+            p1 = tel[-8:-4] if len(tel) >= 12 else tel[-7:-4]
+            p2 = tel[-4:]
+            tel_formatado = f"({ddd}) {p1}-{p2}"
+        else:
+            tel_formatado = tel  # LID ou formato desconhecido
+
+        c["telefone"] = tel_formatado
 
     return {"clientes": cli_list, "total": len(cli_list), "aguardando": aguardando, "aguardando_humano": aguardando_humano_count, "aguardando_pix": aguardando_pix_count, "pedido_realizado": pedido_realizado_count}
 
@@ -2739,6 +2870,69 @@ def _thread_verificar_pendentes():
                         except Exception as e:
                             print(f"⚠️ Erro ao enviar boas-vindas atrasadas: {e}")
                     _salvar_estado_clientes()
+
+
+# ── Grafico de Regioes (dados completos do ano) ──
+
+@app.get("/painel/regioes")
+async def painel_regioes():
+    """Retorna dados agregados por regiao do Brasil baseado no DDD de TODOS os pedidos do ano (pedidos.json + clientes ativos)."""
+    from backend.pedidos import _carregar
+
+    # Mapeamento DDD -> Regiao
+    DDD_REGIAO = {}
+    for d in [68,69,91,92,93,94,95,96,97]: DDD_REGIAO[str(d)] = "Norte"
+    for d in [71,73,74,75,77,79,81,82,83,84,85,86,87,88,89,98,99]: DDD_REGIAO[str(d)] = "Nordeste"
+    for d in [61,62,63,64,65,66,67]: DDD_REGIAO[str(d)] = "Centro-Oeste"
+    for d in [11,12,13,14,15,16,17,18,19,21,22,24,27,28,31,32,33,34,35,37,38]: DDD_REGIAO[str(d)] = "Sudeste"
+    for d in [41,42,43,44,45,46,47,48,49,51,53,54,55]: DDD_REGIAO[str(d)] = "Sul"
+
+    import re as _re4
+
+    def extrair_ddd(texto):
+        if not texto: return None
+        nums = _re4.sub(r'[^\d]', '', str(texto))
+        if len(nums) >= 12 and nums.startswith('55'):
+            return nums[2:4]
+        elif len(nums) >= 10:
+            return nums[1:3] if nums.startswith('0') else nums[:2]
+        return None
+
+    regioes = {r: 0 for r in ["Norte","Nordeste","Centro-Oeste","Sudeste","Sul"]}
+    regioes_site = dict(regioes)
+    regioes_wpp = dict(regioes)
+    sem_ddd = 0
+
+    db = _carregar()
+    for p in db.get("pedidos", []):
+        ddd = extrair_ddd(p.get("cliente", ""))
+        if ddd and ddd in DDD_REGIAO:
+            reg = DDD_REGIAO[ddd]
+            regioes[reg] += 1
+            if p.get("origem") == "site":
+                regioes_site[reg] += 1
+            else:
+                regioes_wpp[reg] += 1
+        else:
+            sem_ddd += 1
+
+    # Clientes ativos sem pedido ainda
+    for tel in clientes:
+        nums = _re4.sub(r'[^\d]', '', str(tel))
+        if len(nums) >= 12 and nums.startswith('55'):
+            ddd = nums[2:4]
+        elif len(nums) >= 10:
+            ddd = nums[1:3] if nums.startswith('0') else nums[:2]
+        else:
+            continue
+        if ddd and ddd in DDD_REGIAO:
+            reg = DDD_REGIAO[ddd]
+            ja_contado = any(extrair_ddd(p.get("cliente","")) == ddd for p in db.get("pedidos",[]))
+            if not ja_contado:
+                regioes[reg] += 1
+                regioes_wpp[reg] += 1
+
+    return {"regioes": regioes, "regioes_site": regioes_site, "regioes_wpp": regioes_wpp, "sem_ddd": sem_ddd}
 
 
 if __name__ == "__main__":

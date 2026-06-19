@@ -36,3 +36,4 @@ frontend/painel/dist/
 # Arquivos de sistema
 .DS_Store
 Thumbs.db
+backend/pedidos.json

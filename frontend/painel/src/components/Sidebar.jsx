@@ -1,7 +1,7 @@
 import { MESES, LOGO_URL, MAYA_URL } from '../data/constants'
 import { IconUsers, IconCheck, IconCreditCard, IconCalendar, IconChart, IconAlert } from './Icons'
 
-export default function Sidebar({ activeTab, onSelect, onFinalizarTodos }) {
+export default function Sidebar({ activeTab, onSelect, onFinalizarTodos, mobileOpen }) {
   const clientItems = [
     { key: 'clientes', icon: <IconUsers size={18} />, label: 'Ativos' },
     { key: 'aceitar', icon: <IconCheck size={18} />, label: 'Aceitar Pedido' },
@@ -19,7 +19,7 @@ export default function Sidebar({ activeTab, onSelect, onFinalizarTodos }) {
   ]
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar${mobileOpen ? ' mobile-open' : ''}`}>
       <div className="sidebar-brand">
         <img src={LOGO_URL} alt="Sly Design" onError={(e) => { e.target.style.display = 'none' }} />
         <div className="brand-text">
