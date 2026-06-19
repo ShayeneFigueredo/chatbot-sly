@@ -37,3 +37,6 @@ frontend/painel/dist/
 .DS_Store
 Thumbs.db
 backend/pedidos.json
+backend/pedidos.json
+backend/pedidos.db
+backend/pedidos.json.backup
