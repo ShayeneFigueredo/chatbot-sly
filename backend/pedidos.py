@@ -13,12 +13,18 @@ _RENDER_DISK = "/app/auth_info_baileys"
 _ARQUIVO_LOCAL = os.path.join(os.path.dirname(__file__), "pedidos.json")
 if os.path.exists(_RENDER_DISK):
     ARQUIVO = os.path.join(_RENDER_DISK, "pedidos.json")
-    # Migracao: se o disk estiver vazio mas existir local, copia
-    if not os.path.exists(ARQUIVO) and os.path.exists(_ARQUIVO_LOCAL):
+    # Migracao: sobrescreve o disk se estiver vazio e o local tiver dados
+    disk_tem_dados = False
+    if os.path.exists(ARQUIVO):
+        try:
+            with open(ARQUIVO) as f:
+                disk_tem_dados = len(json.load(f).get("pedidos", [])) > 0
+        except:
+            pass
+    if not disk_tem_dados and os.path.exists(_ARQUIVO_LOCAL):
         import shutil
         shutil.copy2(_ARQUIVO_LOCAL, ARQUIVO)
         print(f"📦 pedidos.json migrado para disco persistente: {ARQUIVO}")
-    # Se nao existir em nenhum lugar, cria vazio
     if not os.path.exists(ARQUIVO):
         with open(ARQUIVO, "w") as f:
             json.dump({"pedidos": [], "faturamento_site": {}}, f)
