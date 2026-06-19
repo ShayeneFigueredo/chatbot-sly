@@ -1,104 +1,180 @@
 """
 pedidos.py — Sistema de gestao de pedidos integrado ao painel.
-Armazena em JSON e calcula faturamento mensal.
+Armazena em SQLite e calcula faturamento mensal.
+Arquivo: /app/auth_info_baileys/pedidos.db (Render) ou backend/pedidos.db (local)
 """
+import sqlite3
 import json
 import os
+import shutil
 from datetime import datetime
 import requests
 import time as _time
 
-# No Render, salva no disco persistente; localmente usa a pasta backend
+# ── Caminho do banco ──
 _RENDER_DISK = "/app/auth_info_baileys"
-_ARQUIVO_LOCAL = os.path.join(os.path.dirname(__file__), "pedidos.json")
+_ARQUIVO_LOCAL = os.path.join(os.path.dirname(__file__), "pedidos.db")
+_ARQUIVO_JSON_ANTIGO = os.path.join(os.path.dirname(__file__), "pedidos.json")
+
 if os.path.exists(_RENDER_DISK):
-    ARQUIVO = os.path.join(_RENDER_DISK, "pedidos.json")
-    # Migracao: sobrescreve o disk se estiver vazio e o local tiver dados
-    disk_tem_dados = False
-    if os.path.exists(ARQUIVO):
-        try:
-            with open(ARQUIVO) as f:
-                disk_tem_dados = len(json.load(f).get("pedidos", [])) > 0
-        except:
-            pass
-    if not disk_tem_dados and os.path.exists(_ARQUIVO_LOCAL):
-        import shutil
-        shutil.copy2(_ARQUIVO_LOCAL, ARQUIVO)
-        print(f"📦 pedidos.json migrado para disco persistente: {ARQUIVO}")
-    if not os.path.exists(ARQUIVO):
-        with open(ARQUIVO, "w") as f:
-            json.dump({"pedidos": [], "faturamento_site": {}}, f)
-        print(f"📄 pedidos.json criado no disco persistente: {ARQUIVO}")
+    DB_PATH = os.path.join(_RENDER_DISK, "pedidos.db")
 else:
-    ARQUIVO = _ARQUIVO_LOCAL
+    DB_PATH = _ARQUIVO_LOCAL
 
 MESES = [
     "", "Janeiro", "Fevereiro", "Marco", "Abril", "Maio", "Junho",
     "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
 ]
 
-# Cache da data real (evita chamadas repetidas a API)
+# Cache da data real
 _real_date_cache = {"date": None, "ts": 0}
 
+
+def _get_db() -> sqlite3.Connection:
+    """Retorna conexao com o banco (autocommit via WAL mode)."""
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA busy_timeout=5000")
+    return conn
+
+
+def _init_db():
+    """Cria tabelas se nao existirem e migra dados do JSON antigo."""
+    conn = _get_db()
+    conn.executescript("""
+        CREATE TABLE IF NOT EXISTS pedidos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            data TEXT,
+            entrega TEXT,
+            cliente TEXT NOT NULL,
+            arquivo TEXT,
+            tema TEXT,
+            tema_design TEXT,
+            valor TEXT,
+            situacao TEXT DEFAULT 'Novo',
+            pg TEXT DEFAULT '50% pago',
+            responsavel TEXT DEFAULT 'SF',
+            origem TEXT DEFAULT 'whatsapp',
+            mes INTEGER DEFAULT 1,
+            nomes TEXT,
+            extras TEXT
+        );
+        CREATE TABLE IF NOT EXISTS faturamento_site (
+            mes INTEGER PRIMARY KEY,
+            valor REAL NOT NULL
+        );
+    """)
+    conn.commit()
+
+    # Migracao do JSON antigo → SQLite (roda uma unica vez)
+    ja_migrou = conn.execute("SELECT COUNT(*) as c FROM pedidos").fetchone()["c"] > 0
+    if not ja_migrou and os.path.exists(_ARQUIVO_JSON_ANTIGO):
+        try:
+            with open(_ARQUIVO_JSON_ANTIGO, "r", encoding="utf-8") as f:
+                old = json.load(f)
+            for p in old.get("pedidos", []):
+                conn.execute("""
+                    INSERT INTO pedidos (id, data, entrega, cliente, arquivo, tema, valor,
+                                         situacao, pg, responsavel, origem, mes, nomes, extras)
+                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                """, (
+                    p.get("id"), p.get("data",""), p.get("entrega",""),
+                    p.get("cliente",""), p.get("arquivo",""), p.get("tema",""),
+                    p.get("valor",""), p.get("situacao","Novo"), p.get("pg","50% pago"),
+                    p.get("responsavel","SF"), p.get("origem","whatsapp"),
+                    p.get("mes",1), p.get("nomes",""), p.get("extras","")
+                ))
+            for mes_str, val in old.get("faturamento_site", {}).items():
+                conn.execute("INSERT OR REPLACE INTO faturamento_site (mes, valor) VALUES (?,?)",
+                             (int(mes_str), float(val)))
+            conn.commit()
+            print(f"📦 SQLite: {len(old.get('pedidos',[]))} pedidos migrados do JSON")
+            # Renomeia JSON antigo pra backup
+            os.rename(_ARQUIVO_JSON_ANTIGO, _ARQUIVO_JSON_ANTIGO + ".backup")
+        except Exception as e:
+            print(f"⚠️ Erro na migracao JSON→SQLite: {e}")
+    conn.close()
+
+
+# Inicializa na importacao
+_init_db()
+
+
+# ── Data real (timezone Sao Paulo) ──
+
 def _obter_data_real() -> datetime:
-    """Obtem a data/hora real de uma API externa (worldtimeapi.org).
-    Com fallback para datetime.now() se a API falhar.
-    O resultado fica em cache por 5 minutos."""
     agora = _time.time()
     if _real_date_cache["date"] and (agora - _real_date_cache["ts"]) < 300:
         return _real_date_cache["date"]
     try:
         resp = requests.get(
-            "https://worldtimeapi.org/api/timezone/America/Sao_Paulo",
-            timeout=5
+            "https://worldtimeapi.org/api/timezone/America/Sao_Paulo", timeout=5
         )
         if resp.status_code == 200:
-            data = resp.json()
-            dt = datetime.fromisoformat(data["datetime"])
+            dt = datetime.fromisoformat(resp.json()["datetime"])
             _real_date_cache["date"] = dt
             _real_date_cache["ts"] = agora
             return dt
     except Exception:
         pass
-    # Fallback: usa datetime.now() do servidor
     dt = datetime.now()
     _real_date_cache["date"] = dt
     _real_date_cache["ts"] = agora
     return dt
 
+
 def hoje_str() -> str:
-    """Retorna a data de hoje no formato dd/mm, usando API externa."""
     return _obter_data_real().strftime("%d/%m")
 
+
 def mes_atual() -> int:
-    """Retorna o mes atual (1-12), usando API externa."""
     return _obter_data_real().month
 
+
 def ano_atual() -> int:
-    """Retorna o ano atual, usando API externa."""
     return _obter_data_real().year
 
 
+# ── CRUD ──
+
 def _carregar():
-    if not os.path.exists(ARQUIVO):
-        return {"pedidos": [], "faturamento_site": {}}
-    with open(ARQUIVO, "r", encoding="utf-8") as f:
-        return json.load(f)
+    """Retorna dict no formato antigo (compatibilidade com webhook_server.py)."""
+    conn = _get_db()
+    pedidos = [dict(r) for r in conn.execute("SELECT * FROM pedidos ORDER BY id").fetchall()]
+    site = {str(r["mes"]): r["valor"] for r in conn.execute("SELECT * FROM faturamento_site").fetchall()}
+    conn.close()
+    return {"pedidos": pedidos, "faturamento_site": site}
 
 
-def _salvar(dados):
-    with open(ARQUIVO, "w", encoding="utf-8") as f:
-        json.dump(dados, f, ensure_ascii=False, indent=2)
+def _salvar(dados: dict):
+    """Substitui todos os dados (compatibilidade com webhook_server.py)."""
+    conn = _get_db()
+    conn.execute("DELETE FROM pedidos")
+    conn.execute("DELETE FROM faturamento_site")
+    for p in dados.get("pedidos", []):
+        conn.execute("""
+            INSERT INTO pedidos (id, data, entrega, cliente, arquivo, tema, valor,
+                                 situacao, pg, responsavel, origem, mes, nomes, extras)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        """, (
+            p.get("id"), p.get("data",""), p.get("entrega",""),
+            p.get("cliente",""), p.get("arquivo",""), p.get("tema",""),
+            p.get("valor",""), p.get("situacao","Novo"), p.get("pg","50% pago"),
+            p.get("responsavel","SF"), p.get("origem","whatsapp"),
+            p.get("mes",1), p.get("nomes",""), p.get("extras","")
+        ))
+    for mes_str, val in dados.get("faturamento_site", {}).items():
+        conn.execute("INSERT INTO faturamento_site (mes, valor) VALUES (?,?)",
+                     (int(mes_str), float(val)))
+    conn.commit()
+    conn.close()
 
 
 def adicionar(dados: dict) -> dict:
-    """Adiciona um pedido. Retorna o pedido com ID."""
-    db = _carregar()
     agora = _obter_data_real()
     mes = dados.get("mes", agora.month)
-
     pedido = {
-        "id": len(db["pedidos"]) + 1,
         "data": dados.get("data", agora.strftime("%d/%m")),
         "entrega": dados.get("entrega", dados.get("data", agora.strftime("%d/%m"))),
         "cliente": dados.get("cliente", dados.get("telefone", "")),
@@ -110,83 +186,87 @@ def adicionar(dados: dict) -> dict:
         "responsavel": dados.get("responsavel", "SF"),
         "origem": dados.get("origem", "whatsapp"),
         "mes": mes,
+        "nomes": dados.get("nomes", ""),
+        "extras": dados.get("extras", ""),
     }
-    db["pedidos"].append(pedido)
-    _salvar(db)
+    conn = _get_db()
+    cur = conn.execute("""
+        INSERT INTO pedidos (data, entrega, cliente, arquivo, tema, valor,
+                             situacao, pg, responsavel, origem, mes, nomes, extras)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
+    """, (
+        pedido["data"], pedido["entrega"], pedido["cliente"], pedido["arquivo"],
+        pedido["tema"], pedido["valor"], pedido["situacao"], pedido["pg"],
+        pedido["responsavel"], pedido["origem"], pedido["mes"],
+        pedido["nomes"], pedido["extras"]
+    ))
+    pedido["id"] = cur.lastrowid
+    conn.commit()
+    conn.close()
     return pedido
 
 
 def listar_por_mes(mes: int = None):
-    """Lista pedidos do mes (1-12). Se None, lista todos."""
-    db = _carregar()
+    conn = _get_db()
     if mes:
-        return [p for p in db["pedidos"] if p.get("mes") == mes]
-    return db["pedidos"]
+        rows = conn.execute("SELECT * FROM pedidos WHERE mes = ? ORDER BY entrega", (mes,)).fetchall()
+    else:
+        rows = conn.execute("SELECT * FROM pedidos ORDER BY id").fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
 
 
 def faturamento():
-    """Calcula faturamento: total por mes, total site, total geral."""
-    db = _carregar()
-    fat = {}
-    for m in range(1, 13):
-        fat[m] = {"pedidos": 0.0, "site": 0.0}
+    conn = _get_db()
+    fat = {m: {"pedidos": 0.0, "site": 0.0} for m in range(1, 13)}
 
-    for p in db["pedidos"]:
-        m = p.get("mes", 1)
-        # Site tem faturamento separado, nao entra em "pedidos"
-        if p.get("origem") == "site":
-            continue
+    # Pedidos (nao-site)
+    rows = conn.execute("""
+        SELECT mes, valor, responsavel, pg, cliente, origem
+        FROM pedidos
+    """).fetchall()
+
+    def _eh_teste(cliente):
+        return any(t in (cliente or "").lower() for t in ["shayene", "samuel amorim"])
+
+    def _parse_valor(v):
         try:
-            val = float(p.get("valor", "0").replace("R$", "").replace(",", ".").strip())
-            fat[m]["pedidos"] += val
+            return float((v or "0").replace("R$", "").replace(",", ".").strip())
         except (ValueError, AttributeError):
-            pass
+            return 0.0
 
-    for m_str, val in db.get("faturamento_site", {}).items():
-        m = int(m_str)
-        fat[m]["site"] = float(val)
-
-    # Calcula totais
-    for m in range(1, 13):
-        fat[m]["total"] = fat[m]["pedidos"] + fat[m]["site"]
-
-    # Filtra pedidos de teste (Shayene / Samuel Amorim)
-    def _eh_teste(p):
-        nome = (p.get("cliente", "") or "").lower()
-        return any(t in nome for t in ["shayene", "samuel amorim"])
-
-    total_ano = sum(fat[m]["total"] for m in range(1, 13))
     total_shay = 0.0
     total_samuel = 0.0
     a_receber = 0.0
-    for p in db["pedidos"]:
-        if _eh_teste(p):
+    site_bruto = 0.0
+
+    for r in rows:
+        m = r["mes"] or 1
+        val = _parse_valor(r["valor"])
+        if r["origem"] == "site":
+            if not _eh_teste(r["cliente"]):
+                site_bruto += val
             continue
-        # Site nao entra no total Shay/Samuel (vai separado)
-        if p.get("origem") == "site":
-            continue
-        try:
-            val = float(p.get("valor", "0").replace("R$", "").replace(",", ".").strip())
-            if p.get("responsavel") == "SA":
+        fat[m]["pedidos"] += val
+        if not _eh_teste(r["cliente"]):
+            if r["responsavel"] == "SA":
                 total_samuel += val
             else:
                 total_shay += val
-            # Calcula 50% restante para pedidos nao pagos totalmente
-            if p.get("pg", "") in ("50% pago", "Aguardando"):
+            if r["pg"] in ("50% pago", "Aguardando"):
                 a_receber += val * 0.5
-        except (ValueError, AttributeError):
-            pass
 
-    # Calcula bruto do site (sem taxas, ignora testes)
-    site_bruto = 0.0
-    for p in db["pedidos"]:
-        if p.get("origem") == "site" and not _eh_teste(p):
-            try:
-                site_bruto += float(p.get("valor", "0").replace("R$", "").replace(",", ".").strip())
-            except (ValueError, AttributeError):
-                pass
+    # Site faturamento (tabela separada)
+    for r in conn.execute("SELECT * FROM faturamento_site").fetchall():
+        fat[r["mes"]]["site"] = r["valor"]
 
-    total_site_liquido = round(sum(fat[m]["site"] for m in range(1, 13)), 2)
+    for m in range(1, 13):
+        fat[m]["total"] = fat[m]["pedidos"] + fat[m]["site"]
+
+    total_ano = sum(fat[m]["total"] for m in range(1, 13))
+    total_site_liquido = sum(fat[m]["site"] for m in range(1, 13))
+
+    conn.close()
     return {
         "mensal": fat,
         "total_ano": round(total_ano, 2),
@@ -200,23 +280,53 @@ def faturamento():
 
 
 def atualizar_situacao(pedido_id: int, situacao: str):
-    """Atualiza situacao de um pedido."""
-    db = _carregar()
-    for p in db["pedidos"]:
-        if p["id"] == pedido_id:
-            p["situacao"] = situacao
-            p["pg"] = "Pago" if situacao == "Feito" else p.get("pg", "")
-            break
-    _salvar(db)
+    conn = _get_db()
+    pg = "Pago" if situacao == "Feito" else None
+    if pg:
+        conn.execute("UPDATE pedidos SET situacao=?, pg=? WHERE id=?",
+                     (situacao, pg, pedido_id))
+    else:
+        conn.execute("UPDATE pedidos SET situacao=? WHERE id=?",
+                     (situacao, pedido_id))
+    conn.commit()
+    conn.close()
 
 
 def adicionar_faturamento_site(mes: int, valor: float):
-    """Adiciona/atualiza faturamento do site em um mes."""
-    db = _carregar()
-    db.setdefault("faturamento_site", {})[str(mes)] = round(valor, 2)
-    _salvar(db)
+    conn = _get_db()
+    conn.execute("INSERT OR REPLACE INTO faturamento_site (mes, valor) VALUES (?,?)",
+                 (mes, round(valor, 2)))
+    conn.commit()
+    conn.close()
 
 
 def ultimo_id():
-    db = _carregar()
-    return len(db["pedidos"])
+    conn = _get_db()
+    r = conn.execute("SELECT MAX(id) as m FROM pedidos").fetchone()
+    conn.close()
+    return r["m"] or 0
+
+
+def editar_pedido(pedido_id: int, dados: dict):
+    """Atualiza campos editaveis de um pedido."""
+    conn = _get_db()
+    campos = ["data", "entrega", "cliente", "arquivo", "tema", "tema_design",
+              "valor", "situacao", "pg", "responsavel", "mes", "nomes", "extras"]
+    sets = []
+    vals = []
+    for c in campos:
+        if c in dados:
+            sets.append(f"{c}=?")
+            vals.append(dados[c])
+    if sets:
+        vals.append(pedido_id)
+        conn.execute(f"UPDATE pedidos SET {', '.join(sets)} WHERE id=?", vals)
+        conn.commit()
+    conn.close()
+
+
+def deletar_pedido(pedido_id: int):
+    conn = _get_db()
+    conn.execute("DELETE FROM pedidos WHERE id=?", (pedido_id,))
+    conn.commit()
+    conn.close()
