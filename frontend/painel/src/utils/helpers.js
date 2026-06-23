@@ -77,6 +77,25 @@ export function formatPhone(tel) {
 
 export function isLID(tel) {
   const cleaned = (tel || '').replace(/\D/g, '')
-  // Se nao parece telefone brasileiro, provavelmente é LID
-  return !(cleaned.startsWith('55') && cleaned.length >= 12 && cleaned.length <= 13)
+  if (!cleaned) return true
+  // Telefone brasileiro classico: 55 + DDD (2) + numero (8-9) = 12-13 digitos
+  if (cleaned.startsWith('55') && cleaned.length >= 12 && cleaned.length <= 13) return false
+  // Numero que NAO comeca com 55 mas parece telefone internacional (10-14 digitos)
+  if (!cleaned.startsWith('55') && cleaned.length >= 10 && cleaned.length <= 14) return false
+  // Qualquer outra coisa: comeca com 55 mas tamanho estranho (>13), ou muito curto → LID
+  return true
+}
+
+/** Formata identificador para exibicao: se for telefone real, formata; se LID, mostra ID completo */
+export function formatClientId(tel, nome) {
+  if (!tel) return '-'
+  const cleaned = tel.replace(/\D/g, '')
+  const lid = isLID(tel)
+  if (lid) {
+    // LID: mostra nome + ID completo (truncado se muito longo)
+    const idShort = cleaned.length > 12 ? cleaned.slice(0, 6) + '...' + cleaned.slice(-4) : cleaned
+    if (nome) return `${nome} [${idShort}]`
+    return `ID: ${cleaned}`
+  }
+  return formatPhone(tel)
 }

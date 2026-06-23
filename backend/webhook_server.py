@@ -33,8 +33,8 @@ def verificar_login(request: Request) -> bool:
     """Verifica se a sessao e valida."""
     token = request.cookies.get("maya_token")
     if token and token in sessoes:
-        # Sessao expira em 24h
-        if time.time() - sessoes[token] < 86400:
+        # Sessao expira em 365 dias (para app/PWA ficar sempre logado)
+        if time.time() - sessoes[token] < 31536000:
             return True
         del sessoes[token]
     return False
@@ -239,8 +239,11 @@ async function resetarWhatsApp(){{
 @app.middleware("http")
 async def proteger_rotas(request: Request, call_next):
     path = request.url.path
-    # Static assets do React — nao precisa de login (sao apenas CSS/JS/fontes)
-    if path.startswith("/painel/assets/"):
+    # Static assets do React e PWA — nao precisa de login
+    if path.startswith("/painel/assets/") or path.startswith("/painel/icons/"):
+        return await call_next(request)
+    # PWA files (manifest, service worker)
+    if path in ("/painel/manifest.json", "/painel/sw.js"):
         return await call_next(request)
     rotas_protegidas = ("/painel", "/qrcode")
     if any(path == r or path.startswith(r + "/") or path.startswith(r + "?") for r in rotas_protegidas):
@@ -2080,6 +2083,32 @@ PAINEL_DIST = os.path.join(os.path.dirname(__file__), "..", "frontend", "painel"
 
 if os.path.exists(PAINEL_DIST):
     app.mount("/painel/assets", StaticFiles(directory=os.path.join(PAINEL_DIST, "assets")), name="painel_assets")
+    # PWA: icones e splash screens
+    icons_dir = os.path.join(PAINEL_DIST, "icons")
+    if os.path.exists(icons_dir):
+        app.mount("/painel/icons", StaticFiles(directory=icons_dir), name="painel_icons")
+
+@app.get("/painel/manifest.json")
+async def painel_manifest():
+    """PWA manifest."""
+    path = os.path.join(PAINEL_DIST, "manifest.json")
+    if not os.path.exists(path):
+        from fastapi.responses import JSONResponse
+        return JSONResponse({"error": "not found"}, status_code=404)
+    with open(path, "r") as f:
+        from fastapi.responses import Response
+        return Response(content=f.read(), media_type="application/manifest+json")
+
+@app.get("/painel/sw.js")
+async def painel_sw():
+    """Service Worker."""
+    path = os.path.join(PAINEL_DIST, "sw.js")
+    if not os.path.exists(path):
+        from fastapi.responses import JSONResponse
+        return JSONResponse({"error": "not found"}, status_code=404)
+    with open(path, "r") as f:
+        from fastapi.responses import Response
+        return Response(content=f.read(), media_type="application/javascript")
 
 @app.get("/painel", response_class=HTMLResponse)
 async def painel():
@@ -2584,18 +2613,12 @@ async def painel_adicionar_manual(request: Request):
 
 @app.post("/painel/editar-pedido")
 async def painel_editar_pedido(request: Request):
-    """Edita campos de um pedido."""
-    from backend.pedidos import _carregar, _salvar
+    """Edita campos de um pedido (usa editar_pedido que aceita todos os campos)."""
+    from backend.pedidos import editar_pedido
     data = await request.json()
-    pid = data.get("id")
-    db = _carregar()
-    for p in db["pedidos"]:
-        if p["id"] == pid:
-            for campo in ["situacao", "pg", "valor", "tema", "cliente", "responsavel"]:
-                if campo in data and data[campo]:
-                    p[campo] = data[campo]
-            break
-    _salvar(db)
+    pid = data.pop("id", None)
+    if pid:
+        editar_pedido(pid, data)
     return {"status": "ok"}
 
 
@@ -2744,11 +2767,12 @@ async def painel_extrair_pedido(request: Request):
         modelo = dados.get("modelo", "")
         modelo_limpo = modelo.split(" ", 1)[1] if " " in modelo else modelo
         preco = PRECOS.get(modelo_limpo, "")
+        push_name = est.get("push_name", "")
         return {
             "status": "ok",
             "fonte": "dados_ativos",
             "pedido": {
-                "cliente": chave,
+                "cliente": push_name if push_name else chave,
                 "tema": dados.get("tema", dados.get("assunto", "")),
                 "arquivo": modelo,
                 "prazo": dados.get("prazo", ""),

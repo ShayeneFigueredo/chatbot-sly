@@ -1,10 +1,11 @@
 /* ============================================================
-   TOAST NOTIFICATION
+   TOAST NOTIFICATION (Apple-style)
+   Bottom-anchored, safe-area aware
    ============================================================ */
 
 .toast {
   position: fixed;
-  bottom: 24px;
+  bottom: calc(24px + var(--safe-bottom));
   left: 50%;
   transform: translateX(-50%);
   background: #2a2a3a;
@@ -19,9 +20,21 @@
   transition: opacity 0.25s ease;
   box-shadow: var(--shadow-lg);
   border: 1px solid var(--border-light);
+  max-width: 90vw;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .toast.visible {
   opacity: 1;
   pointer-events: auto;
+}
+
+@media (max-width: 768px) {
+  .toast {
+    bottom: calc(80px + var(--safe-bottom));
+    padding: 10px 20px;
+    font-size: 0.8rem;
+  }
 }

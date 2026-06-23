@@ -1,5 +1,6 @@
 /* ============================================================
-   FILTER BAR / TABS
+   FILTER BAR / TABS (Apple-style)
+   Horizontal scroll pills
    ============================================================ */
 
 .filter-bar {
@@ -11,6 +12,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 4px;
+  max-width: 100%;
 }
 
 .filter-pill {
@@ -25,6 +27,7 @@
   font-family: inherit;
   transition: all var(--transition);
   white-space: nowrap;
+  min-height: 36px;
 }
 
 .filter-pill:hover {
@@ -43,6 +46,7 @@
   height: 20px;
   background: var(--border);
   margin: 0 4px;
+  flex-shrink: 0;
 }
 
 .filter-pill.month {
@@ -68,15 +72,27 @@
     flex-wrap: nowrap;
     -webkit-overflow-scrolling: touch;
     padding: 3px;
+    border-radius: var(--radius-sm);
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE */
   }
+
+  .filter-bar::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+  }
+
   .filter-pill {
-    font-size: 0.75rem;
-    padding: 7px 12px;
+    font-size: 0.72rem;
+    padding: 7px 10px;
+    flex-shrink: 0;
+    min-height: var(--touch-min);
   }
+
   .filter-pill.month {
     padding: 7px 8px;
-    font-size: 0.72rem;
-    min-width: 36px;
+    font-size: 0.7rem;
+    min-width: 34px;
   }
+
   .filter-divider { display: none; }
 }

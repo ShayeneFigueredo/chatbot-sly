@@ -1,5 +1,6 @@
 /* ============================================================
-   TABLE
+   TABLE (Apple-style)
+   Scroll within container, never overflow page
    ============================================================ */
 
 .table-wrap {
@@ -8,6 +9,7 @@
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
+  max-width: 100%;
 }
 
 .table-wrap table {
@@ -38,6 +40,10 @@
   color: var(--text);
   font-size: 0.875rem;
   vertical-align: middle;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .table-wrap tbody tr:hover {
@@ -65,4 +71,46 @@
   display: flex;
   gap: 6px;
   white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .table-wrap {
+    border-radius: var(--radius);
+  }
+
+  .table-wrap table {
+    min-width: 500px;
+    font-size: 0.75rem;
+  }
+
+  .table-wrap thead th,
+  .table-wrap tbody td {
+    padding: 8px 10px;
+  }
+
+  .table-wrap tbody td {
+    max-width: 120px;
+  }
+
+  .table-wrap .actions-cell .btn {
+    min-height: var(--touch-min);
+    padding: 6px 10px;
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .table-wrap table {
+    min-width: 420px;
+    font-size: 0.7rem;
+  }
+
+  .table-wrap thead th,
+  .table-wrap tbody td {
+    padding: 6px 6px;
+  }
+
+  .table-wrap .actions-cell {
+    gap: 4px;
+  }
 }

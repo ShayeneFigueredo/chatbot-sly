@@ -1,5 +1,5 @@
 import Badge from './Badge'
-import { statusBadgeClass, cardBorderClass, formatPhone, isLID } from '../utils/helpers'
+import { statusBadgeClass, cardBorderClass, formatPhone, isLID, formatClientId } from '../utils/helpers'
 import { IconPhone, IconAlert, IconCheck, IconX, IconLock, IconUnlock, IconEye, IconCreditCard } from './Icons'
 import '../styles/components/client-card.css'
 
@@ -33,7 +33,7 @@ export default function ClientCard({ client, onAction }) {
 
   const helpBanner = c.quer_atendente && !c.shay_assumiu ? (
     <div className="help-banner">
-      <IconAlert size={16} /> Este cliente pediu para falar com um <strong>atendente humano</strong> &mdash; {c.telefone}
+      <IconAlert size={16} /> <strong>{c.nome || 'Cliente'}</strong> pediu para falar com um <strong>atendente humano</strong> &mdash; {isLID(c.telefone) ? `ID: ${(c.telefone || '').replace(/\D/g, '')}` : formatPhone(c.telefone)}
     </div>
   ) : null
 
@@ -94,8 +94,12 @@ export default function ClientCard({ client, onAction }) {
             <span>
               <span style={{ fontWeight: 700 }}>{c.nome}</span>
               <span style={{ color: 'var(--text-muted)', fontSize: '.7rem', marginLeft: 6 }}>
-                [ID: {(c.telefone || '').slice(-6)}]
+                [ID: {(c.telefone || '').replace(/\D/g, '')}]
               </span>
+            </span>
+          ) : isLID(c.telefone) ? (
+            <span>
+              <span style={{ fontWeight: 600 }}>ID: {(c.telefone || '').replace(/\D/g, '')}</span>
             </span>
           ) : (
             formatPhone(c.telefone)
@@ -125,7 +129,7 @@ export default function ClientCard({ client, onAction }) {
         </div>
         <div className="info-item">
           <span className="info-label">Telefone</span>
-          <span className="info-value"><IconPhone size={13} /> {formatPhone(c.telefone) || '-'}</span>
+          <span className="info-value"><IconPhone size={13} /> {formatClientId(c.telefone, '') || '-'}</span>
         </div>
         {extrasInfo}
       </div>
