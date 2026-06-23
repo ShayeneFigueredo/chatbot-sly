@@ -1,11 +1,13 @@
 /* ============================================================
-   CLIENT CARDS
+   CLIENT CARDS (Apple-style)
+   Clean, crisp, no overflow
    ============================================================ */
 
 .client-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  max-width: 100%;
 }
 
 .client-card {
@@ -14,6 +16,8 @@
   border-radius: var(--radius-lg);
   padding: 20px 24px;
   transition: all var(--transition);
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .client-card:hover {
@@ -34,6 +38,7 @@
   gap: 12px;
   flex-wrap: wrap;
   margin-bottom: 14px;
+  max-width: 100%;
 }
 
 .client-card .card-phone {
@@ -44,11 +49,15 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .client-card .card-phone .phone-icon {
   color: var(--purple-light);
   font-size: 1rem;
+  flex-shrink: 0;
 }
 
 .client-card .card-info {
@@ -66,6 +75,9 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .client-card .info-label {
@@ -99,6 +111,9 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .client-card .action-bar {
@@ -108,11 +123,39 @@
   align-items: center;
 }
 
+.client-card .action-bar .btn {
+  flex-shrink: 0;
+}
+
 @media (max-width: 860px) {
   .client-card {
     padding: 16px;
   }
   .client-card .card-info {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .client-card {
+    padding: 14px;
+  }
+  .client-card .card-phone {
+    font-size: 0.9rem;
+  }
+  .client-card .action-bar .btn {
+    flex: 1;
+    min-width: 0;
+    font-size: 0.72rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .client-card .action-bar {
+    flex-direction: column;
+  }
+  .client-card .action-bar .btn {
+    width: 100%;
+    justify-content: center;
   }
 }

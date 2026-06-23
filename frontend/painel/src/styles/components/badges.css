@@ -1,5 +1,6 @@
 /* ============================================================
-   BADGES
+   BADGES (Apple-style)
+   Compact, clean pill badges
    ============================================================ */
 
 .badge {
@@ -40,3 +41,10 @@
 
 .badge-pink { background: #1a0a14; color: var(--pink); }
 .badge-pink .badge-dot { background: var(--pink); }
+
+@media (max-width: 480px) {
+  .badge {
+    font-size: 0.7rem;
+    padding: 4px 10px;
+  }
+}

@@ -1,11 +1,13 @@
 /* ============================================================
-   FORMS
+   FORMS (Apple-style)
+   Clean inputs, proper touch targets
    ============================================================ */
 
 .form-group {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  min-width: 0;
 }
 
 .form-label {
@@ -27,6 +29,7 @@
   font-family: inherit;
   transition: all var(--transition);
   width: 100%;
+  min-height: var(--touch-min);
 }
 
 .form-input:focus,
@@ -58,4 +61,23 @@
 .form-row > * {
   flex: 1;
   min-width: 120px;
+}
+
+@media (max-width: 480px) {
+  .form-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .form-row > * {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .form-input,
+  .form-select {
+    font-size: 0.85rem;
+    padding: 10px 12px;
+    min-height: var(--touch-min);
+  }
 }

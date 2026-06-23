@@ -1,11 +1,12 @@
 /* ============================================================
-   STATS / KPI CARDS
+   STATS / KPI CARDS (Apple-style)
    ============================================================ */
 
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
+  max-width: 100%;
 }
 
 .stat-card {
@@ -16,6 +17,7 @@
   transition: all var(--transition);
   position: relative;
   overflow: hidden;
+  min-width: 0;
 }
 
 .stat-card:hover {

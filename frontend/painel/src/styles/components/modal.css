@@ -1,5 +1,6 @@
 /* ============================================================
-   MODAL
+   MODAL (Apple-style)
+   Bottom sheet on mobile
    ============================================================ */
 
 .modal-overlay {
@@ -11,6 +12,7 @@
   align-items: center;
   justify-content: center;
   backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   animation: fadeIn 0.15s ease;
 }
 
@@ -53,4 +55,41 @@
   gap: 10px;
   margin-top: 16px;
   flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .modal-overlay {
+    align-items: flex-end;
+  }
+
+  .modal-box {
+    padding: 24px 18px;
+    max-width: 100%;
+    width: 100%;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    max-height: 85vh;
+    margin-top: auto;
+  }
+
+  .modal-box h3 {
+    font-size: 1rem;
+    margin-bottom: 16px;
+  }
+}
+
+@media (max-width: 380px) {
+  .modal-box {
+    padding: 18px 14px;
+  }
+
+  .modal-box .modal-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .modal-box .modal-actions .btn {
+    width: 100%;
+    justify-content: center;
+    min-height: var(--touch-min);
+  }
 }

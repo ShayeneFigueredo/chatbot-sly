@@ -37,6 +37,8 @@ frontend/painel/dist/
 .DS_Store
 Thumbs.db
 backend/pedidos.json
-backend/pedidos.json
 backend/pedidos.db
 backend/pedidos.json.backup
+
+# PWA: cache da logo (baixada automaticamente pelo script)
+frontend/painel/public/icons/.logo-sly-cache.png

@@ -1,6 +1,6 @@
 /* ============================================================
    PAINEL DE CONTROLE — SLY DESIGN
-   Design Tokens
+   Design Tokens (Apple-style)
    ============================================================ */
 
 :root {
@@ -52,4 +52,13 @@
 
   /* Transitions */
   --transition:    150ms ease;
+
+  /* Safe areas (iPhone notch / home indicator) */
+  --safe-top:    env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left:   env(safe-area-inset-left, 0px);
+  --safe-right:  env(safe-area-inset-right, 0px);
+
+  /* Touch target minimum (Apple HIG) */
+  --touch-min: 44px;
 }
