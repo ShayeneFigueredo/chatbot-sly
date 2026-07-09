@@ -13,7 +13,7 @@ const qrcode = require("qrcode-terminal");
 const AUTH_DIR = "/app/auth_info_baileys";
 const PORT = process.env.PORT || 10000;
 const SEND_PORT = process.env.SEND_PORT || 8080;
-const SHAY_NUMERO = "[TELEFONE_REDACTED]";
+const SHAY_NUMERO = process.env.SHAY_WHATSAPP || "";
 
 // Guarda referencia global pro socket (usada pelo servidor HTTP)
 let globalSock = null;

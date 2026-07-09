@@ -56,7 +56,7 @@ export function formatCurrency(val) {
 }
 
 export function formatPhone(tel) {
-  // Formata numero brasileiro: [TELEFONE_REDACTED] -> (38) 99750-7651
+  // Formata numero brasileiro: 55XXXXXXXXXXX -> (XX) XXXXX-XXXX
   const cleaned = (tel || '').replace(/\D/g, '')
   // Detecta padrao BR: 55XXXXXXXXXXX (13 digitos) ou 55XXXXXXXXXX (12 digitos)
   if (cleaned.startsWith('55') && cleaned.length >= 12 && cleaned.length <= 13) {

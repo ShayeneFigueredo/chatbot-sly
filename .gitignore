@@ -19,8 +19,9 @@ __pycache__/
 # Claude
 .claude/
 
-# Arquivos de estudo (não vão pro GitHub)
+# Arquivos de estudo e novos projetos (não vão pro GitHub)
 projeto/
+projetos/
 docs/
 
 # Backend: sobe codigo, mas NAO o .env com chaves
@@ -32,6 +33,10 @@ tokens/
 
 # Painel React: build gerado no deploy
 frontend/painel/dist/
+
+# Guias e tutoriais (podem conter dados sensíveis)
+guias/
+tutorial.txt
 
 # Arquivos de sistema
 .DS_Store

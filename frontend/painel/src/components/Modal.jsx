@@ -75,7 +75,7 @@ export default function Modal({ mode, onClose, onAdd, onExtract, apiCall, toast 
             <label className="form-label">Telefone do Cliente</label>
             <input
               className="form-input"
-              placeholder="[TELEFONE_REDACTED]"
+              placeholder="(XX) XXXXX-XXXX"
               value={extractTel}
               onChange={(e) => setExtractTel(e.target.value)}
               style={{ fontSize: '1rem', padding: '14px' }}
@@ -114,7 +114,7 @@ export default function Modal({ mode, onClose, onAdd, onExtract, apiCall, toast 
           <div className="form-row">
             <div className="form-group">
               <label className="form-label">Cliente (telefone)</label>
-              <input className="form-input" placeholder="[TELEFONE_REDACTED]" id="mCliente" />
+              <input className="form-input" placeholder="(XX) XXXXX-XXXX" id="mCliente" />
             </div>
             <div className="form-group">
               <label className="form-label">Data de Entrega (dd/mm)</label>

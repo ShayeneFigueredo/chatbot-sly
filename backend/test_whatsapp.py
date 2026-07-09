@@ -11,7 +11,7 @@ load_dotenv()
 # Configurações da Meta
 TOKEN = os.getenv("META_TOKEN")
 PHONE_NUMBER_ID = "1174471599080821"  
-SEU_NUMERO = "+[TELEFONE_REDACTED]"  
+SEU_NUMERO = os.getenv("SHAY_WHATSAPP", "")  
 
 # URL da API
 url = f"https://graph.facebook.com/v25.0/{PHONE_NUMBER_ID}/messages"

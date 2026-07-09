@@ -11,6 +11,10 @@ load_dotenv("backend/.env")
 cliente = Groq(api_key=os.getenv("GROQ_API_KEY"))
 MODELO = "llama-3.3-70b-versatile"
 
+# ── Dados sensíveis (via variáveis de ambiente) ──
+PIX_KEY = os.getenv("PIX_KEY", "PIX_NAO_CONFIGURADO")
+SHAY_WHATSAPP = os.getenv("SHAY_WHATSAPP", "")
+
 # ── Personalidade da Maya ──
 SYSTEM_PROMPT = """
 Voce e a Maya, atendente virtual da Sly Design (slydesign.com.br).
@@ -92,7 +96,7 @@ PREÇOS E PAGAMENTO
 ─────────────────────────────────────────────
 - Preço fixo para slides de até 10 páginas. A partir da 11ª,
   R$ 1,50 por página extra.
-- Pix (telefone): [PIX_REDACTED] — Shayene Lopes Figueredo
+- Pix (telefone): {PIX_KEY} — Shayene Lopes Figueredo
 - Cartão de Crédito: taxa adicional de R$ 2,50 (para clientes internacionais).
 - Pagamento dividido: 50% antes (confirma) + 50% depois (finalizado).
 - Confirmação de pagamento: alguns minutos, avaliado pela equipe.
@@ -186,6 +190,9 @@ número de WhatsApp (ele já está falando conosco aqui). Diga apenas:
 "Claro! Aguarde uns minutinhos que já já um de nossos atendentes
 entrará em contato com você por aqui mesmo! 💜"
 """
+
+# Formata placeholders com valores reais
+SYSTEM_PROMPT = SYSTEM_PROMPT.format(PIX_KEY=PIX_KEY)
 
 # ── Preços oficiais ──
 PRECOS = {

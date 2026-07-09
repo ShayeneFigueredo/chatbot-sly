@@ -16,6 +16,7 @@ load_dotenv()
 # ─────────────────────────────────────────────
 cliente = Groq(api_key=os.getenv("GROQ_API_KEY"))
 MODELO = "llama-3.3-70b-versatile"
+PIX_KEY = os.getenv("PIX_KEY", "PIX_NAO_CONFIGURADO")
 
 # Personalidade da Maya (system prompt)
 SYSTEM_PROMPT = """
@@ -550,8 +551,8 @@ def instrucoes_pagamento(dados):
         "Perfeito! Pra finalizar, precisamos de 50% do valor. 💜\n\n"
         f"💰 Valor total: {preco}\n"
         f"💳 Agora: {metade_str}\n\n"
-        "📱 Chave Pix (telefone):\n"
-        "[PIX_REDACTED]\n"
+        f"📱 Chave Pix (telefone):\n"
+        f"{PIX_KEY}\n"
         "Shayene Lopes Figueredo\n\n"
         "Assim que pagar, me manda o comprovante aqui. "
         "Um humano vai dar uma olhadinha e já confirmamos! ✅"

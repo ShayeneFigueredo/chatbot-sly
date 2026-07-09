@@ -17,12 +17,12 @@ load_dotenv("backend/.env")
 
 from app.nlp import detectar_intencao
 from app.buscador import buscar_tema
-from app.config import SYSTEM_PROMPT, PRECOS, TEMAS_DISPONIVEIS
+from app.config import SYSTEM_PROMPT, PRECOS, TEMAS_DISPONIVEIS, PIX_KEY, SHAY_WHATSAPP
 
 app = FastAPI()
 
 # ── Configurações de notificação ──
-SHAY_NUMERO = "+[TELEFONE_REDACTED]"
+SHAY_NUMERO = SHAY_WHATSAPP
 META_TOKEN = os.getenv("META_TOKEN")
 PHONE_NUMBER_ID = "1174471599080821"
 
@@ -742,8 +742,8 @@ def _msg_pagamento(dados):
         "Perfeito! Pra finalizar, precisamos de 50% do valor. 💜\n\n"
         f"💰 Valor total: {preco}\n"
         f"💳 Agora (50%): {metade_str}\n\n"
-        "📱 Chave Pix (telefone):\n"
-        "[PIX_REDACTED]\n"
+        f"📱 Chave Pix (telefone):\n"
+        f"{PIX_KEY}\n"
         "Shayene Lopes Figueredo\n\n"
         "Assim que pagar, me manda o comprovante aqui. "
         "Um humano vai dar uma olhadinha e já confirmamos! ✅\n\n"

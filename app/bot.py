@@ -1,7 +1,7 @@
 """
 bot.py — Funções de mensagem e fluxos de conversa da Maya.
 """
-from app.config import cliente, MODELO, SYSTEM_PROMPT, PRECOS, TEMAS_DISPONIVEIS
+from app.config import cliente, MODELO, SYSTEM_PROMPT, PRECOS, TEMAS_DISPONIVEIS, PIX_KEY
 from app.buscador import buscar_tema
 
 
@@ -377,8 +377,8 @@ def instrucoes_pagamento(dados):
         "Perfeito! Pra finalizar, precisamos de 50% do valor. 💜\n\n"
         f"💰 Valor total: {preco}\n"
         f"💳 Agora: {metade_str}\n\n"
-        "📱 Chave Pix (telefone):\n"
-        "[PIX_REDACTED]\n"
+        f"📱 Chave Pix (telefone):\n"
+        f"{PIX_KEY}\n"
         "Shayene Lopes Figueredo\n\n"
         "Assim que pagar, me manda o comprovante aqui. "
         "Um humano vai dar uma olhadinha e já confirmamos! ✅"
