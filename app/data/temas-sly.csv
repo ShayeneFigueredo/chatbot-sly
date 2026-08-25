@@ -1,49 +1,73 @@
 id,tema,link,categoria,preco
-1,Jovens Titãs,https://slydesign.com.br/product/jovenstitas/,Modelo,14.99
-2,Interestellar,https://slydesign.com.br/product/interestellar/,Modelo,14.99
-3,Spotify,https://slydesign.com.br/product/spotify/,Modelo,14.00
-4,ChatGPT,https://slydesign.com.br/product/slide-chatgpt/,Slide,14.99
-5,Minecraft,https://slydesign.com.br/product/minecraft/,Modelo,14.99
-6,Duolingo,https://slydesign.com.br/product/duolingo/,Modelo,12.99
-7,Digital Circus,https://slydesign.com.br/product/digitalcircus/,Modelo,14.99
-8,Ursos Sem Curso,https://slydesign.com.br/product/ursossemcurso/,Modelo,14.99
-9,Haikyuu,https://slydesign.com.br/product/haikyuu/,Modelo,14.99
-10,Scooby-Doo,https://slydesign.com.br/product/scooby-doo/,Modelo,12.99
-11,Neymar,https://slydesign.com.br/product/neymar/,Slide,18.99
-12,Romantismo,https://slydesign.com.br/product/slide-romantismo/,Slide,17.99
-13,Outer Banks,https://slydesign.com.br/product/outerbanks/,Modelo,14.99
-14,Monster High,https://slydesign.com.br/product/monster-high/,Modelo,14.99
-15,Revolução Russa,https://slydesign.com.br/product/revolucao-russa/,Slide,18.99
-16,Primeira Guerra Mundial,https://slydesign.com.br/product/primeira-guerra/,Slide,18.99
-17,DivertidaMente,https://slydesign.com.br/product/divertidamente/,Modelo,14.99
-18,Netflix Arboviroses,https://slydesign.com.br/product/netflix-arboviroses/,Slide,17.99
-19,Avatar,https://slydesign.com.br/product/avatar/,Modelo,14.99
-20,Portugal,https://slydesign.com.br/product/portugal/,Slide,18.99
-21,Modernismo,https://slydesign.com.br/product/modernismo/,Slide,17.99
-22,TinkerBell,https://slydesign.com.br/product/tinkerbell/,Modelo,14.99
-23,Barbie,https://slydesign.com.br/product/barbie/,Modelo,14.99
-24,Velozes e Furiosos,https://slydesign.com.br/product/velozes-e-furiosos/,Slide,18.99
-25,Steven Universe,https://slydesign.com.br/product/steven-universe/,Modelo,12.99
-26,Dora Aventureira,https://slydesign.com.br/product/dora-aventureira/,Modelo,12.99
-27,George O Curioso,https://slydesign.com.br/product/george-o-curioso/,Modelo,12.99
-28,Meninas SuperPoderosas,https://slydesign.com.br/product/meninas-superpoderosas/,Modelo,14.99
-29,The Last Of Us II,https://slydesign.com.br/product/the_last_of_us/,Modelo,14.99
-30,La Casa de Papel,https://slydesign.com.br/product/la-casa-de-papel/,Modelo,14.99
-31,Sistema Solar,https://slydesign.com.br/product/sistema-solar/,Slide,18.99
-32,Filosofia da Ciência,https://slydesign.com.br/product/filosofia-da-ciencia/,Slide,17.99
-33,Revolução Chinesa,https://slydesign.com.br/product/revolucao-chinesa-2/,Slide,17.99
-34,Ascensão do Nazismo,https://slydesign.com.br/product/assencao-nazismo/,Slide,18.99
-35,Reino da Espanha,https://slydesign.com.br/product/slide-reino-da-espanha/,Slide,18.99
-36,Vietnã,https://slydesign.com.br/product/slide-vietna/,Slide,18.99
-37,Canadá,https://slydesign.com.br/product/slide-canada/,Slide,16.99
-38,União Europeia,https://slydesign.com.br/product/slide-uniao-europeia/,Slide,18.99
-39,Subway Surfers,https://slydesign.com.br/product/modelo-subway-surfers/,Modelo,14.99
-40,Homem Aranha,https://slydesign.com.br/product/modelo-homem-aranha/,Modelo,14.99
-41,Bob Esponja,https://slydesign.com.br/product/modelo-bob-esponja/,Modelo,14.99
-42,Tigrinho,https://slydesign.com.br/product/modelo-tigrinho/,Modelo,12.99
-43,Basquete,https://slydesign.com.br/product/basquete/,Slide,18.99
-44,ROBLOX 99 Noites na Floresta,https://slydesign.com.br/product/roblox99/,Modelo,14.99
-45,Guerra do Paraguai,https://slydesign.com.br/product/guerra-do-paraguai/,Slide,17.99
-46,Peppa Pig,https://slydesign.com.br/product/peppa/,Modelo,12.99
-47,O Incrível Mundo de Gumball,https://slydesign.com.br/product/gumball/,Modelo,14.99
-48,Princesinha Sofia,https://slydesign.com.br/product/princesinha-sofia/,Modelo,14.99
+1,Pica Pau,https://www.slydesign.com.br/loja/modelo-pica-pau,Modelo,12.99
+2,Turma da Mônica,https://www.slydesign.com.br/loja/modelo-turma-da-monica,Modelo,14.99
+3,Lorax,https://www.slydesign.com.br/loja/modelo-lorax,Modelo,14.99
+4,HPV,https://www.slydesign.com.br/loja/slide-hpv,Slide,18.99
+5,Cabo Verde (Canva),https://www.slydesign.com.br/loja/slide-cabo-verde-canva,Slide,17.99
+6,The Vampire Diaries,https://www.slydesign.com.br/loja/modelo-the-vampire-diaries,Modelo,14.99
+7,Demon Slayer,https://www.slydesign.com.br/loja/modelo-demon-slayer,Modelo,14.99
+8,Haiti,https://www.slydesign.com.br/loja/slide-haiti,Slide,18.99
+9,Primeira Geração Romântica,https://www.slydesign.com.br/loja/slide-primeira-geracao-romantica,Slide,18.99
+10,Poderoso Chefinho,https://www.slydesign.com.br/loja/modelo-poderoso-chefinho,Modelo,14.99
+11,Luan Santana,https://www.slydesign.com.br/loja/modelo-luan-santana,Modelo,12.99
+12,Guerra do Paraguai,https://www.slydesign.com.br/loja/guerra-do-paraguai,Slide,17.99
+13,ROBLOX – 99 Noites na Floresta,https://www.slydesign.com.br/loja/modelo-roblox-99-noites-na-floresta,Modelo,14.99
+14,Basquete,https://www.slydesign.com.br/loja/slide-basquete,Slide,18.99
+15,Tigrinho,https://www.slydesign.com.br/loja/modelo-tigrinho,Modelo,12.99
+16,Subway Surfers,https://www.slydesign.com.br/loja/modelo-subway-surfers,Modelo,14.99
+17,União Europeia,https://www.slydesign.com.br/loja/slide-uniao-europeia,Slide,18.99
+18,Canadá,https://www.slydesign.com.br/loja/slide-canada,Slide,16.99
+19,Vietnã,https://www.slydesign.com.br/loja/slide-vietna,Slide,18.99
+20,Reino da Espanha,https://www.slydesign.com.br/loja/slide-reino-da-espanha,Slide,18.99
+21,Assenção do Nazismo,https://www.slydesign.com.br/loja/slide-assencao-do-nazismo,Slide,18.99
+22,Revolução Chinesa,https://www.slydesign.com.br/loja/slide-revolucao-chinesa,Slide,17.99
+23,Filosofia da Ciência,https://www.slydesign.com.br/loja/slide-filosofia-da-ciencia,Slide,17.99
+24,Descobrindo o Sistema Solar,https://www.slydesign.com.br/loja/slide-descobrindo-o-sistema-solar,Slide,18.99
+25,La Casa de Papel,https://www.slydesign.com.br/loja/modelo-la-casa-de-papel,Modelo,14.99
+26,The Last Of Us II,https://www.slydesign.com.br/loja/modelo-the-last-of-us-ii,Modelo,14.99
+27,George O Curioso,https://www.slydesign.com.br/loja/modelo-george-o-curioso,Modelo,12.99
+28,Dora Aventureira,https://www.slydesign.com.br/loja/modelo-dora-aventureira,Modelo,12.99
+29,Steven Universe,https://www.slydesign.com.br/loja/modelo-steven-universe,Modelo,12.99
+30,Velozes e Furiosos,https://www.slydesign.com.br/loja/slide-velozes-e-furiosos,Slide,18.99
+31,TinkerBell,https://www.slydesign.com.br/loja/modelo-tinkerbell,Modelo,14.99
+32,Avatar,https://www.slydesign.com.br/loja/modelo-avatar,Modelo,14.99
+33,Netflix – Arboviroses,https://www.slydesign.com.br/loja/slide-netflix-arboviroses,Slide,17.99
+34,DivertidaMente,https://www.slydesign.com.br/loja/modelo-divertidamente,Modelo,14.99
+35,Monster High,https://www.slydesign.com.br/loja/modelo-monster-high,Modelo,14.99
+36,Peppa Pig,https://www.slydesign.com.br/loja/modelo-peppa-pig,Modelo,12.99
+37,Princesinha Sofia,https://www.slydesign.com.br/loja/modelo-princesinha-sofia,Modelo,14.99
+38,Alimentos Sustentáveis,https://www.slydesign.com.br/loja/slide-alimentos-sustentaveis,Slide,17.99
+39,Antigo Egito,https://www.slydesign.com.br/loja/slide-antigo-egito,Slide,18.99
+40,África Ocidental,https://www.slydesign.com.br/loja/slide-africa-ocidental,Slide,18.99
+41,Fórmula 1,https://www.slydesign.com.br/loja/modelo-formula-1,Modelo,14.99
+42,Vírus e Bactérias,https://www.slydesign.com.br/loja/slide-virus-e-bacterias,Slide,18.99
+43,Roma Antiga,https://www.slydesign.com.br/loja/slide-roma-antiga,Slide,18.99
+44,Povos Astecas,https://www.slydesign.com.br/loja/slide-povos-astecas,Slide,16.99
+45,Meio Ambiente e Globalização,https://www.slydesign.com.br/loja/slide-meio-ambiente-e-globalizacao,Slide,17.99
+46,Netflix – Conservação dos Recursos Naturais,https://www.slydesign.com.br/loja/slide-netflix-conservacao-dos-recursos-naturais,Slide,18.99
+47,Encanto,https://www.slydesign.com.br/loja/modelo-encanto,Modelo,14.99
+48,Cangaço,https://www.slydesign.com.br/loja/modelo-cangaco,Modelo,14.99
+49,Naruto,https://www.slydesign.com.br/loja/modelo-naruto,Modelo,14.99
+50,Bob Esponja,https://www.slydesign.com.br/loja/modelo-bob-esponja,Modelo,14.99
+51,Outer Banks,https://www.slydesign.com.br/loja/modelo-outer-banks,Modelo,14.99
+52,Romantismo,https://www.slydesign.com.br/loja/slide-romantismo,Slide,17.99
+53,História do Neymar,https://www.slydesign.com.br/loja/slide-historia-do-neymar,Slide,18.99
+54,Meninas SuperPoderosas,https://www.slydesign.com.br/loja/modelo-meninas-superpoderosas,Modelo,14.99
+55,Scooby-Doo,https://www.slydesign.com.br/loja/modelo-scooby-doo,Modelo,12.99
+56,Modernismo,https://www.slydesign.com.br/loja/slide-modernismo,Slide,17.99
+57,Portugal,https://www.slydesign.com.br/loja/slide-portugal,Slide,18.99
+58,Primeira Guerra Mundial,https://www.slydesign.com.br/loja/slide-primeira-guerra-mundial,Slide,18.99
+59,Revolução Russa,https://www.slydesign.com.br/loja/slide-revolucao-russa,Slide,18.99
+60,O Incrível Mundo de Gumball,https://www.slydesign.com.br/loja/modelo-o-incrivel-mundo-de-gumball,Modelo,14.99
+61,Copa do Mundo – Grupo C,https://www.slydesign.com.br/loja/slide-copa-do-mundo-grupo-c,Slide,12.99
+62,Homem Aranha,https://www.slydesign.com.br/loja/modelo-homem-aranha,Modelo,14.99
+63,Ursos Sem Curso,https://www.slydesign.com.br/loja/modelo-ursos-sem-curso,Modelo,14.99
+64,Barbie,https://www.slydesign.com.br/loja/modelo-barbie,Modelo,14.99
+65,Haikyuu,https://www.slydesign.com.br/loja/modelo-haikyuu,Modelo,14.99
+66,Digital Circus,https://www.slydesign.com.br/loja/modelo-digital-circus,Modelo,14.99
+67,Duolingo,https://www.slydesign.com.br/loja/modelo-duolingo,Modelo,12.99
+68,Minecraft,https://www.slydesign.com.br/loja/modelo-minecraft,Modelo,14.99
+69,Spotify,https://www.slydesign.com.br/loja/modelo-spotify,Modelo,14.0
+70,ChatGPT,https://www.slydesign.com.br/loja/slide-chatgpt,Slide,14.99
+71,Interestellar,https://www.slydesign.com.br/loja/modelo-interestellar,Modelo,14.99
+72,Jovens Titãs,https://www.slydesign.com.br/loja/modelo-jovens-titas,Modelo,14.99
