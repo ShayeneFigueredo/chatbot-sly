@@ -9,7 +9,7 @@ load_dotenv("backend/.env")
 
 # ── Conexão com a IA ──
 cliente = Groq(api_key=os.getenv("GROQ_API_KEY"))
-MODELO = "llama-3.3-70b-versatile"
+MODELO = "qwen/qwen3.8-27b"
 
 # ── Dados sensíveis (via variáveis de ambiente) ──
 PIX_KEY = os.getenv("PIX_KEY", "PIX_NAO_CONFIGURADO")

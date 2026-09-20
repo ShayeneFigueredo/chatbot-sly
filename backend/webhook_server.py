@@ -1967,7 +1967,12 @@ async def qrcode_reset(request: Request):
                 else:
                     _os.remove(f)
         print("🔁 Sessao WhatsApp resetada — novo QR Code necessario")
-        return {"status": "ok", "msg": "Sessao resetada. Recarregue a pagina /qrcode"}
+        
+        # Mata o processo do Node (Baileys) para forçar o start.sh a reiniciar o container
+        import os as _os
+        _os.system("pkill node")
+        
+        return {"status": "ok", "msg": "Sessão resetada. O servidor está reiniciando para gerar o QR Code (aguarde 1 minuto e recarregue a página)."}
     except Exception as e:
         return {"status": "erro", "msg": str(e)}
 
