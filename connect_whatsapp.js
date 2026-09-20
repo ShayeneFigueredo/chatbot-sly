@@ -36,7 +36,23 @@ async function start() {
     emitOwnEvents: false,
     markOnlineOnConnect: false,
     defaultQueryTimeoutMs: 60000,
+    browser: ["Ubuntu", "Chrome", "20.0.04"]
   });
+
+  // Pairing code if not registered
+  if (!sock.authState.creds.registered) {
+    setTimeout(async () => {
+      try {
+        // Substitua pelo numero real se necessario ou pegue de env var
+        const numeroBot = process.env.BOT_NUMERO || "5534999306554";
+        const code = await sock.requestPairingCode(numeroBot);
+        console.log(`\n🔑 CÓDIGO DE PAREAMENTO: ${code}\n`);
+        fs.writeFileSync("/tmp/pairing_code.txt", code);
+      } catch (err) {
+        console.error("Erro ao pedir código de pareamento:", err);
+      }
+    }, 3000);
+  }
 
   // Salva credenciais automaticamente (~2MB)
   sock.ev.on("creds.update", saveCreds);

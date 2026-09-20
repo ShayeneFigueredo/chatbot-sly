@@ -1979,21 +1979,30 @@ async def qrcode_reset(request: Request):
 
 @app.get("/qrcode", response_class=HTMLResponse)
 async def qrcode():
-    """Pagina com QR Code pra escanear no celular."""
+    """Pagina com Código de Pareamento (antigo QR Code)."""
     try:
-        conteudo = open("/tmp/qrcode.html", "r").read()
-        # Adiciona link clicavel pra abrir no WhatsApp (celular)
-        link_match = None
-        import re as _re
-        match = _re.search(r'https://wa\.me/settings/linked_devices[^"\s<]+', conteudo)
-        if match:
-            link_match = match.group(0)
-        if link_match:
-            conteudo = conteudo.replace("</body>",
-                f'<p style="text-align:center;margin-top:20px">'
-                f'📱 <a href="{link_match}" style="color:#c084fc;font-size:1.1em">'
-                f'Abrir no WhatsApp (se nao conseguir escanear)</a></p></body>')
-        return conteudo
+        conteudo = open("/tmp/pairing_code.txt", "r").read().strip()
+        if not conteudo:
+            raise FileNotFoundError()
+            
+        # Formata o codigo em bloquinhos X X X X - X X X X se possivel
+        codigo_formatado = "-".join([conteudo[:4], conteudo[4:]]) if len(conteudo) == 8 else conteudo
+            
+        return f"""
+        <html><head>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <title>Maya - Código de Pareamento</title>
+        <style>
+        body{{background:#1a1a2e;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;margin:0;font-family:sans-serif}}
+        h2{{color:#e0aaff;margin:10px}}h3{{color:#aaa;font-weight:normal;margin:5px; text-align:center; max-width:80%; line-height:1.5}}
+        .code-box {{background:#222; border:2px dashed #c084fc; padding:20px 40px; border-radius:12px; font-size:2.5em; letter-spacing:8px; font-family:monospace; font-weight:bold; color:#fff; margin:25px 0}}
+        p{{color:#888;margin-top:20px}}
+        </style></head><body>
+        <h2>Maya Sly Design</h2>
+        <h3>O WhatsApp bloqueou o acesso via QR Code.<br>Abra o WhatsApp, vá em "Aparelhos Conectados" > "Conectar aparelho", clique em <b>"Vincular com número de telefone"</b> e insira o código abaixo:</h3>
+        <div class="code-box">{codigo_formatado}</div>
+        </body></html>
+        """
     except FileNotFoundError:
         return """
         <html><head>
