@@ -1951,6 +1951,47 @@ async def health_check():
     return {"status": "ok", "maya": "online 💜"}
 
 
+from fastapi import File, UploadFile
+import shutil
+import zipfile
+
+@app.post("/api/upload-session")
+async def upload_session(request: Request, file: UploadFile = File(...)):
+    """Recebe um arquivo ZIP com a sessão do WhatsApp gerada localmente e reinicia o Baileys."""
+    # Autenticação simples por header ou senha no form
+    if request.headers.get("X-API-KEY") != os.getenv("PORTAL_SENHA", "135790"):
+        return {"status": "erro", "msg": "Não autorizado"}
+        
+    auth_dir = "/app/auth_info_baileys"
+    zip_path = "/tmp/session.zip"
+    
+    try:
+        # Salva o zip
+        with open(zip_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+            
+        # Apaga a sessão atual (exceto o json de clientes)
+        import glob as _glob
+        for f in _glob.glob(f"{auth_dir}/*"):
+            if "estado_clientes" not in f:
+                if _os.path.isdir(f):
+                    shutil.rmtree(f, ignore_errors=True)
+                else:
+                    _os.remove(f)
+                    
+        # Extrai o novo zip
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall(auth_dir)
+            
+        print("✅ Sessão do WhatsApp recebida e atualizada via upload!")
+        
+        # Mata o Node para reiniciar com a nova sessão
+        _os.system("pkill node")
+        
+        return {"status": "ok", "msg": "Sessão atualizada com sucesso. Servidor reiniciando..."}
+    except Exception as e:
+        return {"status": "erro", "msg": str(e)}
+
 @app.post("/qrcode/reset")
 async def qrcode_reset(request: Request):
     """Reseta a sessao do WhatsApp (apaga auth e força novo QR Code).
